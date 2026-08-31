@@ -1,0 +1,26 @@
+<!-- ADMIN PAGE (teacher allocations, clubs, students) -->
+        <div id="adminPage" class="page">
+            <div class="section-title"><i class="fas fa-users-cog"></i> Admin · Allocations & Clubs</div>
+            <div class="toolbar">
+                <input type="text" id="clubNameInput" placeholder="Club name">
+                <button class="btn-primary" id="addClubBtn"><i class="fas fa-plus-circle"></i> Add Club</button>
+                <input type="text" id="studentNameInput" placeholder="Student name">
+                <button class="btn-primary" id="addStudentBtn"><i class="fas fa-user-plus"></i> Add Student</button>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <div style="flex:1; min-width:200px;">
+                    <h4>Clubs</h4>
+                    <ul id="clubList" style="list-style:none; background:#f9fbfd; border-radius:20px; padding:16px;"></ul>
+                </div>
+                <div style="flex:2; min-width:280px;">
+                    <h4>Students</h4>
+                    <ul id="studentList" style="list-style:none; background:#f9fbfd; border-radius:20px; padding:16px; max-height:260px; overflow-y:auto;"></ul>
+                </div>
+            </div>
+            <div style="margin-top: 24px; background:#f0f5fe; padding:16px 20px; border-radius:40px;">
+                <i class="fas fa-info-circle"></i> Teacher allocation: <span id="teacherAllocationDisplay">All teachers are admins.</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
