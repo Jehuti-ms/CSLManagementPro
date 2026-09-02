@@ -1,5 +1,5 @@
 // ============================================================
-// js/app.js - MAIN APP CONTROLLER (COMPLETELY FIXED)
+// js/app.js - MAIN APP CONTROLLER (FIXED)
 // ============================================================
 
 class App {
@@ -22,7 +22,7 @@ class App {
         // Setup navigation
         this.setupNavigation();
         
-        // Load login page
+        // Load login page FIRST
         this.showLogin();
         
         // Auth listener
@@ -91,22 +91,53 @@ class App {
     showLogin() {
         console.log("📄 Showing login page...");
         const container = document.getElementById('pageContainer');
-        if (container) {
-            // LoginPage.render() MUST return a string, not a Promise
+        
+        if (!container) {
+            console.error("❌ pageContainer not found!");
+            return;
+        }
+        
+        // Check if LoginPage exists
+        if (!window.LoginPage) {
+            console.error("❌ LoginPage not loaded!");
+            container.innerHTML = `
+                <div style="padding: 40px; text-align: center;">
+                    <h2>Error: LoginPage not loaded</h2>
+                    <p>Please check that login.js is loaded properly.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        try {
+            // Render the login page
             const loginHTML = window.LoginPage.render();
+            console.log("✅ Login HTML generated, length:", loginHTML.length);
             container.innerHTML = loginHTML;
+            
+            // Hide navigation and user badge
+            const navTabs = document.getElementById('navTabs');
+            const userBadge = document.getElementById('userBadge');
+            if (navTabs) navTabs.style.display = 'none';
+            if (userBadge) userBadge.style.display = 'none';
+            
             // Setup events after rendering
             setTimeout(() => {
-                window.LoginPage.setupEvents();
-            }, 50);
-        } else {
-            console.error("❌ pageContainer not found!");
+                console.log("🔧 Setting up login events...");
+                if (window.LoginPage.setupEvents) {
+                    window.LoginPage.setupEvents();
+                }
+            }, 100);
+            
+        } catch (error) {
+            console.error("❌ Error rendering login:", error);
+            container.innerHTML = `
+                <div style="padding: 40px; text-align: center; color: red;">
+                    <h2>Error Loading Login</h2>
+                    <p>${error.message}</p>
+                </div>
+            `;
         }
-        // Hide navigation and user badge
-        const navTabs = document.getElementById('navTabs');
-        const userBadge = document.getElementById('userBadge');
-        if (navTabs) navTabs.style.display = 'none';
-        if (userBadge) userBadge.style.display = 'none';
     }
     
     showMainApp(user) {
