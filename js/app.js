@@ -1,5 +1,5 @@
 // ============================================================
-// js/app.js - MAIN APP CONTROLLER
+// js/app.js - MAIN APP CONTROLLER (Fixed)
 // ============================================================
 
 class App {
@@ -138,7 +138,7 @@ class App {
         
         console.log(`📄 Loading page HTML: ${pageName}`);
         
-        // Get the HTML (synchronous - no async calls here)
+        // Get the HTML (synchronous - NO async)
         let html = '';
         switch (pageName) {
             case 'attendance':
@@ -178,32 +178,41 @@ class App {
         await new Promise(resolve => setTimeout(resolve, 100));
         
         // Setup page-specific events and load data
+        console.log(`🔧 Setting up events for: ${pageId}`);
         switch (pageId) {
             case 'attendance':
-                if (window.AttendancePage) {
+                if (window.AttendancePage && typeof window.AttendancePage.setupEvents === 'function') {
                     window.AttendancePage.setupEvents();
                 }
                 break;
             case 'tracker':
-                if (window.TrackerPage) {
+                if (window.TrackerPage && typeof window.TrackerPage.setupEvents === 'function') {
                     window.TrackerPage.setupEvents();
                 }
                 break;
             case 'reflections':
-                if (window.ReflectionsPage) {
+                if (window.ReflectionsPage && typeof window.ReflectionsPage.setupEvents === 'function') {
                     window.ReflectionsPage.setupEvents();
                 }
                 break;
             case 'admin':
-                if (window.AdminPage) {
+                if (window.AdminPage && typeof window.AdminPage.setupEvents === 'function') {
                     window.AdminPage.setupEvents();
                 }
                 break;
+            default:
+                console.warn(`⚠️ Unknown page: ${pageId}`);
         }
+        
+        console.log(`✅ Navigation complete: ${pageId}`);
     }
 }
 
 // Start the app
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.app = new App();
+    });
+} else {
     window.app = new App();
-});
+}
