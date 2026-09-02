@@ -164,8 +164,14 @@ var App = {
                 case 'attendance':
                     html = window.AttendancePage ? window.AttendancePage.render() : '<p>Attendance page not loaded</p>';
                     break;
-                case 'tracker':
-                    html = window.TrackerPage ? window.TrackerPage.render() : '<p>Tracker page not loaded</p>';
+               case 'tracker':
+                    if (window.TrackerPage && typeof window.TrackerPage.render === 'function') {
+                        html = window.TrackerPage.render();
+                        console.log("✅ Tracker HTML generated");
+                    } else {
+                        html = '<p>Tracker page not loaded</p>';
+                        console.error("❌ TrackerPage not available");
+                    }
                     break;
                 case 'reflections':
                     html = window.ReflectionsPage ? window.ReflectionsPage.render() : '<p>Reflections page not loaded</p>';
