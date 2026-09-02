@@ -1,8 +1,8 @@
 // ============================================================
-// DATABASE SERVICE - Handles all data operations
+// DATABASE SERVICE - Firestore (with real credentials)
 // ============================================================
 
-// Mock Data Store
+// Mock Data Store (fallback)
 let mockData = {
     students: ['Emma Wilson', 'Liam Chen', 'Sophia Patel', 'Noah Kim', 'Olivia Martinez'],
     clubs: ['Community Service', 'Environmental', 'Tutoring'],
@@ -29,8 +29,15 @@ const DB = {
     // ----- STUDENTS -----
     async getStudents() {
         if (window.__firebase.useMock) return [...mockData.students];
-        const snapshot = await window.__firebase.db.collection('students').get();
-        return snapshot.docs.map(doc => doc.data().name);
+        try {
+            const snapshot = await window.__firebase.db.collection('students')
+                .orderBy('name')
+                .get();
+            return snapshot.docs.map(doc => doc.data().name);
+        } catch (error) {
+            console.error("❌ Error fetching students:", error);
+            return [];
+        }
     },
     
     async addStudent(name) {
@@ -39,10 +46,16 @@ const DB = {
             saveMock();
             return;
         }
-        await window.__firebase.db.collection('students').add({ 
-            name, 
-            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
-        });
+        try {
+            await window.__firebase.db.collection('students').add({ 
+                name, 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+            });
+            console.log("✅ Student added:", name);
+        } catch (error) {
+            console.error("❌ Error adding student:", error);
+            throw error;
+        }
     },
     
     async deleteStudent(name) {
@@ -51,16 +64,30 @@ const DB = {
             saveMock();
             return;
         }
-        const snapshot = await window.__firebase.db.collection('students')
-            .where('name', '==', name).get();
-        snapshot.forEach(doc => doc.ref.delete());
+        try {
+            const snapshot = await window.__firebase.db.collection('students')
+                .where('name', '==', name)
+                .get();
+            snapshot.forEach(doc => doc.ref.delete());
+            console.log("✅ Student deleted:", name);
+        } catch (error) {
+            console.error("❌ Error deleting student:", error);
+            throw error;
+        }
     },
 
     // ----- CLUBS -----
     async getClubs() {
         if (window.__firebase.useMock) return [...mockData.clubs];
-        const snapshot = await window.__firebase.db.collection('clubs').get();
-        return snapshot.docs.map(doc => doc.data().name);
+        try {
+            const snapshot = await window.__firebase.db.collection('clubs')
+                .orderBy('name')
+                .get();
+            return snapshot.docs.map(doc => doc.data().name);
+        } catch (error) {
+            console.error("❌ Error fetching clubs:", error);
+            return [];
+        }
     },
     
     async addClub(name) {
@@ -69,10 +96,16 @@ const DB = {
             saveMock();
             return;
         }
-        await window.__firebase.db.collection('clubs').add({ 
-            name, 
-            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
-        });
+        try {
+            await window.__firebase.db.collection('clubs').add({ 
+                name, 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+            });
+            console.log("✅ Club added:", name);
+        } catch (error) {
+            console.error("❌ Error adding club:", error);
+            throw error;
+        }
     },
     
     async deleteClub(name) {
@@ -81,9 +114,16 @@ const DB = {
             saveMock();
             return;
         }
-        const snapshot = await window.__firebase.db.collection('clubs')
-            .where('name', '==', name).get();
-        snapshot.forEach(doc => doc.ref.delete());
+        try {
+            const snapshot = await window.__firebase.db.collection('clubs')
+                .where('name', '==', name)
+                .get();
+            snapshot.forEach(doc => doc.ref.delete());
+            console.log("✅ Club deleted:", name);
+        } catch (error) {
+            console.error("❌ Error deleting club:", error);
+            throw error;
+        }
     },
 
     // ----- ATTENDANCE -----
@@ -97,18 +137,24 @@ const DB = {
             });
             return result;
         }
-        const snapshot = await window.__firebase.db.collection('attendance')
-            .where('date', '==', date).get();
-        const data = {};
-        snapshot.forEach(doc => {
-            const d = doc.data();
-            data[`${date}_${d.student}`] = { 
-                status: d.status, 
-                lateTime: d.lateTime || '', 
-                engagement: d.engagement || '3' 
-            };
-        });
-        return data;
+        try {
+            const snapshot = await window.__firebase.db.collection('attendance')
+                .where('date', '==', date)
+                .get();
+            const data = {};
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                data[`${date}_${d.student}`] = { 
+                    status: d.status, 
+                    lateTime: d.lateTime || '', 
+                    engagement: d.engagement || '3' 
+                };
+            });
+            return data;
+        } catch (error) {
+            console.error("❌ Error fetching attendance:", error);
+            return {};
+        }
     },
     
     async saveAttendance(date, records) {
@@ -119,28 +165,40 @@ const DB = {
             saveMock();
             return;
         }
-        const batch = window.__firebase.db.batch();
-        Object.keys(records).forEach(key => {
-            const student = key.split('_')[1];
-            const ref = window.__firebase.db.collection('attendance').doc();
-            batch.set(ref, {
-                date,
-                student,
-                status: records[key].status,
-                lateTime: records[key].lateTime || '',
-                engagement: records[key].engagement || '3',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        try {
+            const batch = window.__firebase.db.batch();
+            Object.keys(records).forEach(key => {
+                const student = key.split('_')[1];
+                const ref = window.__firebase.db.collection('attendance').doc();
+                batch.set(ref, {
+                    date,
+                    student,
+                    status: records[key].status,
+                    lateTime: records[key].lateTime || '',
+                    engagement: records[key].engagement || '3',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
             });
-        });
-        await batch.commit();
+            await batch.commit();
+            console.log("✅ Attendance saved for:", date);
+        } catch (error) {
+            console.error("❌ Error saving attendance:", error);
+            throw error;
+        }
     },
 
     // ----- PROJECTS -----
     async getProjects() {
         if (window.__firebase.useMock) return [...mockData.projects];
-        const snapshot = await window.__firebase.db.collection('projects')
-            .orderBy('createdAt', 'desc').get();
-        return snapshot.docs.map(doc => doc.data());
+        try {
+            const snapshot = await window.__firebase.db.collection('projects')
+                .orderBy('createdAt', 'desc')
+                .get();
+            return snapshot.docs.map(doc => doc.data());
+        } catch (error) {
+            console.error("❌ Error fetching projects:", error);
+            return [];
+        }
     },
     
     async addProject(name, period) {
@@ -155,7 +213,13 @@ const DB = {
             saveMock();
             return;
         }
-        await window.__firebase.db.collection('projects').add(project);
+        try {
+            await window.__firebase.db.collection('projects').add(project);
+            console.log("✅ Project added:", name);
+        } catch (error) {
+            console.error("❌ Error adding project:", error);
+            throw error;
+        }
     },
     
     async deleteProject(name, period) {
@@ -166,10 +230,17 @@ const DB = {
             saveMock();
             return;
         }
-        const snapshot = await window.__firebase.db.collection('projects')
-            .where('name', '==', name)
-            .where('period', '==', period).get();
-        snapshot.forEach(doc => doc.ref.delete());
+        try {
+            const snapshot = await window.__firebase.db.collection('projects')
+                .where('name', '==', name)
+                .where('period', '==', period)
+                .get();
+            snapshot.forEach(doc => doc.ref.delete());
+            console.log("✅ Project deleted:", name);
+        } catch (error) {
+            console.error("❌ Error deleting project:", error);
+            throw error;
+        }
     },
 
     // ----- REFLECTIONS -----
@@ -180,9 +251,15 @@ const DB = {
                 teacher: mockData.teacherReflection || ''
             };
         }
-        const doc = await window.__firebase.db.collection('settings')
-            .doc('reflections').get();
-        return doc.exists ? doc.data() : { student: '', teacher: '' };
+        try {
+            const doc = await window.__firebase.db.collection('settings')
+                .doc('reflections')
+                .get();
+            return doc.exists ? doc.data() : { student: '', teacher: '' };
+        } catch (error) {
+            console.error("❌ Error fetching reflections:", error);
+            return { student: '', teacher: '' };
+        }
     },
     
     async saveReflection(type, content) {
@@ -192,12 +269,17 @@ const DB = {
             saveMock();
             return;
         }
-        await window.__firebase.db.collection('settings').doc('reflections').set({
-            [type]: content,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+        try {
+            await window.__firebase.db.collection('settings').doc('reflections').set({
+                [type]: content,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            console.log("✅ Reflection saved:", type);
+        } catch (error) {
+            console.error("❌ Error saving reflection:", error);
+            throw error;
+        }
     }
 };
 
-// Make DB globally available
 window.DB = DB;
