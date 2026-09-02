@@ -1,0 +1,154 @@
+/* Tracker Page Specific Styles */
+.period-tab {
+    padding: 8px 20px;
+    border: 2px solid transparent;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.period-tab:hover {
+    background: rgba(108, 99, 255, 0.05);
+    color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.period-tab.active {
+    border-color: var(--primary);
+    background: rgba(108, 99, 255, 0.08);
+    color: var(--primary);
+}
+
+.period-tab i {
+    margin-right: 6px;
+}
+
+.activity-status {
+    padding: 6px 12px;
+    border-radius: var(--border-radius-sm);
+    border: 2px solid var(--gray-light);
+    background: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.activity-status:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
+}
+
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--primary);
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.task-checkbox:hover {
+    transform: scale(1.1);
+}
+
+#trackerClubSelect {
+    min-width: 200px;
+    padding: 10px 16px;
+    border: 2px solid var(--gray-light);
+    border-radius: var(--border-radius-sm);
+    background: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#trackerClubSelect:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
+}
+
+#mediaGallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+}
+
+#mediaGallery .media-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--border-radius-sm);
+    padding: 12px;
+    border: 1px solid var(--gray-light);
+    position: relative;
+    transition: var(--transition);
+}
+
+#mediaGallery .media-item:hover {
+    box-shadow: var(--glass-shadow);
+    transform: translateY(-2px);
+}
+
+#mediaGallery .media-item video,
+#mediaGallery .media-item img {
+    width: 100%;
+    border-radius: 8px;
+    max-height: 150px;
+    object-fit: cover;
+}
+
+#mediaGallery .media-item .media-info {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#uploadStatus {
+    color: var(--gray);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+#uploadStatus.success {
+    color: var(--success);
+}
+
+#uploadStatus.error {
+    color: var(--danger);
+}
+
+@media (max-width: 768px) {
+    .period-tab {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+    
+    #trackerClubSelect {
+        min-width: 150px;
+    }
+    
+    #mediaGallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .period-tab {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+    }
+    
+    #mediaGallery {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
