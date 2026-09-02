@@ -1,9 +1,6 @@
 /* ============================================================
-   MODERN GLASSMORPHISM DESIGN
+   css/styles.css - COMPLETE GLASSMORPHISM DESIGN
    ============================================================ */
-
-/* ----- IMPORTS ----- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ----- ROOT VARIABLES ----- */
 :root {
@@ -207,6 +204,7 @@ body::before {
     border-radius: 20px;
     transition: var(--transition);
     font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
 }
 
 .btn-logout:hover {
@@ -271,10 +269,6 @@ body::before {
     box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
 }
 
-.login-card input:focus + i {
-    color: var(--primary);
-}
-
 .login-card button {
     width: 100%;
     padding: 16px;
@@ -336,6 +330,12 @@ body::before {
 .section-title i {
     color: var(--primary);
     font-size: 1.6rem;
+}
+
+.section-title span {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--gray);
 }
 
 /* ----- TOOLBAR ----- */
@@ -415,26 +415,6 @@ body::before {
     background: rgba(108, 99, 255, 0.04);
 }
 
-.btn-success {
-    background: var(--gradient-secondary);
-    border: none;
-    padding: 10px 24px;
-    border-radius: var(--border-radius-sm);
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Inter', sans-serif;
-}
-
-.btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(255, 101, 132, 0.3);
-}
-
 /* ----- TABLES ----- */
 .table-wrap {
     overflow-x: auto;
@@ -498,27 +478,6 @@ input[type="time"]:focus {
     font-weight: 600;
 }
 
-/* ----- BADGES ----- */
-.badge {
-    background: rgba(108, 99, 255, 0.1);
-    color: var(--primary);
-    padding: 4px 14px;
-    border-radius: 40px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: inline-block;
-}
-
-.badge-success {
-    background: rgba(0, 210, 160, 0.1);
-    color: var(--success);
-}
-
-.badge-warning {
-    background: rgba(255, 184, 77, 0.1);
-    color: var(--warning);
-}
-
 /* ----- REFLECTION CARDS ----- */
 .reflection-card {
     background: rgba(255, 255, 255, 0.8);
@@ -557,6 +516,15 @@ input[type="time"]:focus {
     box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
 }
 
+.reflection-card .reflection-display {
+    margin-top: 14px;
+    background: white;
+    padding: 16px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--gray-light);
+    color: var(--dark);
+}
+
 /* ----- GRID ----- */
 .grid-2col {
     display: grid;
@@ -582,6 +550,7 @@ input[type="time"]:focus {
     color: var(--gray);
     transition: var(--transition);
     min-width: 120px;
+    flex: 1;
 }
 
 .stat-box:hover {
@@ -638,47 +607,17 @@ input[type="time"]:focus {
     color: var(--danger);
 }
 
-/* ----- STATUS INDICATOR ----- */
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 14px;
-    border-radius: 40px;
-    font-weight: 600;
-    font-size: 0.8rem;
+.admin-info {
+    margin-top: 24px;
+    background: rgba(108, 99, 255, 0.06);
+    padding: 16px 20px;
+    border-radius: var(--border-radius-sm);
+    color: var(--gray);
 }
 
-.status-badge::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-.status-badge.present {
-    background: rgba(0, 210, 160, 0.1);
-    color: var(--success);
-}
-.status-badge.present::before {
-    background: var(--success);
-}
-
-.status-badge.absent {
-    background: rgba(255, 107, 107, 0.1);
-    color: var(--danger);
-}
-.status-badge.absent::before {
-    background: var(--danger);
-}
-
-.status-badge.late {
-    background: rgba(255, 184, 77, 0.1);
-    color: var(--warning);
-}
-.status-badge.late::before {
-    background: var(--warning);
+.admin-info i {
+    color: var(--primary);
+    margin-right: 8px;
 }
 
 /* ----- RESPONSIVE ----- */
@@ -790,7 +729,5 @@ input[type="time"]:focus {
 .mb-1 { margin-bottom: 8px; }
 .mb-2 { margin-bottom: 16px; }
 .mb-3 { margin-bottom: 24px; }
-.gap-1 { gap: 8px; }
-.gap-2 { gap: 16px; }
-.flex { display: flex; }
-.flex-center { display: flex; align-items: center; justify-content: center; }
+.hidden { display: none; }
+.flex-end { justify-content: flex-end; }
