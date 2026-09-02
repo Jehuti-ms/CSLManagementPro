@@ -4,24 +4,35 @@
 
 class App {
     constructor() {
+        console.log("🚀 App constructor called");
         this.currentUser = null;
         this.currentPage = 'attendance';
-        this.pages = {};
         
-        this.init();
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.init());
+        } else {
+            this.init();
+        }
     }
     
     async init() {
+        console.log("📱 App initializing...");
+        
         // Set default date
         const today = new Date().toISOString().slice(0, 10);
         const dateInput = document.getElementById('attendanceDate');
         if (dateInput) dateInput.value = today;
         
+        // Setup navigation
+        this.setupNavigation();
+        
         // Load login page
         this.showLogin();
         
         // Auth listener
-        window.Auth.onAuthStateChanged(user => {
+        window.Auth.onAuthStateChanged((user) => {
+            console.log("👤 Auth state changed:", user ? user.email : 'No user');
             if (user) {
                 this.currentUser = user;
                 const userEmail = document.getElementById('userEmail');
@@ -32,29 +43,38 @@ class App {
             }
         });
         
-        // Setup navigation
-        this.setupNavigation();
-        
         // Auto-login for mock mode
-        if (window.__firebase.useMock) {
+        if (window.__firebase && window.__firebase.useMock) {
             const mockUser = sessionStorage.getItem('mockUser');
             if (mockUser) {
-                const user = JSON.parse(mockUser);
-                this.currentUser = user;
-                const userEmail = document.getElementById('userEmail');
-                if (userEmail) {
-                    userEmail.textContent = user.displayName || user.email || 'Teacher';
+                try {
+                    const user = JSON.parse(mockUser);
+                    this.currentUser = user;
+                    const userEmail = document.getElementById('userEmail');
+                    if (userEmail) {
+                        userEmail.textContent = user.displayName || user.email || 'Teacher';
+                    }
+                    this.showMainApp(user);
+                } catch (e) {
+                    console.warn("⚠️ Could not parse mock user:", e);
                 }
-                this.showMainApp(user);
             }
         }
+        
+        console.log("✅ App initialized successfully");
     }
     
     setupNavigation() {
+        console.log("🔧 Setting up navigation...");
+        
         // Navigation tabs
-        document.querySelectorAll('.nav-tab').forEach(tab => {
+        const tabs = document.querySelectorAll('.nav-tab');
+        console.log(`📑 Found ${tabs.length} navigation tabs`);
+        
+        tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const page = tab.dataset.page;
+                console.log(`📄 Navigating to: ${page}`);
                 this.navigateTo(page);
             });
         });
@@ -63,28 +83,43 @@ class App {
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', async () => {
+                console.log("🚪 Logging out...");
                 await window.Auth.logout();
                 this.currentUser = null;
                 this.showLogin();
             });
+        } else {
+            console.warn("⚠️ Logout button not found");
         }
     }
     
     showLogin() {
+        console.log("📄 Showing login page...");
         const container = document.getElementById('pageContainer');
         if (container) {
             container.innerHTML = window.LoginPage.render();
-            window.LoginPage.setupEvents();
+            // Setup events after rendering
+            setTimeout(() => {
+                window.LoginPage.setupEvents();
+            }, 50);
+        } else {
+            console.error("❌ pageContainer not found!");
         }
         // Hide navigation and user badge
-        document.getElementById('navTabs').style.display = 'none';
-        document.getElementById('userBadge').style.display = 'none';
+        const navTabs = document.getElementById('navTabs');
+        const userBadge = document.getElementById('userBadge');
+        if (navTabs) navTabs.style.display = 'none';
+        if (userBadge) userBadge.style.display = 'none';
     }
     
     showMainApp(user) {
+        console.log("📄 Showing main app...");
+        
         // Show navigation and user badge
-        document.getElementById('navTabs').style.display = 'flex';
-        document.getElementById('userBadge').style.display = 'flex';
+        const navTabs = document.getElementById('navTabs');
+        const userBadge = document.getElementById('userBadge');
+        if (navTabs) navTabs.style.display = 'flex';
+        if (userBadge) userBadge.style.display = 'flex';
         
         // Update user email
         const userEmail = document.getElementById('userEmail');
@@ -94,12 +129,19 @@ class App {
         
         // Load attendance page
         this.loadPage('attendance');
-        this.navigateTo('attendance');
+        setTimeout(() => {
+            this.navigateTo('attendance');
+        }, 50);
     }
     
     loadPage(pageName) {
         const container = document.getElementById('pageContainer');
-        if (!container) return;
+        if (!container) {
+            console.error("❌ pageContainer not found!");
+            return;
+        }
+        
+        console.log(`📄 Loading page: ${pageName}`);
         
         switch (pageName) {
             case 'attendance':
@@ -114,10 +156,13 @@ class App {
             case 'admin':
                 container.innerHTML = window.AdminPage.render();
                 break;
+            default:
+                console.warn(`⚠️ Unknown page: ${pageName}`);
         }
     }
     
     async navigateTo(pageId) {
+        console.log(`🧭 Navigating to: ${pageId}`);
         this.currentPage = pageId;
         
         // Update nav tabs
@@ -129,33 +174,43 @@ class App {
         this.loadPage(pageId);
         
         // Wait for DOM to update
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         // Setup page-specific events and render
         switch (pageId) {
             case 'attendance':
-                await window.AttendancePage.render();
-                window.AttendancePage.setupEvents();
+                if (window.AttendancePage) {
+                    await window.AttendancePage.render();
+                    window.AttendancePage.setupEvents();
+                }
                 break;
             case 'tracker':
-                await window.TrackerPage.render();
-                window.TrackerPage.setupEvents();
+                if (window.TrackerPage) {
+                    await window.TrackerPage.render();
+                    window.TrackerPage.setupEvents();
+                }
                 break;
             case 'reflections':
-                await window.ReflectionsPage.render();
-                window.ReflectionsPage.setupEvents();
+                if (window.ReflectionsPage) {
+                    await window.ReflectionsPage.render();
+                    window.ReflectionsPage.setupEvents();
+                }
                 break;
             case 'admin':
-                await window.AdminPage.render();
-                window.AdminPage.setupEvents();
+                if (window.AdminPage) {
+                    await window.AdminPage.render();
+                    window.AdminPage.setupEvents();
+                }
                 break;
         }
     }
 }
 
-// Start the app
-document.addEventListener('DOMContentLoaded', () => {
+// Start the app - but only after DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.app = new App();
+    });
+} else {
     window.app = new App();
-    console.log('🚀 CSL Management Pro started!');
-    console.log(`📦 Mode: ${window.__firebase.useMock ? 'MOCK (local storage)' : 'FIREBASE'}`);
-});
+}
