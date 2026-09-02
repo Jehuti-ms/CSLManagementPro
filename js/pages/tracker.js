@@ -1,5 +1,5 @@
 // ============================================================
-// TRACKER PAGE - Complete with Club Access Control
+// TRACKER PAGE - Complete with Club Access Control (FIXED)
 // ============================================================
 
 const TrackerPage = {
@@ -12,7 +12,7 @@ const TrackerPage = {
                 <span id="trackerClubName" style="font-size: 1rem; font-weight: 400; color: var(--primary);"></span>
             </div>
             
-            <!-- Club Selector (only shows clubs assigned to teacher) -->
+            <!-- Club Selector -->
             <div class="toolbar" id="clubSelectorToolbar">
                 <label style="font-weight: 600; color: var(--dark);">
                     <i class="fas fa-users"></i> Select Club:
@@ -60,7 +60,7 @@ const TrackerPage = {
                 </table>
             </div>
             
-            <!-- Stats Summary -->
+            <!-- Stats -->
             <div class="tracker-stats" style="margin-top: 20px;">
                 <div class="stat-box"><span id="totalActivities">0</span> Total Activities</div>
                 <div class="stat-box"><span id="completedActivities">0</span> Completed</div>
@@ -130,19 +130,19 @@ const TrackerPage = {
     // ----- LOAD DATA (async) -----
     loadData: async function() {
         console.log("📊 Loading tracker data...");
-        const clubId = document.getElementById('trackerClubSelect')?.value;
+        const select = document.getElementById('trackerClubSelect');
+        if (!select) return;
         
-        if (!clubId) {
+        const clubId = select.value;
+        
+        if (!clubId || clubId === '') {
             console.log("ℹ️ No club selected");
             return;
         }
         
         try {
             // Get club name
-            const clubName = document.getElementById('trackerClubSelect')?.options[
-                document.getElementById('trackerClubSelect').selectedIndex
-            ]?.text || '';
-
+            const clubName = select.options[select.selectedIndex]?.text || '';
             document.getElementById('trackerClubName').textContent = `- ${clubName}`;
             
             // Load activities
@@ -162,11 +162,14 @@ const TrackerPage = {
     // ----- LOAD ACTIVITIES -----
     loadActivities: async function(clubId) {
         console.log(`📋 Loading activities for club: ${clubId}`);
-        const period = document.querySelector('.period-tab.active')?.dataset.period || 'weekly';
+        const periodTab = document.querySelector('.period-tab.active');
+        const period = periodTab ? periodTab.dataset.period : 'weekly';
         
         try {
             const activities = await window.DB.getActivities(clubId, period);
             const tbody = document.getElementById('trackerActivitiesBody');
+            
+            if (!tbody) return;
             
             if (!activities || activities.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--gray);">
@@ -237,6 +240,8 @@ const TrackerPage = {
             const tasks = await window.DB.getTasks(clubId);
             const tbody = document.getElementById('trackerTasksBody');
             
+            if (!tbody) return;
+            
             if (!tasks || tasks.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color: var(--gray);">
                     <i class="fas fa-check-circle" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
@@ -301,6 +306,8 @@ const TrackerPage = {
             const media = await window.DB.getMedia(clubId);
             const gallery = document.getElementById('mediaGallery');
             
+            if (!gallery) return;
+            
             if (!media || media.length === 0) {
                 gallery.innerHTML = `
                     <div style="text-align:center; padding: 30px; color: var(--gray); grid-column: 1 / -1;">
@@ -310,7 +317,7 @@ const TrackerPage = {
                 `;
             } else {
                 gallery.innerHTML = media.map(m => `
-                    <div style="background: rgba(255,255,255,0.8); border-radius: var(--border-radius-sm); padding: 12px; border: 1px solid var(--gray-light); position: relative;">
+                    <div class="media-item" style="background: rgba(255,255,255,0.8); border-radius: var(--border-radius-sm); padding: 12px; border: 1px solid var(--gray-light); position: relative;">
                         ${m.type === 'video' ? `
                             <video style="width: 100%; border-radius: 8px; max-height: 150px; object-fit: cover;" controls>
                                 <source src="${m.url}" type="video/mp4">
@@ -318,7 +325,7 @@ const TrackerPage = {
                         ` : `
                             <img src="${m.url}" style="width: 100%; border-radius: 8px; max-height: 150px; object-fit: cover;" alt="${m.name}">
                         `}
-                        <div style="margin-top: 8px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="media-info" style="margin-top: 8px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
                             <span style="color: var(--dark);">${m.name}</span>
                             <button class="delete-btn delete-media" data-id="${m.id || m._id}">
                                 <i class="fas fa-times"></i>
@@ -388,6 +395,7 @@ const TrackerPage = {
     loadTeacherClubs: async function() {
         console.log("📋 Loading teacher's clubs...");
         const select = document.getElementById('trackerClubSelect');
+        if (!select) return;
         
         try {
             const clubs = await window.DB.getTeacherClubs();
@@ -395,12 +403,14 @@ const TrackerPage = {
             if (!clubs || clubs.length === 0) {
                 select.innerHTML = `<option value="">No clubs assigned to you</option>`;
                 document.getElementById('trackerClubName').textContent = '';
-                document.getElementById('trackerActivitiesBody').innerHTML = 
-                    `<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--gray);">
+                const tbody = document.getElementById('trackerActivitiesBody');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--gray);">
                         <i class="fas fa-info-circle" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
                         You haven't been assigned to any clubs yet.<br>
                         Contact your administrator.
                     </td></tr>`;
+                }
                 return;
             }
             
@@ -424,10 +434,12 @@ const TrackerPage = {
     setupEvents: function() {
         console.log("🔧 Setting up tracker events...");
         
-        // Club selector change
-        document.getElementById('trackerClubSelect').addEventListener('change', async function() {
-            await window.TrackerPage.loadData();
-        });
+        const select = document.getElementById('trackerClubSelect');
+        if (select) {
+            select.addEventListener('change', async function() {
+                await window.TrackerPage.loadData();
+            });
+        }
         
         // Period tabs
         document.querySelectorAll('.period-tab').forEach(tab => {
@@ -439,57 +451,75 @@ const TrackerPage = {
         });
         
         // Add Activity
-        document.getElementById('addActivityBtn').addEventListener('click', () => {
-            this.showAddActivityModal();
-        });
+        const addBtn = document.getElementById('addActivityBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                this.showAddActivityModal();
+            });
+        }
         
         // Add Task
-        document.getElementById('addTaskBtn').addEventListener('click', async () => {
-            const input = document.getElementById('taskInput');
-            const title = input.value.trim();
-            if (!title) return alert('Please enter a task description');
-            
-            const priority = document.getElementById('taskPriority').value;
-            const clubId = document.getElementById('trackerClubSelect').value;
-            
-            if (!clubId) return alert('Please select a club first');
-            
-            await window.DB.addTask(clubId, title, priority);
-            input.value = '';
-            await this.loadData();
-        });
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        if (addTaskBtn) {
+            addTaskBtn.addEventListener('click', async () => {
+                const input = document.getElementById('taskInput');
+                const title = input.value.trim();
+                if (!title) return alert('Please enter a task description');
+                
+                const priority = document.getElementById('taskPriority').value;
+                const clubId = document.getElementById('trackerClubSelect').value;
+                
+                if (!clubId) return alert('Please select a club first');
+                
+                await window.DB.addTask(clubId, title, priority);
+                input.value = '';
+                await this.loadData();
+            });
+        }
         
         // Task Enter key
-        document.getElementById('taskInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('addTaskBtn').click();
-        });
+        const taskInput = document.getElementById('taskInput');
+        if (taskInput) {
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const btn = document.getElementById('addTaskBtn');
+                    if (btn) btn.click();
+                }
+            });
+        }
         
         // Media Upload
-        document.getElementById('mediaUploadBtn').addEventListener('click', () => {
-            document.getElementById('mediaUploadInput').click();
-        });
+        const uploadBtn = document.getElementById('mediaUploadBtn');
+        if (uploadBtn) {
+            uploadBtn.addEventListener('click', () => {
+                document.getElementById('mediaUploadInput').click();
+            });
+        }
         
-        document.getElementById('mediaUploadInput').addEventListener('change', async function() {
-            const file = this.files[0];
-            if (!file) return;
-            
-            const clubId = document.getElementById('trackerClubSelect').value;
-            if (!clubId) return alert('Please select a club first');
-            
-            const statusEl = document.getElementById('uploadStatus');
-            statusEl.textContent = '⏳ Uploading...';
-            
-            try {
-                await window.DB.uploadMedia(clubId, file);
-                statusEl.textContent = '✅ Upload successful!';
-                await window.TrackerPage.loadData();
-            } catch (error) {
-                statusEl.textContent = '❌ Upload failed: ' + error.message;
-            }
-            
-            this.value = '';
-            setTimeout(() => statusEl.textContent = '', 3000);
-        });
+        const uploadInput = document.getElementById('mediaUploadInput');
+        if (uploadInput) {
+            uploadInput.addEventListener('change', async function() {
+                const file = this.files[0];
+                if (!file) return;
+                
+                const clubId = document.getElementById('trackerClubSelect').value;
+                if (!clubId) return alert('Please select a club first');
+                
+                const statusEl = document.getElementById('uploadStatus');
+                statusEl.textContent = '⏳ Uploading...';
+                
+                try {
+                    await window.DB.uploadMedia(clubId, file);
+                    statusEl.textContent = '✅ Upload successful!';
+                    await window.TrackerPage.loadData();
+                } catch (error) {
+                    statusEl.textContent = '❌ Upload failed: ' + error.message;
+                }
+                
+                this.value = '';
+                setTimeout(() => statusEl.textContent = '', 3000);
+            });
+        }
         
         // Load teacher's clubs
         this.loadTeacherClubs();
@@ -500,14 +530,14 @@ const TrackerPage = {
         const clubId = document.getElementById('trackerClubSelect').value;
         if (!clubId) return alert('Please select a club first');
         
-        // Simple prompt-based modal (you can replace with a nicer modal later)
         const title = prompt('Activity title:');
         if (!title) return;
         
         const description = prompt('Description (optional):') || '';
         const type = prompt('Type (Training/Meeting/Event/Planning/Volunteer):') || 'General';
         const date = prompt('Date (YYYY-MM-DD):') || new Date().toISOString().slice(0, 10);
-        const period = document.querySelector('.period-tab.active')?.dataset.period || 'weekly';
+        const periodTab = document.querySelector('.period-tab.active');
+        const period = periodTab ? periodTab.dataset.period : 'weekly';
         
         window.DB.addActivity(clubId, {
             title,
