@@ -5,72 +5,92 @@
 const Auth = {
     // ----- EMAIL/PASSWORD LOGIN -----
     async login(email, password) {
+        console.log("🔐 Attempting login for:", email);
+        
         if (window.__firebase.useMock) {
-            if (email === 'teacher@demo.com' && password === '123456') {
-                const user = { email, uid: 'mock-user-123', displayName: 'Teacher' };
+            console.log("📦 Using mock authentication");
+            // Mock login - accept any valid-looking email with password
+            if (password && password.length >= 6) {
+                const user = { 
+                    email: email, 
+                    uid: 'mock-user-' + Date.now(), 
+                    displayName: email.split('@')[0] || 'User'
+                };
                 sessionStorage.setItem('mockUser', JSON.stringify(user));
+                console.log("✅ Mock login successful for:", email);
                 return user;
             }
-            throw new Error('Invalid credentials. Use teacher@demo.com / 123456');
+            throw new Error('Password must be at least 6 characters');
         }
+        
         try {
             const userCred = await window.__firebase.auth.signInWithEmailAndPassword(email, password);
             console.log("✅ User logged in:", userCred.user.email);
             return userCred.user;
         } catch (error) {
             console.error("❌ Login error:", error.code, error.message);
-            throw error;
+            
+            // User-friendly error messages
+            let message = error.message;
+            if (error.code === 'auth/user-not-found') {
+                message = 'No account found with this email';
+            } else if (error.code === 'auth/wrong-password') {
+                message = 'Incorrect password';
+            } else if (error.code === 'auth/invalid-email') {
+                message = 'Invalid email address';
+            } else if (error.code === 'auth/too-many-requests') {
+                message = 'Too many failed attempts. Please try again later';
+            }
+            
+            throw new Error(message);
         }
     },
 
     // ----- GOOGLE SIGN-IN -----
     async loginWithGoogle() {
+        console.log("🔐 Attempting Google login...");
+        
         if (window.__firebase.useMock) {
+            console.log("📦 Using mock Google authentication");
             const user = { 
-                email: 'teacher@gmail.com', 
-                uid: 'mock-google-123', 
-                displayName: 'Teacher (Google)',
-                photoURL: 'https://ui-avatars.com/api/?name=Teacher&background=6C63FF&color=fff'
+                email: 'user@gmail.com', 
+                uid: 'mock-google-' + Date.now(), 
+                displayName: 'Google User',
+                photoURL: 'https://ui-avatars.com/api/?name=Google+User&background=6C63FF&color=fff'
             };
             sessionStorage.setItem('mockUser', JSON.stringify(user));
+            console.log("✅ Mock Google login successful");
             return user;
         }
+        
         try {
             const userCred = await window.__firebase.auth.signInWithPopup(window.__firebase.googleProvider);
             console.log("✅ Google user logged in:", userCred.user.displayName);
             return userCred.user;
         } catch (error) {
             console.error("❌ Google login error:", error.code, error.message);
-            throw error;
-        }
-    },
-
-    // ----- REGISTER (for new users) -----
-    async register(email, password, displayName) {
-        if (window.__firebase.useMock) {
-            const user = { email, uid: 'mock-user-' + Date.now(), displayName: displayName || 'User' };
-            sessionStorage.setItem('mockUser', JSON.stringify(user));
-            return user;
-        }
-        try {
-            const userCred = await window.__firebase.auth.createUserWithEmailAndPassword(email, password);
-            if (displayName) {
-                await userCred.user.updateProfile({ displayName });
+            
+            let message = error.message;
+            if (error.code === 'auth/popup-closed-by-user') {
+                message = 'Sign-in popup was closed';
+            } else if (error.code === 'auth/popup-blocked') {
+                message = 'Pop-up was blocked. Please allow pop-ups for this site';
             }
-            console.log("✅ New user registered:", userCred.user.email);
-            return userCred.user;
-        } catch (error) {
-            console.error("❌ Registration error:", error.code, error.message);
-            throw error;
+            
+            throw new Error(message);
         }
     },
 
     // ----- LOGOUT -----
     async logout() {
+        console.log("🚪 Logging out...");
+        
         if (window.__firebase.useMock) {
             sessionStorage.removeItem('mockUser');
+            console.log("✅ Mock logout successful");
             return;
         }
+        
         try {
             await window.__firebase.auth.signOut();
             console.log("✅ User logged out");
@@ -82,19 +102,31 @@ const Auth = {
 
     // ----- AUTH STATE LISTENER -----
     onAuthStateChanged(callback) {
+        console.log("👤 Setting up auth state listener...");
+        
         if (window.__firebase.useMock) {
-            // Check if user is stored in session
             const mockUser = sessionStorage.getItem('mockUser');
             if (mockUser) {
-                callback(JSON.parse(mockUser));
+                try {
+                    const user = JSON.parse(mockUser);
+                    console.log("📦 Mock user found:", user.email);
+                    callback(user);
+                } catch (e) {
+                    console.warn("⚠️ Could not parse mock user:", e);
+                    callback(null);
+                }
             } else {
+                console.log("📦 No mock user found");
                 callback(null);
             }
             return () => {};
         }
+        
         return window.__firebase.auth.onAuthStateChanged((user) => {
             if (user) {
                 console.log("👤 Auth state changed:", user.email);
+            } else {
+                console.log("👤 Auth state: No user");
             }
             callback(user);
         });
@@ -107,46 +139,9 @@ const Auth = {
             return mockUser ? JSON.parse(mockUser) : null;
         }
         return window.__firebase.auth.currentUser;
-    },
-
-    // ----- UPDATE USER PROFILE -----
-    async updateProfile(displayName, photoURL) {
-        if (window.__firebase.useMock) {
-            const user = this.getCurrentUser();
-            if (user) {
-                user.displayName = displayName || user.displayName;
-                user.photoURL = photoURL || user.photoURL;
-                sessionStorage.setItem('mockUser', JSON.stringify(user));
-            }
-            return;
-        }
-        try {
-            const user = window.__firebase.auth.currentUser;
-            if (user) {
-                await user.updateProfile({ displayName, photoURL });
-                console.log("✅ Profile updated");
-            }
-        } catch (error) {
-            console.error("❌ Profile update error:", error);
-            throw error;
-        }
-    },
-
-    // ----- SEND PASSWORD RESET EMAIL -----
-    async sendPasswordReset(email) {
-        if (window.__firebase.useMock) {
-            console.log("📧 Password reset email sent to:", email);
-            return;
-        }
-        try {
-            await window.__firebase.auth.sendPasswordResetEmail(email);
-            console.log("📧 Password reset email sent to:", email);
-        } catch (error) {
-            console.error("❌ Password reset error:", error);
-            throw error;
-        }
     }
 };
 
 // Make Auth globally available
 window.Auth = Auth;
+console.log("✅ Auth module loaded");
