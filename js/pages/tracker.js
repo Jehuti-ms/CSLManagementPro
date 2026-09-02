@@ -1,11 +1,13 @@
 // ============================================================
-// TRACKER PAGE - Full Interface Always Visible
+// TRACKER PAGE - Full Interface Always Visible (FIXED)
 // ============================================================
 
 var TrackerPage = {
+    // ----- RENDER HTML (returns the HTML string) -----
     render: function() {
+        console.log("📄 TrackerPage.render() called");
         return `
-        <div id="trackerPage" class="page">
+        <div id="trackerPage" class="page active-page">
             <div class="section-title">
                 <i class="fas fa-chart-simple"></i> Club Tracker
                 <span id="trackerClubName" style="font-size: 1rem; font-weight: 400; color: var(--primary);"></span>
@@ -20,7 +22,7 @@ var TrackerPage = {
                     <option value="">Loading clubs...</option>
                 </select>
                 <div style="flex:1;"></div>
-                <button class="btn-primary" id="addActivityBtn" style="background: var(--gradient-primary); border: none; padding: 10px 24px; border-radius: var(--border-radius-sm); color: white; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                <button class="btn-primary" id="addActivityBtn" style="background: var(--gradient-primary); border: none; padding: 10px 24px; border-radius: var(--border-radius-sm); color: white; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: Inter, sans-serif; font-size: 0.95rem;">
                     <i class="fas fa-plus"></i> Add Activity
                 </button>
             </div>
@@ -137,8 +139,12 @@ var TrackerPage = {
 
     // ----- SHOW GETTING STARTED GUIDE (in the activities table only) -----
     showGettingStarted: function() {
+        console.log("📋 Showing getting started guide");
         var tbody = document.getElementById('trackerActivitiesBody');
-        if (!tbody) return;
+        if (!tbody) {
+            console.warn("⚠️ trackerActivitiesBody not found");
+            return;
+        }
         
         tbody.innerHTML = `
         <tr>
@@ -212,7 +218,10 @@ var TrackerPage = {
     loadData: function() {
         console.log("📊 Loading tracker data...");
         var select = document.getElementById('trackerClubSelect');
-        if (!select) return;
+        if (!select) {
+            console.warn("⚠️ trackerClubSelect not found");
+            return;
+        }
         
         var clubId = select.value;
         if (!clubId || clubId === '') {
@@ -295,11 +304,6 @@ var TrackerPage = {
         for (var i = 0; i < activities.length; i++) {
             var a = activities[i];
             var typeColor = typeColors[a.type] || '#6C7A89';
-            var statusOptions = {
-                'pending': '⏳ Pending',
-                'in-progress': '🔄 In Progress',
-                'completed': '✅ Completed'
-            };
             
             html += '<tr>' +
                 '<td>' + (a.date || new Date().toISOString().slice(0, 10)) + '</td>' +
@@ -492,9 +496,13 @@ var TrackerPage = {
             }
         }
         
-        document.getElementById('totalActivities').textContent = total;
-        document.getElementById('completedActivities').textContent = completed;
-        document.getElementById('pendingActivities').textContent = pending;
+        var totalEl = document.getElementById('totalActivities');
+        var completedEl = document.getElementById('completedActivities');
+        var pendingEl = document.getElementById('pendingActivities');
+        
+        if (totalEl) totalEl.textContent = total;
+        if (completedEl) completedEl.textContent = completed;
+        if (pendingEl) pendingEl.textContent = pending;
     },
 
     // ----- SHOW ADD ACTIVITY MODAL -----
@@ -535,7 +543,10 @@ var TrackerPage = {
     loadTeacherClubs: function() {
         console.log("📋 Loading teacher's clubs...");
         var select = document.getElementById('trackerClubSelect');
-        if (!select) return;
+        if (!select) {
+            console.warn("⚠️ trackerClubSelect not found");
+            return;
+        }
         
         var self = this;
         window.DB.getTeacherClubs().then(function(clubs) {
