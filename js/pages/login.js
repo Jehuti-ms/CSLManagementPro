@@ -5,6 +5,7 @@
 const LoginPage = {
     // ----- RENDER LOGIN PAGE -----
     render: function() {
+        console.log("📄 LoginPage.render() called");
         return `
         <div id="loginPage" class="page active-page">
             <div class="login-card">
@@ -51,7 +52,7 @@ const LoginPage = {
                 </div>
                 
                 <div class="demo-info">
-                    <i class="fas fa-info-circle"></i> Demo: Use any email + password (6+ chars) in mock mode
+                    <i class="fas fa-info-circle"></i> Demo: teacher@demo.com / 123456
                 </div>
             </div>
         </div>`;
@@ -84,26 +85,17 @@ const LoginPage = {
                     errorEl.textContent = '';
                     console.log("✅ Login successful:", user.email);
                     
-                    // Update user display
                     const userEmail = document.getElementById('userEmail');
                     if (userEmail) {
                         userEmail.textContent = user.displayName || user.email || 'Teacher';
                     }
                     
-                    // Show main app
                     if (window.app) {
                         window.app.showMainApp(user);
-                    } else {
-                        console.error("❌ App not initialized");
                     }
                 } catch (error) {
                     console.error("❌ Login error:", error);
                     errorEl.textContent = '❌ ' + error.message;
-                    
-                    // Suggest registration if user not found
-                    if (error.message.includes('No account found') || error.message.includes('invalid-credential')) {
-                        errorEl.textContent = '❌ No account found. Please register or use mock mode.';
-                    }
                 }
             });
         } else {
@@ -146,11 +138,10 @@ const LoginPage = {
         // Register link
         const showRegisterBtn = document.getElementById('showRegisterBtn');
         if (showRegisterBtn) {
-            showRegisterBtn.addEventListener('click', async function(e) {
+            showRegisterBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 const errorEl = document.getElementById('loginError');
                 
-                // Simple registration prompt
                 const email = prompt('Enter email to register:');
                 if (!email) return;
                 
@@ -160,24 +151,15 @@ const LoginPage = {
                     return;
                 }
                 
-                try {
-                    errorEl.textContent = '⏳ Registering...';
-                    const user = await window.Auth.register(email, password);
+                // Store in localStorage for mock mode
+                if (window.__firebase && window.__firebase.useMock) {
+                    const user = { email, uid: 'mock-' + Date.now(), displayName: email.split('@')[0] };
+                    sessionStorage.setItem('mockUser', JSON.stringify(user));
                     errorEl.textContent = '✅ Registration successful! Please login.';
-                    console.log("✅ Registration successful:", user.email);
-                    
-                    // Pre-fill the login form
                     document.getElementById('loginEmail').value = email;
                     document.getElementById('loginPassword').value = password;
-                    
-                    // Auto-login in mock mode
-                    if (window.__firebase.useMock) {
-                        const loginBtn = document.getElementById('loginBtn');
-                        if (loginBtn) loginBtn.click();
-                    }
-                } catch (error) {
-                    console.error("❌ Registration error:", error);
-                    errorEl.textContent = '❌ ' + error.message;
+                } else {
+                    alert('Registration coming soon! Please use the demo account or Google Sign-In.');
                 }
             });
         }
@@ -203,8 +185,11 @@ const LoginPage = {
                 }
             });
         }
+        
+        console.log("✅ Login events setup complete");
     }
 };
 
 // Make LoginPage globally available
 window.LoginPage = LoginPage;
+console.log("✅ LoginPage module loaded");
