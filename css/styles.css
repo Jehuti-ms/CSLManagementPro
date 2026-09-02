@@ -1,6 +1,9 @@
 /* ============================================================
-   css/styles.css - COMPLETE GLASSMORPHISM DESIGN
+   css/styles.css - CUSTOM STYLES (works with Tailwind)
    ============================================================ */
+
+/* ----- IMPORT GOOGLE FONT ----- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ----- ROOT VARIABLES ----- */
 :root {
@@ -12,8 +15,6 @@
     --warning: #FFB84D;
     --danger: #FF6B6B;
     --dark: #1A1A2E;
-    --dark-secondary: #16213E;
-    --light: #F8F9FE;
     --gray: #6C7A89;
     --gray-light: #E8ECF1;
     --shadow: 0 20px 60px rgba(108, 99, 255, 0.15);
@@ -30,26 +31,7 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ----- RESET & BASE ----- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--gradient-bg);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-    position: relative;
-    overflow-x: hidden;
-}
-
-/* Animated background */
+/* ----- ANIMATED BACKGROUND ----- */
 body::before {
     content: '';
     position: fixed;
@@ -92,17 +74,6 @@ body::before {
 }
 
 /* ----- HEADER ----- */
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 32px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid rgba(108, 99, 255, 0.08);
-}
-
 .app-header h1 {
     font-weight: 800;
     font-size: 1.8rem;
@@ -720,7 +691,7 @@ input[type="time"]:focus {
     background: var(--primary-dark);
 }
 
-/* ----- UTILITY CLASSES ----- */
+/* ----- UTILITY CLASSES (Tailwind compatible) ----- */
 .text-center { text-align: center; }
 .text-muted { color: var(--gray); }
 .mt-1 { margin-top: 8px; }
