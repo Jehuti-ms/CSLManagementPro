@@ -19,11 +19,6 @@ class App {
     async init() {
         console.log("📱 App initializing...");
         
-        // Set default date
-        const today = new Date().toISOString().slice(0, 10);
-        const dateInput = document.getElementById('attendanceDate');
-        if (dateInput) dateInput.value = today;
-        
         // Setup navigation
         this.setupNavigation();
         
@@ -141,24 +136,30 @@ class App {
             return;
         }
         
-        console.log(`📄 Loading page: ${pageName}`);
+        console.log(`📄 Loading page HTML: ${pageName}`);
         
+        // Get the HTML (synchronous - no async calls here)
+        let html = '';
         switch (pageName) {
             case 'attendance':
-                container.innerHTML = window.AttendancePage.render();
+                html = window.AttendancePage.render();
                 break;
             case 'tracker':
-                container.innerHTML = window.TrackerPage.render();
+                html = window.TrackerPage.render();
                 break;
             case 'reflections':
-                container.innerHTML = window.ReflectionsPage.render();
+                html = window.ReflectionsPage.render();
                 break;
             case 'admin':
-                container.innerHTML = window.AdminPage.render();
+                html = window.AdminPage.render();
                 break;
             default:
                 console.warn(`⚠️ Unknown page: ${pageName}`);
+                html = `<div class="page active-page"><p>Page not found</p></div>`;
         }
+        
+        container.innerHTML = html;
+        console.log(`✅ Page HTML loaded: ${pageName}`);
     }
     
     async navigateTo(pageId) {
@@ -170,35 +171,31 @@ class App {
             tab.classList.toggle('active', tab.dataset.page === pageId);
         });
         
-        // Load the page
+        // Load the page HTML
         this.loadPage(pageId);
         
         // Wait for DOM to update
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // Setup page-specific events and render
+        // Setup page-specific events and load data
         switch (pageId) {
             case 'attendance':
                 if (window.AttendancePage) {
-                    await window.AttendancePage.render();
                     window.AttendancePage.setupEvents();
                 }
                 break;
             case 'tracker':
                 if (window.TrackerPage) {
-                    await window.TrackerPage.render();
                     window.TrackerPage.setupEvents();
                 }
                 break;
             case 'reflections':
                 if (window.ReflectionsPage) {
-                    await window.ReflectionsPage.render();
                     window.ReflectionsPage.setupEvents();
                 }
                 break;
             case 'admin':
                 if (window.AdminPage) {
-                    await window.AdminPage.render();
                     window.AdminPage.setupEvents();
                 }
                 break;
@@ -206,11 +203,7 @@ class App {
     }
 }
 
-// Start the app - but only after DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.app = new App();
-    });
-} else {
+// Start the app
+document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
-}
+});
