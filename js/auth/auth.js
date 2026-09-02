@@ -7,7 +7,9 @@ const Auth = {
     async login(email, password) {
         if (window.__firebase.useMock) {
             if (email === 'teacher@demo.com' && password === '123456') {
-                return { email, uid: 'mock-user-123', displayName: 'Teacher' };
+                const user = { email, uid: 'mock-user-123', displayName: 'Teacher' };
+                sessionStorage.setItem('mockUser', JSON.stringify(user));
+                return user;
             }
             throw new Error('Invalid credentials. Use teacher@demo.com / 123456');
         }
@@ -24,13 +26,14 @@ const Auth = {
     // ----- GOOGLE SIGN-IN -----
     async loginWithGoogle() {
         if (window.__firebase.useMock) {
-            // Mock Google login
-            return { 
+            const user = { 
                 email: 'teacher@gmail.com', 
                 uid: 'mock-google-123', 
                 displayName: 'Teacher (Google)',
                 photoURL: 'https://ui-avatars.com/api/?name=Teacher&background=6C63FF&color=fff'
             };
+            sessionStorage.setItem('mockUser', JSON.stringify(user));
+            return user;
         }
         try {
             const userCred = await window.__firebase.auth.signInWithPopup(window.__firebase.googleProvider);
@@ -45,14 +48,12 @@ const Auth = {
     // ----- REGISTER (for new users) -----
     async register(email, password, displayName) {
         if (window.__firebase.useMock) {
-            // Mock registration
-            const user = { email, uid: 'mock-user-' + Date.now(), displayName };
+            const user = { email, uid: 'mock-user-' + Date.now(), displayName: displayName || 'User' };
             sessionStorage.setItem('mockUser', JSON.stringify(user));
             return user;
         }
         try {
             const userCred = await window.__firebase.auth.createUserWithEmailAndPassword(email, password);
-            // Update profile with display name
             if (displayName) {
                 await userCred.user.updateProfile({ displayName });
             }
@@ -147,4 +148,5 @@ const Auth = {
     }
 };
 
+// Make Auth globally available
 window.Auth = Auth;
