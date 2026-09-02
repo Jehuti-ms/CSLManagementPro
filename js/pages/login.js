@@ -15,11 +15,11 @@ const LoginPage = {
                 <!-- Email Login -->
                 <div class="input-group">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="loginEmail" placeholder="Email address" value="teacher@demo.com">
+                    <input type="email" id="loginEmail" placeholder="Email address" value="dmoseley@gams.edu.bb">
                 </div>
                 <div class="input-group">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="loginPassword" placeholder="Password" value="123456">
+                    <input type="password" id="loginPassword" placeholder="Password" value="">
                 </div>
                 <button id="loginBtn" class="btn-primary">
                     <i class="fas fa-arrow-right-to-bracket"></i> Sign in with Email
@@ -59,64 +59,115 @@ const LoginPage = {
 
     // ----- SETUP LOGIN EVENTS -----
     setupEvents: function() {
+        console.log("🔧 Setting up login events...");
+        
         // Email login
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
-            loginBtn.addEventListener('click', async () => {
+            console.log("✅ Login button found");
+            loginBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                console.log("🔑 Login button clicked");
+                
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
+                const errorEl = document.getElementById('loginError');
+                
+                if (!email || !password) {
+                    errorEl.textContent = 'Please enter both email and password';
+                    return;
+                }
+                
                 try {
+                    errorEl.textContent = '⏳ Logging in...';
                     const user = await window.Auth.login(email, password);
-                    document.getElementById('loginError').textContent = '';
+                    errorEl.textContent = '';
+                    console.log("✅ Login successful:", user.email);
+                    
                     // Update user display
                     const userEmail = document.getElementById('userEmail');
                     if (userEmail) {
                         userEmail.textContent = user.displayName || user.email || 'Teacher';
                     }
+                    
                     // Show main app
-                    window.app.showMainApp(user);
+                    if (window.app) {
+                        window.app.showMainApp(user);
+                    } else {
+                        console.error("❌ App not initialized");
+                    }
                 } catch (error) {
-                    document.getElementById('loginError').textContent = error.message;
+                    console.error("❌ Login error:", error);
+                    errorEl.textContent = '❌ ' + error.message;
                 }
             });
+        } else {
+            console.error("❌ Login button not found!");
         }
 
         // Google login
         const googleLoginBtn = document.getElementById('googleLoginBtn');
         if (googleLoginBtn) {
-            googleLoginBtn.addEventListener('click', async () => {
+            console.log("✅ Google login button found");
+            googleLoginBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                console.log("🔑 Google login button clicked");
+                
+                const errorEl = document.getElementById('loginError');
+                
                 try {
+                    errorEl.textContent = '⏳ Signing in with Google...';
                     const user = await window.Auth.loginWithGoogle();
-                    document.getElementById('loginError').textContent = '';
+                    errorEl.textContent = '';
+                    console.log("✅ Google login successful:", user.email);
+                    
                     const userEmail = document.getElementById('userEmail');
                     if (userEmail) {
                         userEmail.textContent = user.displayName || user.email || 'Teacher';
                     }
-                    window.app.showMainApp(user);
+                    
+                    if (window.app) {
+                        window.app.showMainApp(user);
+                    }
                 } catch (error) {
-                    document.getElementById('loginError').textContent = 'Google Sign-In failed: ' + error.message;
+                    console.error("❌ Google login error:", error);
+                    errorEl.textContent = '❌ Google Sign-In failed: ' + error.message;
                 }
             });
+        } else {
+            console.error("❌ Google login button not found!");
         }
 
         // Register link
         const showRegisterBtn = document.getElementById('showRegisterBtn');
         if (showRegisterBtn) {
-            showRegisterBtn.addEventListener('click', (e) => {
+            showRegisterBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                // For now, show a message
                 alert('Registration coming soon! For now, use the demo account or Google Sign-In.');
-                // You can implement registration modal here
             });
         }
 
         // Enter key shortcuts
-        document.getElementById('loginEmail')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('loginBtn').click();
-        });
-        document.getElementById('loginPassword')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('loginBtn').click();
-        });
+        const emailInput = document.getElementById('loginEmail');
+        const passwordInput = document.getElementById('loginPassword');
+        
+        if (emailInput) {
+            emailInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const btn = document.getElementById('loginBtn');
+                    if (btn) btn.click();
+                }
+            });
+        }
+        
+        if (passwordInput) {
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const btn = document.getElementById('loginBtn');
+                    if (btn) btn.click();
+                }
+            });
+        }
     }
 };
 
