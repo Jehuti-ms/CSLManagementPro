@@ -296,6 +296,136 @@ const DB = {
     },
 
     // ============================================================
+    // TRACKER - TEMPLATES
+    // ============================================================
+    async getTemplates() {
+        if (window.__firebase.useMock) {
+            return mockData.templates || [];
+        }
+        try {
+            var snapshot = await window.__firebase.db.collection('templates')
+                .orderBy('name')
+                .get();
+            return snapshot.docs.map(function(doc) {
+                return { id: doc.id, ...doc.data() };
+            });
+        } catch (error) {
+            console.error("❌ Error getting templates:", error);
+            return [];
+        }
+    },
+    
+    async saveTemplate(template) {
+        if (window.__firebase.useMock) {
+            if (!mockData.templates) mockData.templates = [];
+            var newTemplate = { id: 'mock-temp-' + Date.now(), ...template };
+            mockData.templates.push(newTemplate);
+            saveMock();
+            return newTemplate;
+        }
+        try {
+            var docRef = await window.__firebase.db.collection('templates').add({
+                ...template,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { id: docRef.id, ...template };
+        } catch (error) {
+            console.error("❌ Error saving template:", error);
+            throw error;
+        }
+    },
+    
+    async useTemplate(templateId) {
+        if (window.__firebase.useMock) {
+            var template = mockData.templates.find(function(t) { return t.id === templateId; });
+            return template || null;
+        }
+        try {
+            var doc = await window.__firebase.db.collection('templates').doc(templateId).get();
+            if (doc.exists) {
+                return { id: doc.id, ...doc.data() };
+            }
+            return null;
+        } catch (error) {
+            console.error("❌ Error using template:", error);
+            return null;
+        }
+    },
+    
+    async deleteTemplate(templateId) {
+        if (window.__firebase.useMock) {
+            mockData.templates = mockData.templates.filter(function(t) { return t.id !== templateId; });
+            saveMock();
+            return;
+        }
+        try {
+            await window.__firebase.db.collection('templates').doc(templateId).delete();
+            console.log("✅ Template deleted");
+        } catch (error) {
+            console.error("❌ Error deleting template:", error);
+            throw error;
+        }
+    },
+    
+    // ============================================================
+    // TRACKER - CHECK-IN
+    // ============================================================
+    async updateCheckIns(clubId, activityId, checkedIn) {
+        if (window.__firebase.useMock) {
+            // Update mock data
+            Object.keys(mockData.activities).forEach(function(key) {
+                var activities = mockData.activities[key];
+                var idx = activities.findIndex(function(a) { return a.id === activityId; });
+                if (idx !== -1) {
+                    activities[idx].checkedIn = checkedIn;
+                }
+            });
+            saveMock();
+            return;
+        }
+        try {
+            await window.__firebase.db.collection('activities')
+                .doc(activityId)
+                .update({ checkedIn: checkedIn });
+            console.log("✅ Check-ins updated");
+        } catch (error) {
+            console.error("❌ Error updating check-ins:", error);
+            throw error;
+        }
+    },
+    
+    // ============================================================
+    // TRACKER - ACTIVITY BY ID
+    // ============================================================
+    async getActivityById(clubId, activityId) {
+        if (window.__firebase.useMock) {
+            var periods = ['weekly', 'monthly', 'yearly'];
+            for (var i = 0; i < periods.length; i++) {
+                var key = 'activities_' + clubId + '_' + periods[i];
+                if (mockData.activities[key]) {
+                    var activities = mockData.activities[key];
+                    for (var j = 0; j < activities.length; j++) {
+                        if (activities[j].id === activityId) {
+                            return activities[j];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        try {
+            var doc = await window.__firebase.db.collection('activities').doc(activityId).get();
+            if (doc.exists) {
+                return { id: doc.id, ...doc.data() };
+            }
+            return null;
+        } catch (error) {
+            console.error("❌ Error getting activity:", error);
+            return null;
+        }
+    },
+    
+    // ============================================================
     // TRACKER - TEACHER CLUBS
     // ============================================================
     async getTeacherClubs() {
