@@ -14,11 +14,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let useMock = false; // We have real credentials now!
+let useMock = false;
 let auth, db, googleProvider;
 
 try {
-    // Initialize Firebase (using compat version for older SDK style)
+    // Initialize Firebase (using compat version)
     firebase.initializeApp(firebaseConfig);
     
     // Get auth and firestore instances
