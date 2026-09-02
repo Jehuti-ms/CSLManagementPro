@@ -1,5 +1,5 @@
 // ============================================================
-// TRACKER PAGE - With Beautiful Modal Forms
+// TRACKER PAGE - With Beautiful Modal Forms (FIXED)
 // ============================================================
 
 var TrackerPage = {
@@ -75,7 +75,6 @@ var TrackerPage = {
                     <span style="font-size: 0.9rem; font-weight: 400; color: var(--gray);">create and assign tasks</span>
                 </div>
                 
-                <!-- Task Input Form (Simplified - main action is Add Task button) -->
                 <div class="toolbar">
                     <button class="btn-primary" id="addTaskBtn">
                         <i class="fas fa-plus"></i> Add New Task
@@ -85,7 +84,6 @@ var TrackerPage = {
                     </span>
                 </div>
                 
-                <!-- Task List -->
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -388,17 +386,35 @@ var TrackerPage = {
             return;
         }
         
+        console.log("📝 Opening Add Activity Modal");
+        
         // Reset form
         document.getElementById('activityTitle').value = '';
         document.getElementById('activityDescription').value = '';
         document.getElementById('activityStatus').value = 'pending';
         document.getElementById('activityDate').value = new Date().toISOString().slice(0, 10);
         
+        // Load students into dropdown
+        var self = this;
+        window.DB.getStudents().then(function(students) {
+            var studentSelect = document.getElementById('activityStudents');
+            if (studentSelect) {
+                studentSelect.innerHTML = '<option value="all">All Students</option>';
+                for (var i = 0; i < students.length; i++) {
+                    studentSelect.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
+                }
+            }
+        }).catch(function(error) {
+            console.error("❌ Error loading students:", error);
+        });
+        
         this.showModal('addActivityModal');
     },
 
     // ----- SAVE ACTIVITY FROM MODAL -----
     saveActivityFromModal: function() {
+        console.log("📝 Saving activity from modal...");
+        
         var clubId = document.getElementById('trackerClubSelect').value;
         if (!clubId) {
             alert('Please select a club first');
@@ -437,6 +453,8 @@ var TrackerPage = {
             selectedStudents = allStudents;
         }
         
+        console.log("📋 Activity data:", { title, description, type, date, period, status, students: selectedStudents });
+        
         var self = this;
         window.DB.addActivity(clubId, {
             title: title,
@@ -464,6 +482,8 @@ var TrackerPage = {
             return;
         }
         
+        console.log("📝 Opening Add Task Modal");
+        
         // Reset form
         document.getElementById('taskTitle').value = '';
         document.getElementById('taskPriorityModal').value = 'medium';
@@ -478,6 +498,8 @@ var TrackerPage = {
                     taskAssign.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
                 }
             }
+        }).catch(function(error) {
+            console.error("❌ Error loading students:", error);
         });
         
         this.showModal('addTaskModal');
@@ -485,6 +507,8 @@ var TrackerPage = {
 
     // ----- SAVE TASK FROM MODAL -----
     saveTaskFromModal: function() {
+        console.log("📝 Saving task from modal...");
+        
         var clubId = document.getElementById('trackerClubSelect').value;
         if (!clubId) {
             alert('Please select a club first');
@@ -501,6 +525,8 @@ var TrackerPage = {
         var priority = document.getElementById('taskPriorityModal').value;
         var assignedTo = document.getElementById('taskAssignedToModal').value;
         
+        console.log("📋 Task data:", { title, priority, assignedTo });
+        
         var self = this;
         window.DB.addTask(clubId, title, priority, assignedTo).then(function() {
             console.log("✅ Task added successfully!");
@@ -514,6 +540,8 @@ var TrackerPage = {
 
     // ----- SHOW EDIT ACTIVITY MODAL -----
     showEditActivityModal: function(activityId, activity) {
+        console.log("📝 Opening Edit Activity Modal for:", activityId);
+        
         document.getElementById('editActivityId').value = activityId;
         document.getElementById('editActivityTitle').value = activity.title || '';
         document.getElementById('editActivityDescription').value = activity.description || '';
@@ -527,6 +555,8 @@ var TrackerPage = {
 
     // ----- UPDATE ACTIVITY FROM MODAL -----
     updateActivityFromModal: function() {
+        console.log("📝 Updating activity from modal...");
+        
         var clubId = document.getElementById('trackerClubSelect').value;
         if (!clubId) {
             alert('Please select a club first');
@@ -547,9 +577,10 @@ var TrackerPage = {
         var period = document.getElementById('editActivityPeriod').value;
         var status = document.getElementById('editActivityStatus').value;
         
-        // For now, we'll update through delete + add since we don't have a direct update method
-        // In production, you'd add an updateActivity method
+        console.log("📋 Update data:", { activityId, title, description, type, date, period, status });
+        
         var self = this;
+        // Delete old and add new (simplified update)
         window.DB.deleteActivity(clubId, activityId).then(function() {
             return window.DB.addActivity(clubId, {
                 title: title,
@@ -1026,6 +1057,7 @@ var TrackerPage = {
         var addBtn = document.getElementById('addActivityBtn');
         if (addBtn) {
             addBtn.addEventListener('click', function() {
+                console.log("🔘 Add Activity button clicked");
                 self.showAddActivityModal();
             });
         }
@@ -1034,6 +1066,7 @@ var TrackerPage = {
         var saveBtn = document.getElementById('saveActivityBtn');
         if (saveBtn) {
             saveBtn.addEventListener('click', function() {
+                console.log("🔘 Save Activity button clicked");
                 self.saveActivityFromModal();
             });
         }
@@ -1042,6 +1075,7 @@ var TrackerPage = {
         var addTaskBtn = document.getElementById('addTaskBtn');
         if (addTaskBtn) {
             addTaskBtn.addEventListener('click', function() {
+                console.log("🔘 Add Task button clicked");
                 self.showAddTaskModal();
             });
         }
@@ -1050,6 +1084,7 @@ var TrackerPage = {
         var saveTaskBtn = document.getElementById('saveTaskBtn');
         if (saveTaskBtn) {
             saveTaskBtn.addEventListener('click', function() {
+                console.log("🔘 Save Task button clicked");
                 self.saveTaskFromModal();
             });
         }
@@ -1058,6 +1093,7 @@ var TrackerPage = {
         var updateBtn = document.getElementById('updateActivityBtn');
         if (updateBtn) {
             updateBtn.addEventListener('click', function() {
+                console.log("🔘 Update Activity button clicked");
                 self.updateActivityFromModal();
             });
         }
