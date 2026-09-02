@@ -1,5 +1,5 @@
 // ============================================================
-// TRACKER PAGE - Complete with Club Access Control (FIXED)
+// TRACKER PAGE - Complete with Club Access Control (IMPROVED)
 // ============================================================
 
 var TrackerPage = {
@@ -11,6 +11,7 @@ var TrackerPage = {
                 '<span id="trackerClubName" style="font-size: 1rem; font-weight: 400; color: var(--primary);"></span>' +
             '</div>' +
             
+            // Club Selector
             '<div class="toolbar" id="clubSelectorToolbar">' +
                 '<label style="font-weight: 600; color: var(--dark);">' +
                     '<i class="fas fa-users"></i> Select Club:' +
@@ -20,6 +21,7 @@ var TrackerPage = {
                 '</select>' +
             '</div>' +
             
+            // Period Tabs + Add Activity Button
             '<div class="toolbar" style="background: rgba(108, 99, 255, 0.04);">' +
                 '<button class="period-tab active" data-period="weekly">' +
                     '<i class="fas fa-calendar-week"></i> Weekly' +
@@ -31,11 +33,12 @@ var TrackerPage = {
                     '<i class="fas fa-calendar-year"></i> Yearly' +
                 '</button>' +
                 '<div style="flex:1;"></div>' +
-                '<button class="btn-primary" id="addActivityBtn">' +
+                '<button class="btn-primary" id="addActivityBtn" style="background: var(--gradient-primary); border: none; padding: 10px 24px; border-radius: var(--border-radius-sm); color: white; font-weight: 600; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; font-family: Inter, sans-serif; font-size: 0.95rem;">' +
                     '<i class="fas fa-plus"></i> Add Activity' +
                 '</button>' +
             '</div>' +
             
+            // Activities Table
             '<div class="table-wrap">' +
                 '<table>' +
                     '<thead>' +
@@ -56,20 +59,22 @@ var TrackerPage = {
                 '</table>' +
             '</div>' +
             
+            // Stats
             '<div class="tracker-stats" style="margin-top: 20px;">' +
                 '<div class="stat-box"><span id="totalActivities">0</span> Total Activities</div>' +
                 '<div class="stat-box"><span id="completedActivities">0</span> Completed</div>' +
                 '<div class="stat-box"><span id="pendingActivities">0</span> Pending</div>' +
             '</div>' +
             
+            // Task Manager
             '<div style="margin-top: 32px;">' +
                 '<div class="section-title" style="font-size: 1.2rem;">' +
                     '<i class="fas fa-tasks"></i> Task Manager' +
                     '<span style="font-size: 0.9rem; font-weight: 400; color: var(--gray);">for this club</span>' +
                 '</div>' +
                 '<div class="toolbar">' +
-                    '<input type="text" id="taskInput" placeholder="Add a new task..." style="flex: 1; min-width: 200px;">' +
-                    '<select id="taskPriority">' +
+                    '<input type="text" id="taskInput" placeholder="Add a new task..." style="flex: 1; min-width: 200px; padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem; transition: var(--transition); font-family: Inter, sans-serif;">' +
+                    '<select id="taskPriority" style="padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem; transition: var(--transition); font-family: Inter, sans-serif;">' +
                         '<option value="low">Low Priority</option>' +
                         '<option value="medium" selected>Medium Priority</option>' +
                         '<option value="high">High Priority</option>' +
@@ -98,6 +103,7 @@ var TrackerPage = {
                 '</div>' +
             '</div>' +
             
+            // Media Upload
             '<div style="margin-top: 32px;">' +
                 '<div class="section-title" style="font-size: 1.2rem;">' +
                     '<i class="fas fa-video"></i> Media Gallery' +
@@ -118,6 +124,18 @@ var TrackerPage = {
                 '</div>' +
             '</div>' +
         '</div>';
+    },
+
+    // ----- SHOW EMPTY STATE WITH ACTION -----
+    showEmptyState: function(tbody, period) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--gray);">' +
+            '<i class="fas fa-calendar-plus" style="font-size: 3rem; display: block; margin-bottom: 12px; color: var(--primary); opacity: 0.6;"></i>' +
+            '<h3 style="color: var(--dark); margin-bottom: 8px;">No activities for this ' + period + ' period</h3>' +
+            '<p style="margin-bottom: 16px;">Get started by adding your first activity!</p>' +
+            '<button class="btn-primary" onclick="document.getElementById(\'addActivityBtn\').click()" style="padding: 10px 28px;">' +
+                '<i class="fas fa-plus"></i> Add Activity' +
+            '</button>' +
+        '</td></tr>';
     },
 
     // ----- LOAD DATA (async) -----
@@ -144,7 +162,6 @@ var TrackerPage = {
             
         } catch (error) {
             console.error("❌ Error loading tracker data:", error);
-            // Show error in the UI
             var tbody = document.getElementById('trackerActivitiesBody');
             if (tbody) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--danger);">' +
@@ -168,10 +185,7 @@ var TrackerPage = {
             if (!tbody) return;
             
             if (!activities || activities.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--gray);">' +
-                    '<i class="fas fa-calendar-plus" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>' +
-                    'No activities for this ' + period + ' period. Click "Add Activity" to get started!' +
-                    '</td></tr>';
+                this.showEmptyState(tbody, period);
             } else {
                 var html = '';
                 for (var i = 0; i < activities.length; i++) {
@@ -181,9 +195,9 @@ var TrackerPage = {
                         '<td><strong>' + (a.title || 'Untitled') + '</strong>' +
                             (a.description ? '<br><small style="color: var(--gray);">' + a.description + '</small>' : '') +
                         '</td>' +
-                        '<td><span class="badge" style="background: ' + this.getTypeColor(a.type) + '; color: white;">' + (a.type || 'General') + '</span></td>' +
+                        '<td><span class="badge" style="background: ' + this.getTypeColor(a.type) + '; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.8rem; font-weight: 600;">' + (a.type || 'General') + '</span></td>' +
                         '<td>' +
-                            '<select class="activity-status" data-id="' + (a.id || a._id) + '" style="padding: 4px 8px;">' +
+                            '<select class="activity-status" data-id="' + (a.id || a._id) + '" style="padding: 4px 8px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-family: Inter, sans-serif; font-size: 0.85rem; cursor: pointer; transition: var(--transition);">' +
                                 '<option value="pending" ' + (a.status === 'pending' ? 'selected' : '') + '>⏳ Pending</option>' +
                                 '<option value="in-progress" ' + (a.status === 'in-progress' ? 'selected' : '') + '>🔄 In Progress</option>' +
                                 '<option value="completed" ' + (a.status === 'completed' ? 'selected' : '') + '>✅ Completed</option>' +
@@ -191,7 +205,7 @@ var TrackerPage = {
                             '</select>' +
                         '</td>' +
                         '<td>' +
-                            '<button class="delete-btn delete-activity" data-id="' + (a.id || a._id) + '">' +
+                            '<button class="delete-btn delete-activity" data-id="' + (a.id || a._id) + '" style="background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px 12px; border-radius: var(--border-radius-sm); transition: var(--transition); font-size: 0.9rem;">' +
                                 '<i class="fas fa-trash"></i>' +
                             '</button>' +
                         '</td>' +
@@ -261,9 +275,10 @@ var TrackerPage = {
             
             if (!tasks || tasks.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 30px; color: var(--gray);">' +
-                    '<i class="fas fa-check-circle" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>' +
-                    'No tasks yet. Add one above!' +
-                    '</td></tr>';
+                    '<i class="fas fa-check-circle" style="font-size: 2rem; display: block; margin-bottom: 8px; color: var(--primary); opacity: 0.6;"></i>' +
+                    '<h4 style="color: var(--dark); margin-bottom: 4px;">No tasks yet</h4>' +
+                    '<p style="font-size: 0.9rem;">Add a task using the form above!</p>' +
+                '</td></tr>';
             } else {
                 var html = '';
                 for (var i = 0; i < tasks.length; i++) {
@@ -272,17 +287,17 @@ var TrackerPage = {
                     var doneStyle = t.completed ? 'text-decoration: line-through; color: var(--gray);' : '';
                     html += '<tr>' +
                         '<td style="text-align:center;">' +
-                            '<input type="checkbox" class="task-checkbox" data-id="' + (t.id || t._id) + '" ' + checked + '>' +
+                            '<input type="checkbox" class="task-checkbox" data-id="' + (t.id || t._id) + '" ' + checked + ' style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary); border-radius: 4px; transition: var(--transition);">' +
                         '</td>' +
                         '<td style="' + doneStyle + '">' + t.title + '</td>' +
                         '<td>' +
-                            '<span class="badge" style="background: ' + this.getPriorityColor(t.priority) + '; color: white; font-size: 0.7rem;">' +
+                            '<span class="badge" style="background: ' + this.getPriorityColor(t.priority) + '; color: white; font-size: 0.7rem; padding: 2px 10px; border-radius: 40px;">' +
                                 (t.priority || 'medium') +
                             '</span>' +
                         '</td>' +
                         '<td style="font-size: 0.85rem; color: var(--gray);">' + (t.createdAt || new Date().toISOString().slice(0, 10)) + '</td>' +
                         '<td>' +
-                            '<button class="delete-btn delete-task" data-id="' + (t.id || t._id) + '">' +
+                            '<button class="delete-btn delete-task" data-id="' + (t.id || t._id) + '" style="background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px 12px; border-radius: var(--border-radius-sm); transition: var(--transition); font-size: 0.9rem;">' +
                                 '<i class="fas fa-trash"></i>' +
                             '</button>' +
                         '</td>' +
@@ -348,14 +363,18 @@ var TrackerPage = {
             
             if (!media || media.length === 0) {
                 gallery.innerHTML = '<div style="text-align:center; padding: 30px; color: var(--gray); grid-column: 1 / -1;">' +
-                    '<i class="fas fa-photo-video" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>' +
-                    'No media uploaded yet.' +
-                    '</div>';
+                    '<i class="fas fa-photo-video" style="font-size: 3rem; display: block; margin-bottom: 12px; color: var(--primary); opacity: 0.6;"></i>' +
+                    '<h4 style="color: var(--dark);">No media uploaded yet</h4>' +
+                    '<p style="font-size: 0.9rem;">Upload photos or videos of your club activities!</p>' +
+                    '<button class="btn-primary" onclick="document.getElementById(\'mediaUploadBtn\').click()" style="margin-top: 8px; padding: 8px 20px;">' +
+                        '<i class="fas fa-upload"></i> Upload Now' +
+                    '</button>' +
+                '</div>';
             } else {
                 var html = '';
                 for (var i = 0; i < media.length; i++) {
                     var m = media[i];
-                    html += '<div class="media-item" style="background: rgba(255,255,255,0.8); border-radius: var(--border-radius-sm); padding: 12px; border: 1px solid var(--gray-light); position: relative;">';
+                    html += '<div style="background: rgba(255,255,255,0.8); border-radius: var(--border-radius-sm); padding: 12px; border: 1px solid var(--gray-light); position: relative;">';
                     if (m.type === 'video') {
                         html += '<video style="width: 100%; border-radius: 8px; max-height: 150px; object-fit: cover;" controls>' +
                             '<source src="' + m.url + '" type="video/mp4">' +
@@ -363,9 +382,9 @@ var TrackerPage = {
                     } else {
                         html += '<img src="' + m.url + '" style="width: 100%; border-radius: 8px; max-height: 150px; object-fit: cover;" alt="' + m.name + '">';
                     }
-                    html += '<div class="media-info" style="margin-top: 8px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">' +
+                    html += '<div style="margin-top: 8px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">' +
                         '<span style="color: var(--dark);">' + m.name + '</span>' +
-                        '<button class="delete-btn delete-media" data-id="' + (m.id || m._id) + '">' +
+                        '<button class="delete-btn delete-media" data-id="' + (m.id || m._id) + '" style="background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px 12px; border-radius: var(--border-radius-sm); transition: var(--transition);">' +
                             '<i class="fas fa-times"></i>' +
                         '</button>' +
                     '</div></div>';
@@ -470,8 +489,9 @@ var TrackerPage = {
                 var tbody = document.getElementById('trackerActivitiesBody');
                 if (tbody) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--gray);">' +
-                        '<i class="fas fa-info-circle" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>' +
-                        'You haven\'t been assigned to any clubs yet.<br>Contact your administrator.' +
+                        '<i class="fas fa-info-circle" style="font-size: 3rem; display: block; margin-bottom: 12px; color: var(--primary); opacity: 0.6;"></i>' +
+                        '<h3 style="color: var(--dark);">No Clubs Assigned</h3>' +
+                        '<p>You haven\'t been assigned to any clubs yet.<br>Contact your administrator to get started.</p>' +
                     '</td></tr>';
                 }
                 return;
@@ -603,7 +623,7 @@ var TrackerPage = {
         this.loadTeacherClubs();
     },
 
-    // ----- SHOW ADD ACTIVITY MODAL -----
+    // ----- SHOW ADD ACTIVITY MODAL (Improved) -----
     showAddActivityModal: function() {
         var clubId = document.getElementById('trackerClubSelect').value;
         if (!clubId) {
@@ -611,14 +631,18 @@ var TrackerPage = {
             return;
         }
         
-        var title = prompt('Activity title:');
+        // Create a simple modal using prompt for now
+        // In a production app, you'd use a proper modal
+        var title = prompt('📝 Activity title:');
         if (!title) return;
         
-        var description = prompt('Description (optional):') || '';
-        var type = prompt('Type (Training/Meeting/Event/Planning/Volunteer):') || 'General';
-        var date = prompt('Date (YYYY-MM-DD):') || new Date().toISOString().slice(0, 10);
+        var description = prompt('📄 Description (optional):') || '';
+        var type = prompt('🏷️ Type (Training/Meeting/Event/Planning/Volunteer):') || 'General';
+        var date = prompt('📅 Date (YYYY-MM-DD):') || new Date().toISOString().slice(0, 10);
         var periodTab = document.querySelector('.period-tab.active');
         var period = periodTab ? periodTab.dataset.period : 'weekly';
+        
+        console.log("📝 Adding activity:", { title, description, type, date, period, status: 'pending' });
         
         window.DB.addActivity(clubId, {
             title: title,
@@ -628,8 +652,10 @@ var TrackerPage = {
             period: period,
             status: 'pending'
         }).then(function() {
+            console.log("✅ Activity added successfully!");
             window.TrackerPage.loadData();
         }).catch(function(error) {
+            console.error("❌ Error adding activity:", error);
             alert('Error adding activity: ' + error.message);
         });
     }
