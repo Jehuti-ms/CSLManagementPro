@@ -1,5 +1,5 @@
 // ============================================================
-// FIREBASE CONFIGURATION - CSL Management Pro
+// FIREBASE CONFIGURATION - Add Storage
 // ============================================================
 
 // Your web app's Firebase configuration
@@ -15,30 +15,22 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let useMock = false;
-let auth, db, googleProvider;
+let auth, db, storage, googleProvider;
 
 try {
     // Initialize Firebase (using compat version)
     firebase.initializeApp(firebaseConfig);
     
-    // Get auth and firestore instances
+    // Get auth, firestore, and storage instances
     auth = firebase.auth();
     db = firebase.firestore();
+    storage = firebase.storage();  // ADD THIS
     
     // Setup Google Auth Provider
     googleProvider = new firebase.auth.GoogleAuthProvider();
     googleProvider.setCustomParameters({
         prompt: 'select_account'
     });
-    
-    // Enable offline persistence for Firestore
-    db.enablePersistence()
-        .then(() => {
-            console.log("✅ Firestore persistence enabled");
-        })
-        .catch((err) => {
-            console.warn("⚠️ Firestore persistence error:", err);
-        });
     
     useMock = false;
     console.log("✅ Firebase initialized successfully with real credentials!");
@@ -54,6 +46,7 @@ try {
 window.__firebase = { 
     auth, 
     db, 
+    storage,  // ADD THIS
     googleProvider, 
     useMock,
     config: firebaseConfig
