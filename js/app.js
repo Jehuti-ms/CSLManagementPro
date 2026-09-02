@@ -1,5 +1,5 @@
 // ============================================================
-// js/app.js - MAIN APP CONTROLLER (Fixed)
+// js/app.js - MAIN APP CONTROLLER (COMPLETELY FIXED)
 // ============================================================
 
 class App {
@@ -92,7 +92,9 @@ class App {
         console.log("📄 Showing login page...");
         const container = document.getElementById('pageContainer');
         if (container) {
-            container.innerHTML = window.LoginPage.render();
+            // LoginPage.render() MUST return a string, not a Promise
+            const loginHTML = window.LoginPage.render();
+            container.innerHTML = loginHTML;
             // Setup events after rendering
             setTimeout(() => {
                 window.LoginPage.setupEvents();
@@ -126,7 +128,7 @@ class App {
         this.loadPage('attendance');
         setTimeout(() => {
             this.navigateTo('attendance');
-        }, 50);
+        }, 100);
     }
     
     loadPage(pageName) {
@@ -138,24 +140,45 @@ class App {
         
         console.log(`📄 Loading page HTML: ${pageName}`);
         
-        // Get the HTML (synchronous - NO async)
+        // Get the HTML (synchronous - NO async calls!)
         let html = '';
-        switch (pageName) {
-            case 'attendance':
-                html = window.AttendancePage.render();
-                break;
-            case 'tracker':
-                html = window.TrackerPage.render();
-                break;
-            case 'reflections':
-                html = window.ReflectionsPage.render();
-                break;
-            case 'admin':
-                html = window.AdminPage.render();
-                break;
-            default:
-                console.warn(`⚠️ Unknown page: ${pageName}`);
-                html = `<div class="page active-page"><p>Page not found</p></div>`;
+        try {
+            switch (pageName) {
+                case 'attendance':
+                    if (window.AttendancePage && typeof window.AttendancePage.render === 'function') {
+                        html = window.AttendancePage.render();
+                    } else {
+                        html = `<div class="page active-page"><p>Attendance page not loaded</p></div>`;
+                    }
+                    break;
+                case 'tracker':
+                    if (window.TrackerPage && typeof window.TrackerPage.render === 'function') {
+                        html = window.TrackerPage.render();
+                    } else {
+                        html = `<div class="page active-page"><p>Tracker page not loaded</p></div>`;
+                    }
+                    break;
+                case 'reflections':
+                    if (window.ReflectionsPage && typeof window.ReflectionsPage.render === 'function') {
+                        html = window.ReflectionsPage.render();
+                    } else {
+                        html = `<div class="page active-page"><p>Reflections page not loaded</p></div>`;
+                    }
+                    break;
+                case 'admin':
+                    if (window.AdminPage && typeof window.AdminPage.render === 'function') {
+                        html = window.AdminPage.render();
+                    } else {
+                        html = `<div class="page active-page"><p>Admin page not loaded</p></div>`;
+                    }
+                    break;
+                default:
+                    console.warn(`⚠️ Unknown page: ${pageName}`);
+                    html = `<div class="page active-page"><p>Page not found</p></div>`;
+            }
+        } catch (error) {
+            console.error(`❌ Error rendering ${pageName}:`, error);
+            html = `<div class="page active-page"><p>Error loading page: ${error.message}</p></div>`;
         }
         
         container.innerHTML = html;
@@ -175,44 +198,53 @@ class App {
         this.loadPage(pageId);
         
         // Wait for DOM to update
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 150));
         
         // Setup page-specific events and load data
         console.log(`🔧 Setting up events for: ${pageId}`);
-        switch (pageId) {
-            case 'attendance':
-                if (window.AttendancePage && typeof window.AttendancePage.setupEvents === 'function') {
-                    window.AttendancePage.setupEvents();
-                }
-                break;
-            case 'tracker':
-                if (window.TrackerPage && typeof window.TrackerPage.setupEvents === 'function') {
-                    window.TrackerPage.setupEvents();
-                }
-                break;
-            case 'reflections':
-                if (window.ReflectionsPage && typeof window.ReflectionsPage.setupEvents === 'function') {
-                    window.ReflectionsPage.setupEvents();
-                }
-                break;
-            case 'admin':
-                if (window.AdminPage && typeof window.AdminPage.setupEvents === 'function') {
-                    window.AdminPage.setupEvents();
-                }
-                break;
-            default:
-                console.warn(`⚠️ Unknown page: ${pageId}`);
+        try {
+            switch (pageId) {
+                case 'attendance':
+                    if (window.AttendancePage && typeof window.AttendancePage.setupEvents === 'function') {
+                        window.AttendancePage.setupEvents();
+                    }
+                    break;
+                case 'tracker':
+                    if (window.TrackerPage && typeof window.TrackerPage.setupEvents === 'function') {
+                        window.TrackerPage.setupEvents();
+                    }
+                    break;
+                case 'reflections':
+                    if (window.ReflectionsPage && typeof window.ReflectionsPage.setupEvents === 'function') {
+                        window.ReflectionsPage.setupEvents();
+                    }
+                    break;
+                case 'admin':
+                    if (window.AdminPage && typeof window.AdminPage.setupEvents === 'function') {
+                        window.AdminPage.setupEvents();
+                    }
+                    break;
+                default:
+                    console.warn(`⚠️ Unknown page: ${pageId}`);
+            }
+        } catch (error) {
+            console.error(`❌ Error setting up events for ${pageId}:`, error);
         }
         
         console.log(`✅ Navigation complete: ${pageId}`);
     }
 }
 
-// Start the app
+// Start the app - ONLY ONCE
+console.log("🚀 Starting app...");
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.app = new App();
+        if (!window.app) {
+            window.app = new App();
+        }
     });
 } else {
-    window.app = new App();
+    if (!window.app) {
+        window.app = new App();
+    }
 }
