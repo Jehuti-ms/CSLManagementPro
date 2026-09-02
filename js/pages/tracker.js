@@ -1,11 +1,10 @@
 // ============================================================
-// TRACKER PAGE - Full Interface Always Visible (FIXED)
+// TRACKER PAGE - With Beautiful Modal Forms
 // ============================================================
 
 var TrackerPage = {
-    // ----- RENDER HTML (returns the HTML string) -----
+    // ----- RENDER HTML -----
     render: function() {
-        console.log("📄 TrackerPage.render() called");
         return `
         <div id="trackerPage" class="page active-page">
             <div class="section-title">
@@ -22,7 +21,7 @@ var TrackerPage = {
                     <option value="">Loading clubs...</option>
                 </select>
                 <div style="flex:1;"></div>
-                <button class="btn-primary" id="addActivityBtn" style="background: var(--gradient-primary); border: none; padding: 10px 24px; border-radius: var(--border-radius-sm); color: white; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: Inter, sans-serif; font-size: 0.95rem;">
+                <button class="btn-primary" id="addActivityBtn">
                     <i class="fas fa-plus"></i> Add Activity
                 </button>
             </div>
@@ -76,20 +75,14 @@ var TrackerPage = {
                     <span style="font-size: 0.9rem; font-weight: 400; color: var(--gray);">create and assign tasks</span>
                 </div>
                 
-                <!-- Task Input Form -->
+                <!-- Task Input Form (Simplified - main action is Add Task button) -->
                 <div class="toolbar">
-                    <input type="text" id="taskInput" placeholder="Enter a new task..." style="flex: 2; min-width: 200px; padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem;">
-                    <select id="taskPriority" style="padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem;">
-                        <option value="low">🟢 Low</option>
-                        <option value="medium" selected>🟡 Medium</option>
-                        <option value="high">🔴 High</option>
-                    </select>
-                    <select id="taskAssignedTo" style="padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem;">
-                        <option value="">Assign to...</option>
-                    </select>
-                    <button class="btn-primary" id="addTaskBtn" style="white-space: nowrap;">
-                        <i class="fas fa-plus"></i> Add Task
+                    <button class="btn-primary" id="addTaskBtn">
+                        <i class="fas fa-plus"></i> Add New Task
                     </button>
+                    <span style="color: var(--gray); font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click to create and assign tasks
+                    </span>
                 </div>
                 
                 <!-- Task List -->
@@ -134,34 +127,446 @@ var TrackerPage = {
                     </div>
                 </div>
             </div>
-        </div>`;
+        </div>
+        
+        <!-- ===== ADD ACTIVITY MODAL ===== -->
+        <div id="addActivityModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+            <div class="modal-content" style="background: white; border-radius: var(--border-radius-lg); padding: 40px; max-width: 550px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3 style="color: var(--dark); display: flex; align-items: center; gap: 12px; font-size: 1.5rem;">
+                        <i class="fas fa-plus-circle" style="color: var(--primary);"></i> Add New Activity
+                    </h3>
+                    <button onclick="window.TrackerPage.closeModal('addActivityModal')" style="background: none; border: none; font-size: 1.5rem; color: var(--gray); cursor: pointer; padding: 4px 8px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Activity Title <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="activityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem; transition: var(--transition);">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Description</label>
+                    <textarea id="activityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Activity Type <span style="color: var(--danger);">*</span></label>
+                        <select id="activityType" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                            <option value="Meeting">📋 Meeting</option>
+                            <option value="Training">🏋️ Training</option>
+                            <option value="Event">🎉 Event</option>
+                            <option value="Planning">📝 Planning</option>
+                            <option value="Volunteer">🤝 Volunteer</option>
+                            <option value="Other">📌 Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Date <span style="color: var(--danger);">*</span></label>
+                        <input type="date" id="activityDate" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Period <span style="color: var(--danger);">*</span></label>
+                        <select id="activityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                            <option value="weekly">📅 Weekly</option>
+                            <option value="monthly">📆 Monthly</option>
+                            <option value="yearly">📊 Yearly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Status</label>
+                        <select id="activityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                            <option value="pending">⏳ Pending</option>
+                            <option value="in-progress">🔄 In Progress</option>
+                            <option value="completed">✅ Completed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Assign Students</label>
+                    <select id="activityStudents" multiple style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem; min-height: 80px;">
+                        <option value="all">All Students</option>
+                    </select>
+                    <small style="color: var(--gray); display: block; margin-top: 4px;">Hold Ctrl/Cmd to select multiple students</small>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button class="btn-primary" id="saveActivityBtn" style="flex: 1; padding: 14px;">
+                        <i class="fas fa-save"></i> Save Activity
+                    </button>
+                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('addActivityModal')" style="flex: 0.5; padding: 14px;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== ADD TASK MODAL ===== -->
+        <div id="addTaskModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+            <div class="modal-content" style="background: white; border-radius: var(--border-radius-lg); padding: 40px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3 style="color: var(--dark); display: flex; align-items: center; gap: 12px; font-size: 1.5rem;">
+                        <i class="fas fa-tasks" style="color: var(--primary);"></i> Add New Task
+                    </h3>
+                    <button onclick="window.TrackerPage.closeModal('addTaskModal')" style="background: none; border: none; font-size: 1.5rem; color: var(--gray); cursor: pointer; padding: 4px 8px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Task Description <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="taskTitle" placeholder="e.g., Prepare meeting agenda" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Priority</label>
+                        <select id="taskPriorityModal" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                            <option value="low">🟢 Low</option>
+                            <option value="medium" selected>🟡 Medium</option>
+                            <option value="high">🔴 High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Assign To</label>
+                        <select id="taskAssignedToModal" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                            <option value="">Unassigned</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button class="btn-primary" id="saveTaskBtn" style="flex: 1; padding: 14px;">
+                        <i class="fas fa-save"></i> Save Task
+                    </button>
+                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('addTaskModal')" style="flex: 0.5; padding: 14px;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== EDIT ACTIVITY MODAL ===== -->
+        <div id="editActivityModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+            <div class="modal-content" style="background: white; border-radius: var(--border-radius-lg); padding: 40px; max-width: 550px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3 style="color: var(--dark); display: flex; align-items: center; gap: 12px; font-size: 1.5rem;">
+                        <i class="fas fa-edit" style="color: var(--primary);"></i> Edit Activity
+                    </h3>
+                    <button onclick="window.TrackerPage.closeModal('editActivityModal')" style="background: none; border: none; font-size: 1.5rem; color: var(--gray); cursor: pointer; padding: 4px 8px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <input type="hidden" id="editActivityId">
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Activity Title <span style="color: var(--danger);">*</span></label>
+                    <input type="text" id="editActivityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Description</label>
+                    <textarea id="editActivityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Activity Type</label>
+                        <select id="editActivityType" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                            <option value="Meeting">📋 Meeting</option>
+                            <option value="Training">🏋️ Training</option>
+                            <option value="Event">🎉 Event</option>
+                            <option value="Planning">📝 Planning</option>
+                            <option value="Volunteer">🤝 Volunteer</option>
+                            <option value="Other">📌 Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Date</label>
+                        <input type="date" id="editActivityDate" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Period</label>
+                        <select id="editActivityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                            <option value="weekly">📅 Weekly</option>
+                            <option value="monthly">📆 Monthly</option>
+                            <option value="yearly">📊 Yearly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Status</label>
+                        <select id="editActivityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 1rem;">
+                            <option value="pending">⏳ Pending</option>
+                            <option value="in-progress">🔄 In Progress</option>
+                            <option value="completed">✅ Completed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button class="btn-primary" id="updateActivityBtn" style="flex: 1; padding: 14px;">
+                        <i class="fas fa-save"></i> Update Activity
+                    </button>
+                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('editActivityModal')" style="flex: 0.5; padding: 14px;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== KEYFRAME ANIMATION ===== -->
+        <style>
+            @keyframes modalSlideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-30px) scale(0.95);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+            
+            .modal-overlay {
+                animation: modalFadeIn 0.3s ease;
+            }
+            
+            @keyframes modalFadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            .modal-content input:focus,
+            .modal-content select:focus,
+            .modal-content textarea:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
+            }
+        </style>
+        `;
     },
 
-    // ----- SHOW GETTING STARTED GUIDE (in the activities table only) -----
-    showGettingStarted: function() {
-        console.log("📋 Showing getting started guide");
-        var tbody = document.getElementById('trackerActivitiesBody');
-        if (!tbody) {
-            console.warn("⚠️ trackerActivitiesBody not found");
+    // ----- SHOW MODAL -----
+    showModal: function(modalId) {
+        var modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    },
+
+    // ----- CLOSE MODAL -----
+    closeModal: function(modalId) {
+        var modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    },
+
+    // ----- SHOW ADD ACTIVITY MODAL -----
+    showAddActivityModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
             return;
         }
         
-        tbody.innerHTML = `
-        <tr>
-            <td colspan="5" style="padding: 40px; text-align: center;">
-                <div style="max-width: 500px; margin: 0 auto;">
-                    <i class="fas fa-calendar-plus" style="font-size: 3rem; color: var(--primary); opacity: 0.6; display: block; margin-bottom: 12px;"></i>
-                    <h3 style="color: var(--dark); margin-bottom: 4px;">No Activities Yet</h3>
-                    <p style="color: var(--gray); margin-bottom: 16px;">Start tracking your club's progress by adding your first activity!</p>
-                    <button class="btn-primary" onclick="document.getElementById('addActivityBtn').click()" style="padding: 10px 24px;">
-                        <i class="fas fa-plus"></i> Add Your First Activity
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.loadSampleData()" style="padding: 10px 24px; margin-left: 8px;">
-                        <i class="fas fa-download"></i> Load Sample Data
-                    </button>
-                </div>
-            </td>
-        </tr>`;
+        // Reset form
+        document.getElementById('activityTitle').value = '';
+        document.getElementById('activityDescription').value = '';
+        document.getElementById('activityStatus').value = 'pending';
+        document.getElementById('activityDate').value = new Date().toISOString().slice(0, 10);
+        
+        this.showModal('addActivityModal');
+    },
+
+    // ----- SAVE ACTIVITY FROM MODAL -----
+    saveActivityFromModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
+        }
+        
+        var title = document.getElementById('activityTitle').value.trim();
+        if (!title) {
+            alert('Please enter an activity title');
+            document.getElementById('activityTitle').focus();
+            return;
+        }
+        
+        var description = document.getElementById('activityDescription').value.trim();
+        var type = document.getElementById('activityType').value;
+        var date = document.getElementById('activityDate').value;
+        var period = document.getElementById('activityPeriod').value;
+        var status = document.getElementById('activityStatus').value;
+        
+        // Get selected students
+        var studentSelect = document.getElementById('activityStudents');
+        var selectedStudents = [];
+        for (var i = 0; i < studentSelect.options.length; i++) {
+            if (studentSelect.options[i].selected) {
+                selectedStudents.push(studentSelect.options[i].value);
+            }
+        }
+        
+        // If "All Students" is selected, get all students
+        if (selectedStudents.includes('all')) {
+            var allStudents = [];
+            for (var i = 0; i < studentSelect.options.length; i++) {
+                var val = studentSelect.options[i].value;
+                if (val !== 'all') allStudents.push(val);
+            }
+            selectedStudents = allStudents;
+        }
+        
+        var self = this;
+        window.DB.addActivity(clubId, {
+            title: title,
+            description: description,
+            type: type,
+            date: date,
+            period: period,
+            status: status,
+            students: selectedStudents
+        }).then(function() {
+            console.log("✅ Activity added successfully!");
+            self.closeModal('addActivityModal');
+            self.loadData();
+        }).catch(function(error) {
+            console.error("❌ Error adding activity:", error);
+            alert('Error adding activity: ' + error.message);
+        });
+    },
+
+    // ----- SHOW ADD TASK MODAL -----
+    showAddTaskModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
+        }
+        
+        // Reset form
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskPriorityModal').value = 'medium';
+        
+        // Load students into dropdown
+        var self = this;
+        window.DB.getStudents().then(function(students) {
+            var taskAssign = document.getElementById('taskAssignedToModal');
+            if (taskAssign) {
+                taskAssign.innerHTML = '<option value="">Unassigned</option>';
+                for (var i = 0; i < students.length; i++) {
+                    taskAssign.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
+                }
+            }
+        });
+        
+        this.showModal('addTaskModal');
+    },
+
+    // ----- SAVE TASK FROM MODAL -----
+    saveTaskFromModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
+        }
+        
+        var title = document.getElementById('taskTitle').value.trim();
+        if (!title) {
+            alert('Please enter a task description');
+            document.getElementById('taskTitle').focus();
+            return;
+        }
+        
+        var priority = document.getElementById('taskPriorityModal').value;
+        var assignedTo = document.getElementById('taskAssignedToModal').value;
+        
+        var self = this;
+        window.DB.addTask(clubId, title, priority, assignedTo).then(function() {
+            console.log("✅ Task added successfully!");
+            self.closeModal('addTaskModal');
+            self.loadData();
+        }).catch(function(error) {
+            console.error("❌ Error adding task:", error);
+            alert('Error adding task: ' + error.message);
+        });
+    },
+
+    // ----- SHOW EDIT ACTIVITY MODAL -----
+    showEditActivityModal: function(activityId, activity) {
+        document.getElementById('editActivityId').value = activityId;
+        document.getElementById('editActivityTitle').value = activity.title || '';
+        document.getElementById('editActivityDescription').value = activity.description || '';
+        document.getElementById('editActivityType').value = activity.type || 'Meeting';
+        document.getElementById('editActivityDate').value = activity.date || new Date().toISOString().slice(0, 10);
+        document.getElementById('editActivityPeriod').value = activity.period || 'weekly';
+        document.getElementById('editActivityStatus').value = activity.status || 'pending';
+        
+        this.showModal('editActivityModal');
+    },
+
+    // ----- UPDATE ACTIVITY FROM MODAL -----
+    updateActivityFromModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
+        }
+        
+        var activityId = document.getElementById('editActivityId').value;
+        var title = document.getElementById('editActivityTitle').value.trim();
+        if (!title) {
+            alert('Please enter an activity title');
+            document.getElementById('editActivityTitle').focus();
+            return;
+        }
+        
+        var description = document.getElementById('editActivityDescription').value.trim();
+        var type = document.getElementById('editActivityType').value;
+        var date = document.getElementById('editActivityDate').value;
+        var period = document.getElementById('editActivityPeriod').value;
+        var status = document.getElementById('editActivityStatus').value;
+        
+        // For now, we'll update through delete + add since we don't have a direct update method
+        // In production, you'd add an updateActivity method
+        var self = this;
+        window.DB.deleteActivity(clubId, activityId).then(function() {
+            return window.DB.addActivity(clubId, {
+                title: title,
+                description: description,
+                type: type,
+                date: date,
+                period: period,
+                status: status
+            });
+        }).then(function() {
+            console.log("✅ Activity updated successfully!");
+            self.closeModal('editActivityModal');
+            self.loadData();
+        }).catch(function(error) {
+            console.error("❌ Error updating activity:", error);
+            alert('Error updating activity: ' + error.message);
+        });
     },
 
     // ----- LOAD SAMPLE DATA -----
@@ -218,10 +623,7 @@ var TrackerPage = {
     loadData: function() {
         console.log("📊 Loading tracker data...");
         var select = document.getElementById('trackerClubSelect');
-        if (!select) {
-            console.warn("⚠️ trackerClubSelect not found");
-            return;
-        }
+        if (!select) return;
         
         var clubId = select.value;
         if (!clubId || clubId === '') {
@@ -268,18 +670,32 @@ var TrackerPage = {
         window.DB.getStudents().then(function(students) {
             var studentCount = document.getElementById('studentCount');
             if (studentCount) studentCount.textContent = students.length || 0;
-            
-            // Update task assignment dropdown
-            var taskAssign = document.getElementById('taskAssignedTo');
-            if (taskAssign) {
-                taskAssign.innerHTML = '<option value="">Assign to...</option>';
-                for (var i = 0; i < students.length; i++) {
-                    taskAssign.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
-                }
-            }
         }).catch(function(error) {
             console.error("❌ Error loading students:", error);
         });
+    },
+
+    // ----- SHOW GETTING STARTED GUIDE -----
+    showGettingStarted: function() {
+        var tbody = document.getElementById('trackerActivitiesBody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = `
+        <tr>
+            <td colspan="5" style="padding: 40px; text-align: center;">
+                <div style="max-width: 500px; margin: 0 auto;">
+                    <i class="fas fa-calendar-plus" style="font-size: 3rem; color: var(--primary); opacity: 0.6; display: block; margin-bottom: 12px;"></i>
+                    <h3 style="color: var(--dark); margin-bottom: 4px;">No Activities Yet</h3>
+                    <p style="color: var(--gray); margin-bottom: 16px;">Start tracking your club's progress by adding your first activity!</p>
+                    <button class="btn-primary" onclick="document.getElementById('addActivityBtn').click()" style="padding: 10px 24px;">
+                        <i class="fas fa-plus"></i> Add Your First Activity
+                    </button>
+                    <button class="btn-outline" onclick="window.TrackerPage.loadSampleData()" style="padding: 10px 24px; margin-left: 8px;">
+                        <i class="fas fa-download"></i> Load Sample Data
+                    </button>
+                </div>
+            </td>
+        </tr>`;
     },
 
     // ----- RENDER ACTIVITIES -----
@@ -298,7 +714,8 @@ var TrackerPage = {
             'Training': '#FF6584',
             'Event': '#00D2A0',
             'Planning': '#FFB84D',
-            'Volunteer': '#4ECDC4'
+            'Volunteer': '#4ECDC4',
+            'Other': '#6C7A89'
         };
         
         for (var i = 0; i < activities.length; i++) {
@@ -319,7 +736,10 @@ var TrackerPage = {
                     '</select>' +
                 '</td>' +
                 '<td>' +
-                    '<button class="delete-btn delete-activity" data-id="' + (a.id || a._id) + '" style="background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px 8px; border-radius: var(--border-radius-sm);">' +
+                    '<button class="edit-btn" onclick="window.TrackerPage.editActivity(\'' + (a.id || a._id) + '\')" style="background: none; border: none; color: var(--primary); cursor: pointer; padding: 4px 8px;">' +
+                        '<i class="fas fa-edit"></i>' +
+                    '</button>' +
+                    '<button class="delete-btn delete-activity" data-id="' + (a.id || a._id) + '" style="background: none; border: none; color: var(--gray); cursor: pointer; padding: 4px 8px;">' +
                         '<i class="fas fa-trash"></i>' +
                     '</button>' +
                 '</td>' +
@@ -357,6 +777,35 @@ var TrackerPage = {
         });
     },
 
+    // ----- EDIT ACTIVITY -----
+    editActivity: function(activityId) {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        var self = this;
+        
+        // Get the activity data
+        var periodTab = document.querySelector('.period-tab.active');
+        var period = periodTab ? periodTab.dataset.period : 'weekly';
+        
+        window.DB.getActivities(clubId, period).then(function(activities) {
+            var activity = null;
+            for (var i = 0; i < activities.length; i++) {
+                if ((activities[i].id || activities[i]._id) === activityId) {
+                    activity = activities[i];
+                    break;
+                }
+            }
+            
+            if (activity) {
+                self.showEditActivityModal(activityId, activity);
+            } else {
+                alert('Activity not found');
+            }
+        }).catch(function(error) {
+            console.error("❌ Error fetching activity:", error);
+            alert('Error fetching activity data');
+        });
+    },
+
     // ----- RENDER TASKS -----
     renderTasks: function(tasks) {
         var tbody = document.getElementById('trackerTasksBody');
@@ -366,7 +815,7 @@ var TrackerPage = {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--gray);">' +
                 '<i class="fas fa-check-circle" style="font-size: 2rem; display: block; margin-bottom: 8px; color: var(--primary); opacity: 0.6;"></i>' +
                 '<h4 style="color: var(--dark); margin-bottom: 4px;">No Tasks Yet</h4>' +
-                '<p style="font-size: 0.9rem;">Add a task using the form above!</p>' +
+                '<p style="font-size: 0.9rem;">Click "Add New Task" to create one!</p>' +
             '</td></tr>';
             return;
         }
@@ -505,48 +954,11 @@ var TrackerPage = {
         if (pendingEl) pendingEl.textContent = pending;
     },
 
-    // ----- SHOW ADD ACTIVITY MODAL -----
-    showAddActivityModal: function() {
-        var clubId = document.getElementById('trackerClubSelect').value;
-        if (!clubId) {
-            alert('Please select a club first');
-            return;
-        }
-        
-        var title = prompt('📝 Activity title:');
-        if (!title) return;
-        
-        var description = prompt('📄 Description (optional):') || '';
-        var type = prompt('🏷️ Type (Meeting/Training/Event/Planning/Volunteer):') || 'General';
-        var date = prompt('📅 Date (YYYY-MM-DD):') || new Date().toISOString().slice(0, 10);
-        var periodTab = document.querySelector('.period-tab.active');
-        var period = periodTab ? periodTab.dataset.period : 'weekly';
-        
-        var self = this;
-        window.DB.addActivity(clubId, {
-            title: title,
-            description: description,
-            type: type,
-            date: date,
-            period: period,
-            status: 'pending'
-        }).then(function() {
-            console.log("✅ Activity added successfully!");
-            self.loadData();
-        }).catch(function(error) {
-            console.error("❌ Error adding activity:", error);
-            alert('Error adding activity: ' + error.message);
-        });
-    },
-
     // ----- LOAD TEACHER CLUBS -----
     loadTeacherClubs: function() {
         console.log("📋 Loading teacher's clubs...");
         var select = document.getElementById('trackerClubSelect');
-        if (!select) {
-            console.warn("⚠️ trackerClubSelect not found");
-            return;
-        }
+        if (!select) return;
         
         var self = this;
         window.DB.getTeacherClubs().then(function(clubs) {
@@ -610,7 +1022,7 @@ var TrackerPage = {
             })(periodTabs[i]);
         }
         
-        // Add Activity
+        // Add Activity - opens modal
         var addBtn = document.getElementById('addActivityBtn');
         if (addBtn) {
             addBtn.addEventListener('click', function() {
@@ -618,42 +1030,35 @@ var TrackerPage = {
             });
         }
         
-        // Add Task
-        var addTaskBtn = document.getElementById('addTaskBtn');
-        if (addTaskBtn) {
-            addTaskBtn.addEventListener('click', function() {
-                var input = document.getElementById('taskInput');
-                var title = input.value.trim();
-                if (!title) {
-                    alert('Please enter a task description');
-                    return;
-                }
-                
-                var priority = document.getElementById('taskPriority').value;
-                var assignedTo = document.getElementById('taskAssignedTo').value;
-                var clubId = document.getElementById('trackerClubSelect').value;
-                
-                if (!clubId) {
-                    alert('Please select a club first');
-                    return;
-                }
-                
-                window.DB.addTask(clubId, title, priority, assignedTo).then(function() {
-                    input.value = '';
-                    self.loadData();
-                }).catch(function(error) {
-                    alert('Error adding task: ' + error.message);
-                });
+        // Save Activity from modal
+        var saveBtn = document.getElementById('saveActivityBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                self.saveActivityFromModal();
             });
         }
         
-        // Task Enter key
-        var taskInput = document.getElementById('taskInput');
-        if (taskInput) {
-            taskInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('addTaskBtn').click();
-                }
+        // Add Task - opens modal
+        var addTaskBtn = document.getElementById('addTaskBtn');
+        if (addTaskBtn) {
+            addTaskBtn.addEventListener('click', function() {
+                self.showAddTaskModal();
+            });
+        }
+        
+        // Save Task from modal
+        var saveTaskBtn = document.getElementById('saveTaskBtn');
+        if (saveTaskBtn) {
+            saveTaskBtn.addEventListener('click', function() {
+                self.saveTaskFromModal();
+            });
+        }
+        
+        // Update Activity from modal
+        var updateBtn = document.getElementById('updateActivityBtn');
+        if (updateBtn) {
+            updateBtn.addEventListener('click', function() {
+                self.updateActivityFromModal();
             });
         }
         
@@ -699,6 +1104,15 @@ var TrackerPage = {
                 this.value = '';
             });
         }
+        
+        // Close modals on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                self.closeModal('addActivityModal');
+                self.closeModal('addTaskModal');
+                self.closeModal('editActivityModal');
+            }
+        });
         
         this.loadTeacherClubs();
     }
