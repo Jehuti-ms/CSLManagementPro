@@ -1,207 +1,176 @@
 // ============================================================
-// js/app.js - MAIN APP CONTROLLER (COMPLETELY FIXED)
+// js/app.js - MAIN APP CONTROLLER
 // ============================================================
 
-class App {
-    constructor() {
-        console.log("🚀 App constructor called");
-        this.currentUser = null;
-        this.currentPage = 'attendance';
-        
-        // Wait for DOM to be ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.init());
-        } else {
-            this.init();
-        }
-    }
+var App = function() {
+    console.log("🚀 App constructor called");
+    this.currentUser = null;
+    this.currentPage = 'attendance';
+    this.init();
+};
+
+App.prototype.init = function() {
+    console.log("📱 App initializing...");
+    this.setupNavigation();
+    this.showLogin();
+    this.setupAuthListener();
+    console.log("✅ App initialized successfully");
+};
+
+App.prototype.setupAuthListener = function() {
+    console.log("👤 Setting up auth listener...");
+    var self = this;
     
-    async init() {
-        console.log("📱 App initializing...");
-        
-        // Setup navigation
-        this.setupNavigation();
-        
-        // Load login page
-        this.showLogin();
-        
-        // Auth listener
-        window.Auth.onAuthStateChanged((user) => {
-            console.log("👤 Auth state changed:", user ? user.email : 'No user');
-            if (user) {
-                this.currentUser = user;
-                const userEmail = document.getElementById('userEmail');
-                if (userEmail) {
-                    userEmail.textContent = user.displayName || user.email || 'Teacher';
-                }
-                this.showMainApp(user);
-            }
-        });
-        
-        // Auto-login for mock mode
-        if (window.__firebase && window.__firebase.useMock) {
-            const mockUser = sessionStorage.getItem('mockUser');
-            if (mockUser) {
-                try {
-                    const user = JSON.parse(mockUser);
-                    this.currentUser = user;
-                    const userEmail = document.getElementById('userEmail');
-                    if (userEmail) {
-                        userEmail.textContent = user.displayName || user.email || 'Teacher';
-                    }
-                    this.showMainApp(user);
-                } catch (e) {
-                    console.warn("⚠️ Could not parse mock user:", e);
-                }
+    window.Auth.onAuthStateChanged(function(user) {
+        console.log("👤 Auth state changed:", user ? user.email : 'No user');
+        if (user) {
+            self.currentUser = user;
+            self.showMainApp(user);
+        }
+    });
+    
+    if (window.__firebase && window.__firebase.useMock) {
+        var mockUser = sessionStorage.getItem('mockUser');
+        if (mockUser) {
+            try {
+                var user = JSON.parse(mockUser);
+                self.currentUser = user;
+                self.showMainApp(user);
+            } catch (e) {
+                console.warn("⚠️ Could not parse mock user:", e);
             }
         }
-        
-        console.log("✅ App initialized successfully");
+    }
+};
+
+App.prototype.setupNavigation = function() {
+    console.log("🔧 Setting up navigation...");
+    var self = this;
+    
+    var tabs = document.querySelectorAll('.nav-tab');
+    console.log("📑 Found " + tabs.length + " navigation tabs");
+    
+    for (var i = 0; i < tabs.length; i++) {
+        (function(tab) {
+            tab.addEventListener('click', function() {
+                var page = this.dataset.page;
+                console.log("📄 Navigating to: " + page);
+                self.navigateTo(page);
+            });
+        })(tabs[i]);
     }
     
-    setupNavigation() {
-        console.log("🔧 Setting up navigation...");
-        
-        // Navigation tabs
-        const tabs = document.querySelectorAll('.nav-tab');
-        console.log(`📑 Found ${tabs.length} navigation tabs`);
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const page = tab.dataset.page;
-                console.log(`📄 Navigating to: ${page}`);
-                this.navigateTo(page);
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            console.log("🚪 Logging out...");
+            window.Auth.logout().then(function() {
+                self.currentUser = null;
+                self.showLogin();
+            }).catch(function(error) {
+                console.error("❌ Logout error:", error);
             });
         });
-        
-        // Logout button
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async () => {
-                console.log("🚪 Logging out...");
-                await window.Auth.logout();
-                this.currentUser = null;
-                this.showLogin();
-            });
-        } else {
-            console.warn("⚠️ Logout button not found");
-        }
+    }
+};
+
+App.prototype.showLogin = function() {
+    console.log("📄 Showing login page...");
+    var container = document.getElementById('pageContainer');
+    
+    if (!container) {
+        console.error("❌ pageContainer not found!");
+        return;
     }
     
-    showLogin() {
-        console.log("📄 Showing login page...");
-        const container = document.getElementById('pageContainer');
-        if (container) {
-            // LoginPage.render() MUST return a string, not a Promise
-            const loginHTML = window.LoginPage.render();
-            container.innerHTML = loginHTML;
-            // Setup events after rendering
-            setTimeout(() => {
+    if (!window.LoginPage) {
+        console.error("❌ LoginPage not loaded!");
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:red;"><h2>Error: LoginPage not loaded</h2><p>Check that login.js is loaded properly.</p></div>';
+        return;
+    }
+    
+    try {
+        container.innerHTML = window.LoginPage.render();
+        console.log("✅ Login page rendered");
+        
+        document.getElementById('navTabs').style.display = 'none';
+        document.getElementById('userBadge').style.display = 'none';
+        
+        var self = this;
+        setTimeout(function() {
+            console.log("🔧 Setting up login events...");
+            if (window.LoginPage.setupEvents) {
                 window.LoginPage.setupEvents();
-            }, 50);
-        } else {
-            console.error("❌ pageContainer not found!");
-        }
-        // Hide navigation and user badge
-        const navTabs = document.getElementById('navTabs');
-        const userBadge = document.getElementById('userBadge');
-        if (navTabs) navTabs.style.display = 'none';
-        if (userBadge) userBadge.style.display = 'none';
-    }
-    
-    showMainApp(user) {
-        console.log("📄 Showing main app...");
-        
-        // Show navigation and user badge
-        const navTabs = document.getElementById('navTabs');
-        const userBadge = document.getElementById('userBadge');
-        if (navTabs) navTabs.style.display = 'flex';
-        if (userBadge) userBadge.style.display = 'flex';
-        
-        // Update user email
-        const userEmail = document.getElementById('userEmail');
-        if (userEmail) {
-            userEmail.textContent = user.displayName || user.email || 'Teacher';
-        }
-        
-        // Load attendance page
-        this.loadPage('attendance');
-        setTimeout(() => {
-            this.navigateTo('attendance');
-        }, 100);
-    }
-    
-    loadPage(pageName) {
-        const container = document.getElementById('pageContainer');
-        if (!container) {
-            console.error("❌ pageContainer not found!");
-            return;
-        }
-        
-        console.log(`📄 Loading page HTML: ${pageName}`);
-        
-        // Get the HTML (synchronous - NO async calls!)
-        let html = '';
-        try {
-            switch (pageName) {
-                case 'attendance':
-                    if (window.AttendancePage && typeof window.AttendancePage.render === 'function') {
-                        html = window.AttendancePage.render();
-                    } else {
-                        html = `<div class="page active-page"><p>Attendance page not loaded</p></div>`;
-                    }
-                    break;
-                case 'tracker':
-                    if (window.TrackerPage && typeof window.TrackerPage.render === 'function') {
-                        html = window.TrackerPage.render();
-                    } else {
-                        html = `<div class="page active-page"><p>Tracker page not loaded</p></div>`;
-                    }
-                    break;
-                case 'reflections':
-                    if (window.ReflectionsPage && typeof window.ReflectionsPage.render === 'function') {
-                        html = window.ReflectionsPage.render();
-                    } else {
-                        html = `<div class="page active-page"><p>Reflections page not loaded</p></div>`;
-                    }
-                    break;
-                case 'admin':
-                    if (window.AdminPage && typeof window.AdminPage.render === 'function') {
-                        html = window.AdminPage.render();
-                    } else {
-                        html = `<div class="page active-page"><p>Admin page not loaded</p></div>`;
-                    }
-                    break;
-                default:
-                    console.warn(`⚠️ Unknown page: ${pageName}`);
-                    html = `<div class="page active-page"><p>Page not found</p></div>`;
             }
-        } catch (error) {
-            console.error(`❌ Error rendering ${pageName}:`, error);
-            html = `<div class="page active-page"><p>Error loading page: ${error.message}</p></div>`;
-        }
+        }, 100);
         
-        container.innerHTML = html;
-        console.log(`✅ Page HTML loaded: ${pageName}`);
+    } catch (error) {
+        console.error("❌ Error rendering login:", error);
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:red;"><h2>Error: ' + error.message + '</h2></div>';
+    }
+};
+
+App.prototype.showMainApp = function(user) {
+    console.log("📄 Showing main app...");
+    
+    document.getElementById('navTabs').style.display = 'flex';
+    document.getElementById('userBadge').style.display = 'flex';
+    
+    var userEmail = document.getElementById('userEmail');
+    if (userEmail) {
+        userEmail.textContent = user.displayName || user.email || 'Teacher';
     }
     
-    async navigateTo(pageId) {
-        console.log(`🧭 Navigating to: ${pageId}`);
-        this.currentPage = pageId;
-        
-        // Update nav tabs
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.page === pageId);
-        });
-        
-        // Load the page HTML
-        this.loadPage(pageId);
-        
-        // Wait for DOM to update
-        await new Promise(resolve => setTimeout(resolve, 150));
-        
-        // Setup page-specific events and load data
-        console.log(`🔧 Setting up events for: ${pageId}`);
+    this.navigateTo('attendance');
+};
+
+App.prototype.navigateTo = function(pageId) {
+    console.log("🧭 Navigating to: " + pageId);
+    this.currentPage = pageId;
+    var self = this;
+    
+    var container = document.getElementById('pageContainer');
+    if (!container) {
+        console.error("❌ pageContainer not found!");
+        return;
+    }
+    
+    var tabs = document.querySelectorAll('.nav-tab');
+    for (var i = 0; i < tabs.length; i++) {
+        if (tabs[i].dataset.page === pageId) {
+            tabs[i].classList.add('active');
+        } else {
+            tabs[i].classList.remove('active');
+        }
+    }
+    
+    var html = '';
+    try {
+        switch (pageId) {
+            case 'attendance':
+                html = window.AttendancePage ? window.AttendancePage.render() : '<p>Attendance page not loaded</p>';
+                break;
+            case 'tracker':
+                html = window.TrackerPage ? window.TrackerPage.render() : '<p>Tracker page not loaded</p>';
+                break;
+            case 'reflections':
+                html = window.ReflectionsPage ? window.ReflectionsPage.render() : '<p>Reflections page not loaded</p>';
+                break;
+            case 'admin':
+                html = window.AdminPage ? window.AdminPage.render() : '<p>Admin page not loaded</p>';
+                break;
+            default:
+                html = '<p>Page not found</p>';
+        }
+    } catch (error) {
+        console.error("❌ Error rendering " + pageId + ":", error);
+        html = '<p>Error: ' + error.message + '</p>';
+    }
+    
+    container.innerHTML = html;
+    console.log("✅ Page rendered: " + pageId);
+    
+    setTimeout(function() {
         try {
             switch (pageId) {
                 case 'attendance':
@@ -211,6 +180,7 @@ class App {
                     break;
                 case 'tracker':
                     if (window.TrackerPage && typeof window.TrackerPage.setupEvents === 'function') {
+                        console.log("🔧 Setting up tracker events...");
                         window.TrackerPage.setupEvents();
                     }
                     break;
@@ -224,27 +194,13 @@ class App {
                         window.AdminPage.setupEvents();
                     }
                     break;
-                default:
-                    console.warn(`⚠️ Unknown page: ${pageId}`);
             }
         } catch (error) {
-            console.error(`❌ Error setting up events for ${pageId}:`, error);
+            console.error("❌ Error setting up events for " + pageId + ":", error);
         }
-        
-        console.log(`✅ Navigation complete: ${pageId}`);
-    }
-}
+    }, 200);
+};
 
-// Start the app - ONLY ONCE
+// Start the app
 console.log("🚀 Starting app...");
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        if (!window.app) {
-            window.app = new App();
-        }
-    });
-} else {
-    if (!window.app) {
-        window.app = new App();
-    }
-}
+window.app = new App();
