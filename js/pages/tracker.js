@@ -1,5 +1,5 @@
 // ============================================================
-// TRACKER PAGE - SIMPLIFIED MODAL (DIRECT DISPLAY)
+// TRACKER PAGE - Modals Outside Page Container
 // ============================================================
 
 var TrackerPage = {
@@ -126,218 +126,237 @@ var TrackerPage = {
                 </div>
             </div>
         </div>
+        `;
+    },
+
+    // ----- RENDER MODALS (separate function) -----
+    renderModals: function() {
+        // Only render modals once
+        if (document.getElementById('modalContainer')) return;
         
-        <!-- ===== ADD ACTIVITY MODAL ===== -->
-        <div id="addActivityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-plus-circle" style="color: #6C63FF;"></i> Add New Activity
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('addActivityModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Title <span style="color: #FF6B6B;">*</span></label>
-                        <input type="text" id="activityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+        var modalHTML = `
+        <div id="modalContainer">
+            <!-- ===== ADD ACTIVITY MODAL ===== -->
+            <div id="addActivityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-plus-circle" style="color: #6C63FF;"></i> Add New Activity
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('addActivityModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Description</label>
-                        <textarea id="activityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; font-family: Inter, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Type <span style="color: #FF6B6B;">*</span></label>
-                            <select id="activityType" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="Meeting">📋 Meeting</option>
-                                <option value="Training">🏋️ Training</option>
-                                <option value="Event">🎉 Event</option>
-                                <option value="Planning">📝 Planning</option>
-                                <option value="Volunteer">🤝 Volunteer</option>
-                                <option value="Other">📌 Other</option>
-                            </select>
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Title <span style="color: #FF6B6B;">*</span></label>
+                            <input type="text" id="activityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
                         </div>
                         
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Date <span style="color: #FF6B6B;">*</span></label>
-                            <input type="date" id="activityDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Description</label>
+                            <textarea id="activityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; font-family: Inter, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
                         </div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Period <span style="color: #FF6B6B;">*</span></label>
-                            <select id="activityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="weekly">📅 Weekly</option>
-                                <option value="monthly">📆 Monthly</option>
-                                <option value="yearly">📊 Yearly</option>
-                            </select>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Type <span style="color: #FF6B6B;">*</span></label>
+                                <select id="activityType" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="Meeting">📋 Meeting</option>
+                                    <option value="Training">🏋️ Training</option>
+                                    <option value="Event">🎉 Event</option>
+                                    <option value="Planning">📝 Planning</option>
+                                    <option value="Volunteer">🤝 Volunteer</option>
+                                    <option value="Other">📌 Other</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Date <span style="color: #FF6B6B;">*</span></label>
+                                <input type="date" id="activityDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Period <span style="color: #FF6B6B;">*</span></label>
+                                <select id="activityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="weekly">📅 Weekly</option>
+                                    <option value="monthly">📆 Monthly</option>
+                                    <option value="yearly">📊 Yearly</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Status</label>
+                                <select id="activityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="pending">⏳ Pending</option>
+                                    <option value="in-progress">🔄 In Progress</option>
+                                    <option value="completed">✅ Completed</option>
+                                </select>
+                            </div>
                         </div>
                         
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Status</label>
-                            <select id="activityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="pending">⏳ Pending</option>
-                                <option value="in-progress">🔄 In Progress</option>
-                                <option value="completed">✅ Completed</option>
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Assign Students</label>
+                            <select id="activityStudents" multiple style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; min-height: 80px; box-sizing: border-box;">
+                                <option value="all">All Students</option>
                             </select>
+                            <small style="color: #6C7A89; display: block; margin-top: 4px;">Hold Ctrl/Cmd to select multiple students</small>
                         </div>
                     </div>
                     
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Assign Students</label>
-                        <select id="activityStudents" multiple style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; min-height: 80px; box-sizing: border-box;">
-                            <option value="all">All Students</option>
-                        </select>
-                        <small style="color: #6C7A89; display: block; margin-top: 4px;">Hold Ctrl/Cmd to select multiple students</small>
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="saveActivityBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-save"></i> Save Activity
+                        </button>
+                        <button class="btn-outline" onclick="window.TrackerPage.closeModal('addActivityModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
                     </div>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="saveActivityBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-save"></i> Save Activity
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('addActivityModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
-                        Cancel
-                    </button>
                 </div>
             </div>
-        </div>
-        
-        <!-- ===== ADD TASK MODAL ===== -->
-        <div id="addTaskModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-tasks" style="color: #6C63FF;"></i> Add New Task
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('addTaskModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Task Description <span style="color: #FF6B6B;">*</span></label>
-                        <input type="text" id="taskTitle" placeholder="e.g., Prepare meeting agenda" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+            
+            <!-- ===== ADD TASK MODAL ===== -->
+            <div id="addTaskModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-tasks" style="color: #6C63FF;"></i> Add New Task
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('addTaskModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Priority</label>
-                            <select id="taskPriorityModal" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="low">🟢 Low</option>
-                                <option value="medium" selected>🟡 Medium</option>
-                                <option value="high">🔴 High</option>
-                            </select>
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Task Description <span style="color: #FF6B6B;">*</span></label>
+                            <input type="text" id="taskTitle" placeholder="e.g., Prepare meeting agenda" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
                         </div>
                         
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Assign To</label>
-                            <select id="taskAssignedToModal" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="">Unassigned</option>
-                            </select>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Priority</label>
+                                <select id="taskPriorityModal" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="low">🟢 Low</option>
+                                    <option value="medium" selected>🟡 Medium</option>
+                                    <option value="high">🔴 High</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Assign To</label>
+                                <select id="taskAssignedToModal" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="">Unassigned</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="saveTaskBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-save"></i> Save Task
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('addTaskModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
-                        Cancel
-                    </button>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="saveTaskBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-save"></i> Save Task
+                        </button>
+                        <button class="btn-outline" onclick="window.TrackerPage.closeModal('addTaskModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- ===== EDIT ACTIVITY MODAL ===== -->
-        <div id="editActivityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-edit" style="color: #6C63FF;"></i> Edit Activity
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('editActivityModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <input type="hidden" id="editActivityId">
-                
-                <div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Title <span style="color: #FF6B6B;">*</span></label>
-                        <input type="text" id="editActivityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+            
+            <!-- ===== EDIT ACTIVITY MODAL ===== -->
+            <div id="editActivityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-edit" style="color: #6C63FF;"></i> Edit Activity
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('editActivityModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Description</label>
-                        <textarea id="editActivityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; font-family: Inter, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
-                    </div>
+                    <input type="hidden" id="editActivityId">
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Type</label>
-                            <select id="editActivityType" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="Meeting">📋 Meeting</option>
-                                <option value="Training">🏋️ Training</option>
-                                <option value="Event">🎉 Event</option>
-                                <option value="Planning">📝 Planning</option>
-                                <option value="Volunteer">🤝 Volunteer</option>
-                                <option value="Other">📌 Other</option>
-                            </select>
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Title <span style="color: #FF6B6B;">*</span></label>
+                            <input type="text" id="editActivityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
                         </div>
                         
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Date</label>
-                            <input type="date" id="editActivityDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Description</label>
+                            <textarea id="editActivityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; font-family: Inter, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Type</label>
+                                <select id="editActivityType" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="Meeting">📋 Meeting</option>
+                                    <option value="Training">🏋️ Training</option>
+                                    <option value="Event">🎉 Event</option>
+                                    <option value="Planning">📝 Planning</option>
+                                    <option value="Volunteer">🤝 Volunteer</option>
+                                    <option value="Other">📌 Other</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Date</label>
+                                <input type="date" id="editActivityDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Period</label>
+                                <select id="editActivityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="weekly">📅 Weekly</option>
+                                    <option value="monthly">📆 Monthly</option>
+                                    <option value="yearly">📊 Yearly</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Status</label>
+                                <select id="editActivityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="pending">⏳ Pending</option>
+                                    <option value="in-progress">🔄 In Progress</option>
+                                    <option value="completed">✅ Completed</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Period</label>
-                            <select id="editActivityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="weekly">📅 Weekly</option>
-                                <option value="monthly">📆 Monthly</option>
-                                <option value="yearly">📊 Yearly</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Status</label>
-                            <select id="editActivityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="pending">⏳ Pending</option>
-                                <option value="in-progress">🔄 In Progress</option>
-                                <option value="completed">✅ Completed</option>
-                            </select>
-                        </div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="updateActivityBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-save"></i> Update Activity
+                        </button>
+                        <button class="btn-outline" onclick="window.TrackerPage.closeModal('editActivityModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
                     </div>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="updateActivityBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-save"></i> Update Activity
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('editActivityModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
-                        Cancel
-                    </button>
                 </div>
             </div>
         </div>
         `;
+        
+        // Append modals to the body (outside the app container)
+        var container = document.createElement('div');
+        container.innerHTML = modalHTML;
+        document.body.appendChild(container.firstElementChild);
     },
 
     // ----- SHOW MODAL -----
     showModal: function(modalId) {
         console.log("📝 Showing modal:", modalId);
+        
+        // Ensure modals are rendered
+        this.renderModals();
+        
         var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'flex';
@@ -370,11 +389,19 @@ var TrackerPage = {
         
         console.log("📝 Opening Add Activity Modal");
         
+        // Ensure modals are rendered
+        this.renderModals();
+        
         // Reset form
-        document.getElementById('activityTitle').value = '';
-        document.getElementById('activityDescription').value = '';
-        document.getElementById('activityStatus').value = 'pending';
-        document.getElementById('activityDate').value = new Date().toISOString().slice(0, 10);
+        var titleInput = document.getElementById('activityTitle');
+        var descInput = document.getElementById('activityDescription');
+        var statusInput = document.getElementById('activityStatus');
+        var dateInput = document.getElementById('activityDate');
+        
+        if (titleInput) titleInput.value = '';
+        if (descInput) descInput.value = '';
+        if (statusInput) statusInput.value = 'pending';
+        if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
         
         // Load students into dropdown
         var self = this;
@@ -403,25 +430,34 @@ var TrackerPage = {
             return;
         }
         
-        var title = document.getElementById('activityTitle').value.trim();
-        if (!title) {
+        var titleInput = document.getElementById('activityTitle');
+        var descInput = document.getElementById('activityDescription');
+        var typeInput = document.getElementById('activityType');
+        var dateInput = document.getElementById('activityDate');
+        var periodInput = document.getElementById('activityPeriod');
+        var statusInput = document.getElementById('activityStatus');
+        var studentSelect = document.getElementById('activityStudents');
+        
+        if (!titleInput || !titleInput.value.trim()) {
             alert('Please enter an activity title');
-            document.getElementById('activityTitle').focus();
+            if (titleInput) titleInput.focus();
             return;
         }
         
-        var description = document.getElementById('activityDescription').value.trim();
-        var type = document.getElementById('activityType').value;
-        var date = document.getElementById('activityDate').value;
-        var period = document.getElementById('activityPeriod').value;
-        var status = document.getElementById('activityStatus').value;
+        var title = titleInput.value.trim();
+        var description = descInput ? descInput.value.trim() : '';
+        var type = typeInput ? typeInput.value : 'Meeting';
+        var date = dateInput ? dateInput.value : new Date().toISOString().slice(0, 10);
+        var period = periodInput ? periodInput.value : 'weekly';
+        var status = statusInput ? statusInput.value : 'pending';
         
         // Get selected students
-        var studentSelect = document.getElementById('activityStudents');
         var selectedStudents = [];
-        for (var i = 0; i < studentSelect.options.length; i++) {
-            if (studentSelect.options[i].selected) {
-                selectedStudents.push(studentSelect.options[i].value);
+        if (studentSelect) {
+            for (var i = 0; i < studentSelect.options.length; i++) {
+                if (studentSelect.options[i].selected) {
+                    selectedStudents.push(studentSelect.options[i].value);
+                }
             }
         }
         
@@ -466,9 +502,15 @@ var TrackerPage = {
         
         console.log("📝 Opening Add Task Modal");
         
+        // Ensure modals are rendered
+        this.renderModals();
+        
         // Reset form
-        document.getElementById('taskTitle').value = '';
-        document.getElementById('taskPriorityModal').value = 'medium';
+        var taskInput = document.getElementById('taskTitle');
+        var priorityInput = document.getElementById('taskPriorityModal');
+        
+        if (taskInput) taskInput.value = '';
+        if (priorityInput) priorityInput.value = 'medium';
         
         // Load students into dropdown
         var self = this;
@@ -497,15 +539,19 @@ var TrackerPage = {
             return;
         }
         
-        var title = document.getElementById('taskTitle').value.trim();
-        if (!title) {
+        var taskInput = document.getElementById('taskTitle');
+        var priorityInput = document.getElementById('taskPriorityModal');
+        var assignInput = document.getElementById('taskAssignedToModal');
+        
+        if (!taskInput || !taskInput.value.trim()) {
             alert('Please enter a task description');
-            document.getElementById('taskTitle').focus();
+            if (taskInput) taskInput.focus();
             return;
         }
         
-        var priority = document.getElementById('taskPriorityModal').value;
-        var assignedTo = document.getElementById('taskAssignedToModal').value;
+        var title = taskInput.value.trim();
+        var priority = priorityInput ? priorityInput.value : 'medium';
+        var assignedTo = assignInput ? assignInput.value : '';
         
         console.log("📋 Task data:", { title, priority, assignedTo });
         
@@ -523,6 +569,9 @@ var TrackerPage = {
     // ----- SHOW EDIT ACTIVITY MODAL -----
     showEditActivityModal: function(activityId, activity) {
         console.log("📝 Opening Edit Activity Modal for:", activityId);
+        
+        // Ensure modals are rendered
+        this.renderModals();
         
         document.getElementById('editActivityId').value = activityId;
         document.getElementById('editActivityTitle').value = activity.title || '';
@@ -1014,6 +1063,9 @@ var TrackerPage = {
     setupEvents: function() {
         console.log("🔧 Setting up tracker events...");
         var self = this;
+        
+        // Render modals once
+        this.renderModals();
         
         var select = document.getElementById('trackerClubSelect');
         if (select) {
