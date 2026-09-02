@@ -51,7 +51,7 @@ const LoginPage = {
                 </div>
                 
                 <div class="demo-info">
-                    <i class="fas fa-info-circle"></i> Demo: teacher@demo.com / 123456
+                    <i class="fas fa-info-circle"></i> Demo: Use any email + password (6+ chars) in mock mode
                 </div>
             </div>
         </div>`;
@@ -69,12 +69,12 @@ const LoginPage = {
                 e.preventDefault();
                 console.log("🔑 Login button clicked");
                 
-                const email = document.getElementById('loginEmail').value;
+                const email = document.getElementById('loginEmail').value.trim();
                 const password = document.getElementById('loginPassword').value;
                 const errorEl = document.getElementById('loginError');
                 
                 if (!email || !password) {
-                    errorEl.textContent = 'Please enter both email and password';
+                    errorEl.textContent = '⚠️ Please enter both email and password';
                     return;
                 }
                 
@@ -99,6 +99,11 @@ const LoginPage = {
                 } catch (error) {
                     console.error("❌ Login error:", error);
                     errorEl.textContent = '❌ ' + error.message;
+                    
+                    // Suggest registration if user not found
+                    if (error.message.includes('No account found') || error.message.includes('invalid-credential')) {
+                        errorEl.textContent = '❌ No account found. Please register or use mock mode.';
+                    }
                 }
             });
         } else {
@@ -131,7 +136,7 @@ const LoginPage = {
                     }
                 } catch (error) {
                     console.error("❌ Google login error:", error);
-                    errorEl.textContent = '❌ Google Sign-In failed: ' + error.message;
+                    errorEl.textContent = '❌ ' + error.message;
                 }
             });
         } else {
@@ -141,9 +146,39 @@ const LoginPage = {
         // Register link
         const showRegisterBtn = document.getElementById('showRegisterBtn');
         if (showRegisterBtn) {
-            showRegisterBtn.addEventListener('click', function(e) {
+            showRegisterBtn.addEventListener('click', async function(e) {
                 e.preventDefault();
-                alert('Registration coming soon! For now, use the demo account or Google Sign-In.');
+                const errorEl = document.getElementById('loginError');
+                
+                // Simple registration prompt
+                const email = prompt('Enter email to register:');
+                if (!email) return;
+                
+                const password = prompt('Enter password (min 6 characters):');
+                if (!password || password.length < 6) {
+                    errorEl.textContent = '⚠️ Password must be at least 6 characters';
+                    return;
+                }
+                
+                try {
+                    errorEl.textContent = '⏳ Registering...';
+                    const user = await window.Auth.register(email, password);
+                    errorEl.textContent = '✅ Registration successful! Please login.';
+                    console.log("✅ Registration successful:", user.email);
+                    
+                    // Pre-fill the login form
+                    document.getElementById('loginEmail').value = email;
+                    document.getElementById('loginPassword').value = password;
+                    
+                    // Auto-login in mock mode
+                    if (window.__firebase.useMock) {
+                        const loginBtn = document.getElementById('loginBtn');
+                        if (loginBtn) loginBtn.click();
+                    }
+                } catch (error) {
+                    console.error("❌ Registration error:", error);
+                    errorEl.textContent = '❌ ' + error.message;
+                }
             });
         }
 
