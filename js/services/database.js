@@ -337,6 +337,38 @@ const DB = {
     // ============================================================
     // TRACKER - ACTIVITIES
     // ============================================================
+    // ----- GET ACTIVITY BY ID -----
+    async getActivityById(clubId, activityId) {
+        if (window.__firebase.useMock) {
+            var key = 'activities_' + clubId + '_' + activityId;
+            // Search through all periods
+            var periods = ['weekly', 'monthly', 'yearly'];
+            for (var i = 0; i < periods.length; i++) {
+                var periodKey = 'activities_' + clubId + '_' + periods[i];
+                if (mockData.activities[periodKey]) {
+                    var activities = mockData.activities[periodKey];
+                    for (var j = 0; j < activities.length; j++) {
+                        if (activities[j].id === activityId) {
+                            return activities[j];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+    
+        try {
+            var doc = await window.__firebase.db.collection('activities').doc(activityId).get();
+            if (doc.exists) {
+                return { id: doc.id, ...doc.data() };
+            }
+            return null;
+        } catch (error) {
+            console.error("❌ Error getting activity:", error);
+            throw error;
+        }
+    },
+    
     async getActivities(clubId, period) {
         console.log(`📋 Getting activities for club ${clubId}, period ${period}`);
         
