@@ -1,9 +1,8 @@
 // ============================================================
-// LOGIN PAGE - Handles login UI and events
+// LOGIN PAGE - Renders the login form
 // ============================================================
 
 const LoginPage = {
-    // ----- RENDER LOGIN PAGE -----
     render: function() {
         console.log("📄 LoginPage.render() called");
         return `
@@ -13,7 +12,6 @@ const LoginPage = {
                 <h2>Welcome Back</h2>
                 <p class="subtitle">Sign in to manage your service clubs</p>
                 
-                <!-- Email Login -->
                 <div class="input-group">
                     <i class="fas fa-envelope"></i>
                     <input type="email" id="loginEmail" placeholder="Email address" value="dmoseley@gams.edu.bb">
@@ -26,14 +24,12 @@ const LoginPage = {
                     <i class="fas fa-arrow-right-to-bracket"></i> Sign in with Email
                 </button>
                 
-                <!-- Divider -->
                 <div class="divider">
                     <hr>
                     <span>OR</span>
                     <hr>
                 </div>
                 
-                <!-- Google Sign-In -->
                 <button id="googleLoginBtn" class="btn-google">
                     <svg width="20" height="20" viewBox="0 0 48 48">
                         <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
@@ -57,25 +53,19 @@ const LoginPage = {
             </div>
         </div>`;
     },
-
-    // ----- SETUP LOGIN EVENTS -----
+    
     setupEvents: function() {
         console.log("🔧 Setting up login events...");
         
-        // Email login
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
-            console.log("✅ Login button found");
-            loginBtn.addEventListener('click', async function(e) {
-                e.preventDefault();
-                console.log("🔑 Login button clicked");
-                
-                const email = document.getElementById('loginEmail').value.trim();
+            loginBtn.addEventListener('click', async function() {
+                const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
                 const errorEl = document.getElementById('loginError');
                 
                 if (!email || !password) {
-                    errorEl.textContent = '⚠️ Please enter both email and password';
+                    errorEl.textContent = '⚠️ Please enter email and password';
                     return;
                 }
                 
@@ -83,113 +73,54 @@ const LoginPage = {
                     errorEl.textContent = '⏳ Logging in...';
                     const user = await window.Auth.login(email, password);
                     errorEl.textContent = '';
-                    console.log("✅ Login successful:", user.email);
-                    
-                    const userEmail = document.getElementById('userEmail');
-                    if (userEmail) {
-                        userEmail.textContent = user.displayName || user.email || 'Teacher';
-                    }
-                    
-                    if (window.app) {
-                        window.app.showMainApp(user);
-                    }
+                    window.app.showMainApp(user);
                 } catch (error) {
-                    console.error("❌ Login error:", error);
                     errorEl.textContent = '❌ ' + error.message;
                 }
             });
-        } else {
-            console.error("❌ Login button not found!");
         }
-
-        // Google login
-        const googleLoginBtn = document.getElementById('googleLoginBtn');
-        if (googleLoginBtn) {
-            console.log("✅ Google login button found");
-            googleLoginBtn.addEventListener('click', async function(e) {
-                e.preventDefault();
-                console.log("🔑 Google login button clicked");
-                
+        
+        const googleBtn = document.getElementById('googleLoginBtn');
+        if (googleBtn) {
+            googleBtn.addEventListener('click', async function() {
                 const errorEl = document.getElementById('loginError');
-                
                 try {
                     errorEl.textContent = '⏳ Signing in with Google...';
                     const user = await window.Auth.loginWithGoogle();
                     errorEl.textContent = '';
-                    console.log("✅ Google login successful:", user.email);
-                    
-                    const userEmail = document.getElementById('userEmail');
-                    if (userEmail) {
-                        userEmail.textContent = user.displayName || user.email || 'Teacher';
-                    }
-                    
-                    if (window.app) {
-                        window.app.showMainApp(user);
-                    }
+                    window.app.showMainApp(user);
                 } catch (error) {
-                    console.error("❌ Google login error:", error);
                     errorEl.textContent = '❌ ' + error.message;
                 }
             });
-        } else {
-            console.error("❌ Google login button not found!");
         }
-
+        
+        // Enter key support
+        document.getElementById('loginEmail').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+        
         // Register link
-        const showRegisterBtn = document.getElementById('showRegisterBtn');
-        if (showRegisterBtn) {
-            showRegisterBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const errorEl = document.getElementById('loginError');
-                
-                const email = prompt('Enter email to register:');
-                if (!email) return;
-                
-                const password = prompt('Enter password (min 6 characters):');
-                if (!password || password.length < 6) {
-                    errorEl.textContent = '⚠️ Password must be at least 6 characters';
-                    return;
-                }
-                
-                // Store in localStorage for mock mode
-                if (window.__firebase && window.__firebase.useMock) {
-                    const user = { email, uid: 'mock-' + Date.now(), displayName: email.split('@')[0] };
-                    sessionStorage.setItem('mockUser', JSON.stringify(user));
-                    errorEl.textContent = '✅ Registration successful! Please login.';
-                    document.getElementById('loginEmail').value = email;
-                    document.getElementById('loginPassword').value = password;
-                } else {
-                    alert('Registration coming soon! Please use the demo account or Google Sign-In.');
-                }
-            });
-        }
-
-        // Enter key shortcuts
-        const emailInput = document.getElementById('loginEmail');
-        const passwordInput = document.getElementById('loginPassword');
+        document.getElementById('showRegisterBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const email = prompt('Enter email to register:');
+            if (!email) return;
+            const password = prompt('Enter password (min 6 characters):');
+            if (!password || password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = password;
+            document.getElementById('loginBtn').click();
+        });
         
-        if (emailInput) {
-            emailInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const btn = document.getElementById('loginBtn');
-                    if (btn) btn.click();
-                }
-            });
-        }
-        
-        if (passwordInput) {
-            passwordInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const btn = document.getElementById('loginBtn');
-                    if (btn) btn.click();
-                }
-            });
-        }
-        
-        console.log("✅ Login events setup complete");
+        console.log("✅ Login events ready");
     }
 };
 
-// Make LoginPage globally available
 window.LoginPage = LoginPage;
 console.log("✅ LoginPage module loaded");
