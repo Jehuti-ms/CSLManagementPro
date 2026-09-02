@@ -1,4 +1,8 @@
-/* Tracker Page Specific Styles */
+/* ============================================================
+   TRACKER PAGE SPECIFIC STYLES
+   ============================================================ */
+
+/* ----- Period Tabs ----- */
 .period-tab {
     padding: 8px 20px;
     border: 2px solid transparent;
@@ -28,6 +32,7 @@
     margin-right: 6px;
 }
 
+/* ----- Activity Status Dropdown ----- */
 .activity-status {
     padding: 6px 12px;
     border-radius: var(--border-radius-sm);
@@ -45,6 +50,7 @@
     box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
 }
 
+/* ----- Task Checkbox ----- */
 .task-checkbox {
     width: 20px;
     height: 20px;
@@ -58,6 +64,13 @@
     transform: scale(1.1);
 }
 
+/* ----- Completed Task Styling ----- */
+.task-completed {
+    text-decoration: line-through;
+    color: var(--gray);
+}
+
+/* ----- Tracker Club Selector ----- */
 #trackerClubSelect {
     min-width: 200px;
     padding: 10px 16px;
@@ -76,6 +89,7 @@
     box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
 }
 
+/* ----- Media Gallery Grid ----- */
 #mediaGallery {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -113,6 +127,58 @@
     align-items: center;
 }
 
+#mediaGallery .media-item .media-info span {
+    color: var(--dark);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+}
+
+/* ----- Activity Type Badges ----- */
+.badge-type-training {
+    background: #6C63FF;
+    color: white;
+}
+
+.badge-type-meeting {
+    background: #FF6584;
+    color: white;
+}
+
+.badge-type-event {
+    background: #00D2A0;
+    color: white;
+}
+
+.badge-type-planning {
+    background: #FFB84D;
+    color: white;
+}
+
+.badge-type-volunteer {
+    background: #4ECDC4;
+    color: white;
+}
+
+/* ----- Priority Badges ----- */
+.badge-priority-high {
+    background: #FF6B6B;
+    color: white;
+}
+
+.badge-priority-medium {
+    background: #FFB84D;
+    color: white;
+}
+
+.badge-priority-low {
+    background: #00D2A0;
+    color: white;
+}
+
+/* ----- Upload Status ----- */
 #uploadStatus {
     color: var(--gray);
     font-size: 0.9rem;
@@ -127,18 +193,38 @@
     color: var(--danger);
 }
 
+/* ----- Club Selector Toolbar ----- */
+#clubSelectorToolbar label {
+    font-weight: 600;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ----- Responsive Tracker ----- */
 @media (max-width: 768px) {
     .period-tab {
         padding: 6px 12px;
         font-size: 0.8rem;
     }
     
+    .period-tab i {
+        margin-right: 4px;
+    }
+    
     #trackerClubSelect {
         min-width: 150px;
+        font-size: 0.85rem;
     }
     
     #mediaGallery {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    #mediaGallery .media-item video,
+    #mediaGallery .media-item img {
+        max-height: 100px;
     }
 }
 
@@ -150,5 +236,15 @@
     
     #mediaGallery {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    #mediaGallery .media-item video,
+    #mediaGallery .media-item img {
+        max-height: 80px;
+    }
+    
+    #mediaGallery .media-item .media-info span {
+        max-width: 80px;
+        font-size: 0.7rem;
     }
 }
