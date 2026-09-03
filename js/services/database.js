@@ -337,6 +337,38 @@ const DB = {
     // ============================================================
     // TRACKER - ACTIVITIES
     // ============================================================
+    // ----- GET ACTIVITY BY ID -----
+    async getActivityById(clubId, activityId) {
+        if (window.__firebase.useMock) {
+            var key = 'activities_' + clubId + '_' + activityId;
+            // Search through all periods
+            var periods = ['weekly', 'monthly', 'yearly'];
+            for (var i = 0; i < periods.length; i++) {
+                var periodKey = 'activities_' + clubId + '_' + periods[i];
+                if (mockData.activities[periodKey]) {
+                    var activities = mockData.activities[periodKey];
+                    for (var j = 0; j < activities.length; j++) {
+                        if (activities[j].id === activityId) {
+                            return activities[j];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+    
+        try {
+            var doc = await window.__firebase.db.collection('activities').doc(activityId).get();
+            if (doc.exists) {
+                return { id: doc.id, ...doc.data() };
+            }
+            return null;
+        } catch (error) {
+            console.error("❌ Error getting activity:", error);
+            throw error;
+        }
+    },
+    
     async getActivities(clubId, period) {
         console.log(`📋 Getting activities for club ${clubId}, period ${period}`);
         
@@ -455,16 +487,18 @@ const DB = {
         }
     },
 
-    async addTask(clubId, title, priority) {
-        console.log(`📋 Adding task for club ${clubId}: ${title}`);
+    // In the TASKS section, update addTask to include assignedTo:
+    async addTask(clubId, title, priority, assignedTo) {
+        console.log("📋 Adding task for club " + clubId + ": " + title);
         
         if (window.__firebase.useMock) {
-            const key = `tasks_${clubId}`;
+            var key = 'tasks_' + clubId;
             if (!mockData.tasks[key]) mockData.tasks[key] = [];
-            const newTask = {
+            var newTask = {
                 id: 'mock-task-' + Date.now(),
-                title,
+                title: title,
                 priority: priority || 'medium',
+                assignedTo: assignedTo || '',
                 completed: false,
                 createdAt: new Date().toISOString().slice(0, 10)
             };
@@ -472,23 +506,24 @@ const DB = {
             saveMock();
             return newTask;
         }
-
+    
         try {
-            const docRef = await window.__firebase.db.collection('tasks').add({
-                clubId,
-                title,
+            var docRef = await window.__firebase.db.collection('tasks').add({
+                clubId: clubId,
+                title: title,
                 priority: priority || 'medium',
+                assignedTo: assignedTo || '',
                 completed: false,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             console.log("✅ Task added");
-            return { id: docRef.id, title, priority, completed: false };
+            return { id: docRef.id, title: title, priority: priority, assignedTo: assignedTo, completed: false };
         } catch (error) {
             console.error("❌ Error adding task:", error);
             throw error;
         }
     },
-
+    
     async updateTaskStatus(clubId, taskId, completed) {
         console.log(`📋 Updating task ${taskId} completed: ${completed}`);
         
