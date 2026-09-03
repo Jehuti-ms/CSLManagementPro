@@ -75,12 +75,12 @@ var AttendancePage = {
                 <div class="stat-box"><span id="avgEngagement">0</span> Avg Engagement</div>
             </div>
             
-            <!-- ===== SAVE BUTTONS - CENTERED ===== -->
-            <div class="toolbar" style="margin-top: 16px; justify-content: center; background: rgba(108, 99, 255, 0.04);">
-                <button class="btn-primary" id="saveAttendance" style="padding: 12px 32px; font-size: 1rem;">
+            <!-- ===== SAVE BUTTONS - FORCED CENTERED ===== -->
+            <div style="display: flex; justify-content: center; gap: 16px; margin-top: 20px; padding: 16px 0;">
+                <button class="btn-primary" id="saveAttendance" style="padding: 12px 40px; font-size: 1rem; min-width: 180px;">
                     <i class="fas fa-save"></i> Save Attendance
                 </button>
-                <button class="btn-outline" id="exportAttendance" style="padding: 12px 24px;">
+                <button class="btn-outline" id="exportAttendance" style="padding: 12px 40px; font-size: 1rem; min-width: 180px;">
                     <i class="fas fa-file-export"></i> Export CSV
                 </button>
             </div>
@@ -103,7 +103,8 @@ var AttendancePage = {
                     </button>
                 </div>
             </div>
-        </div>`;
+        </div>
+        `;
     },
 
     // ----- LOAD CLUBS FOR ATTENDANCE -----
