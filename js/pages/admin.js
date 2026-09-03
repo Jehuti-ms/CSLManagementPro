@@ -635,4 +635,124 @@ var AdminPage = {
                 if (confirm('Delete student "' + name + '"?')) {
                     window.DB.deleteStudent(name).then(function() {
                         self.loadData();
-                    }).catch(function(error)
+                    }).catch(function(error) {
+                        alert('Error deleting student: ' + error.message);
+                    });
+                }
+            });
+        });
+        
+        document.querySelectorAll('.delete-teacher').forEach(function(btn) {
+            var newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', function() {
+                var email = this.dataset.email;
+                if (confirm('Remove teacher "' + email + '"?')) {
+                    var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+                    teachers = teachers.filter(function(t) { return t.email !== email; });
+                    localStorage.setItem('teachers', JSON.stringify(teachers));
+                    var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
+                    allocations = allocations.filter(function(a) { return a.teacherEmail !== email; });
+                    localStorage.setItem('teacherAllocations', JSON.stringify(allocations));
+                    self.loadData();
+                }
+            });
+        });
+    },
+
+    // ============================================================
+    // SETUP EVENTS
+    // ============================================================
+    setupEvents: function() {
+        console.log("🔧 Setting up admin events...");
+        var self = this;
+        
+        // Add Club
+        document.getElementById('addClubBtn').addEventListener('click', function() {
+            var input = document.getElementById('clubNameInput');
+            var name = input.value.trim();
+            var statusEl = document.getElementById('addClubStatus');
+            if (!name) { statusEl.textContent = '⚠️ Please enter a club name'; statusEl.style.color = 'var(--danger)'; return; }
+            window.DB.addClub(name).then(function() {
+                input.value = '';
+                statusEl.textContent = '✅ Club added!';
+                statusEl.style.color = 'var(--success)';
+                self.loadData();
+                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+            }).catch(function(error) {
+                statusEl.textContent = '❌ Error: ' + error.message;
+                statusEl.style.color = 'var(--danger)';
+            });
+        });
+
+        // Add Teacher
+        document.getElementById('addTeacherBtn').addEventListener('click', function() {
+            var nameInput = document.getElementById('teacherNameInput');
+            var emailInput = document.getElementById('teacherEmailInput');
+            var statusEl = document.getElementById('addTeacherStatus');
+            var name = nameInput.value.trim();
+            var email = emailInput.value.trim();
+            if (!name) { statusEl.textContent = '⚠️ Please enter a teacher name'; statusEl.style.color = 'var(--danger)'; return; }
+            if (!email) { statusEl.textContent = '⚠️ Please enter a teacher email'; statusEl.style.color = 'var(--danger)'; return; }
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) { statusEl.textContent = '⚠️ Please enter a valid email'; statusEl.style.color = 'var(--danger)'; return; }
+            var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+            if (teachers.some(function(t) { return t.email === email; })) {
+                statusEl.textContent = '⚠️ This teacher already exists';
+                statusEl.style.color = 'var(--danger)';
+                return;
+            }
+            teachers.push({ id: 'teacher-' + Date.now(), name: name, email: email });
+            localStorage.setItem('teachers', JSON.stringify(teachers));
+            nameInput.value = '';
+            emailInput.value = '';
+            statusEl.textContent = '✅ Teacher added!';
+            statusEl.style.color = 'var(--success)';
+            self.loadData();
+            setTimeout(function() { statusEl.textContent = ''; }, 3000);
+        });
+
+        // Add Student
+        document.getElementById('addStudentBtn').addEventListener('click', function() {
+            var input = document.getElementById('studentNameInput');
+            var name = input.value.trim();
+            var statusEl = document.getElementById('addStudentStatus');
+            if (!name) { statusEl.textContent = '⚠️ Please enter a student name'; statusEl.style.color = 'var(--danger)'; return; }
+            window.DB.addStudent(name).then(function() {
+                input.value = '';
+                statusEl.textContent = '✅ Student added!';
+                statusEl.style.color = 'var(--success)';
+                self.loadData();
+                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+            }).catch(function(error) {
+                statusEl.textContent = '❌ Error: ' + error.message;
+                statusEl.style.color = 'var(--danger)';
+            });
+        });
+
+        // Save Assignment
+        document.getElementById('saveAssignmentBtn').addEventListener('click', function() { 
+            self.saveAssignment(); 
+        });
+
+        // Enter key shortcuts
+        document.getElementById('clubNameInput').addEventListener('keypress', function(e) { 
+            if (e.key === 'Enter') document.getElementById('addClubBtn').click(); 
+        });
+        document.getElementById('teacherNameInput').addEventListener('keypress', function(e) { 
+            if (e.key === 'Enter') document.getElementById('addTeacherBtn').click(); 
+        });
+        document.getElementById('teacherEmailInput').addEventListener('keypress', function(e) { 
+            if (e.key === 'Enter') document.getElementById('addTeacherBtn').click(); 
+        });
+        document.getElementById('studentNameInput').addEventListener('keypress', function(e) { 
+            if (e.key === 'Enter') document.getElementById('addStudentBtn').click(); 
+        });
+
+        // Load data
+        this.loadData();
+    }
+};
+
+window.AdminPage = AdminPage;
+console.log("✅ AdminPage module loaded");
