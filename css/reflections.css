@@ -446,3 +446,61 @@
         gap: 4px;
     }
 }
+
+/* ============================================================
+   REFLECTIONS TILE STYLES
+   ============================================================ */
+
+/* ----- Reflection Tiles ----- */
+.reflection-tile {
+    transition: var(--transition);
+}
+
+.reflection-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glass-shadow);
+}
+
+.reflection-tile.teacher-tile:hover {
+    border-color: var(--secondary);
+}
+
+.reflection-tile.student-tile:hover {
+    border-color: var(--primary);
+}
+
+/* ----- Stats ----- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 16px 20px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--gray-light);
+    text-align: center;
+}
+
+.stat-card .number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+    display: block;
+}
+
+.stat-card .label {
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 768px) {
+    #reflectionsGrid {
+        grid-template-columns: 1fr !important;
+    }
+}
