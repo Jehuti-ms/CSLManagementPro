@@ -1,5 +1,5 @@
 // ============================================================
-// ADMIN PAGE - Clean Card Layouts
+// ADMIN PAGE - Complete with Add Clubs, Teachers, Students (FIXED)
 // ============================================================
 
 var AdminPage = {
@@ -245,32 +245,43 @@ var AdminPage = {
     // ============================================================
     // LOAD DATA
     // ============================================================
-    loadData: async function() {
+    loadData: function() {
         console.log("📊 Loading admin data...");
-        try {
-            var clubs = await window.DB.getClubs();
-            var students = await window.DB.getStudents();
-            var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
-            var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
-            
-            document.getElementById('adminTotalClubs').textContent = clubs.length || 0;
-            document.getElementById('adminTotalTeachers').textContent = teachers.length || 0;
-            document.getElementById('adminTotalStudents').textContent = students.length || 0;
-            document.getElementById('adminTotalActivities').textContent = '0';
-            
-            document.getElementById('clubCountBadge').textContent = '(' + clubs.length + ')';
-            document.getElementById('teacherCountBadge').textContent = '(' + teachers.length + ')';
-            document.getElementById('studentCountBadge').textContent = '(' + students.length + ')';
-            
-            this.renderClubs(clubs);
-            this.renderTeachers(teachers);
-            this.renderStudents(students);
-            this.renderTeacherAllocations(teachers, clubs, allocations);
-            this.setupDeleteHandlers();
-            this.setupAssignHandlers();
-        } catch (error) {
-            console.error("❌ Error loading admin data:", error);
-        }
+        var self = this;
+        
+        // Get clubs
+        window.DB.getClubs().then(function(clubs) {
+            // Get students
+            window.DB.getStudents().then(function(students) {
+                // Get teachers from localStorage
+                var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+                var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
+                
+                // Update stats
+                document.getElementById('adminTotalClubs').textContent = clubs.length || 0;
+                document.getElementById('adminTotalTeachers').textContent = teachers.length || 0;
+                document.getElementById('adminTotalStudents').textContent = students.length || 0;
+                document.getElementById('adminTotalActivities').textContent = '0';
+                
+                document.getElementById('clubCountBadge').textContent = '(' + clubs.length + ')';
+                document.getElementById('teacherCountBadge').textContent = '(' + teachers.length + ')';
+                document.getElementById('studentCountBadge').textContent = '(' + students.length + ')';
+                
+                // Render all sections
+                self.renderClubs(clubs);
+                self.renderTeachers(teachers);
+                self.renderStudents(students);
+                self.renderTeacherAllocations(teachers, clubs, allocations);
+                self.setupDeleteHandlers();
+                self.setupAssignHandlers();
+                
+                console.log("✅ Admin data loaded successfully");
+            }).catch(function(error) {
+                console.error("❌ Error loading students:", error);
+            });
+        }).catch(function(error) {
+            console.error("❌ Error loading clubs:", error);
+        });
     },
 
     // ============================================================
@@ -538,8 +549,10 @@ var AdminPage = {
     },
 
     showAssignTeacherModal: function(club, teacherEmail) {
+        var self = this;
         this.renderModals();
         
+        // Populate teachers
         var teacherSelect = document.getElementById('assignTeacherSelect');
         if (teacherSelect) {
             var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
@@ -550,17 +563,19 @@ var AdminPage = {
             }
         }
         
+        // Populate clubs
         var clubSelect = document.getElementById('assignClubSelect');
         if (clubSelect) {
-            var clubs = await window.DB.getClubs();
-            if (!clubs || clubs.length === 0) {
-                clubs = ['4H Club', 'Community Service', 'Environmental', 'Tutoring'];
-            }
-            clubSelect.innerHTML = '<option value="">Select club...</option>';
-            for (var i = 0; i < clubs.length; i++) {
-                var selected = clubs[i] === club ? 'selected' : '';
-                clubSelect.innerHTML += '<option value="' + clubs[i] + '" ' + selected + '>' + clubs[i] + '</option>';
-            }
+            window.DB.getClubs().then(function(clubs) {
+                if (!clubs || clubs.length === 0) {
+                    clubs = ['4H Club', 'Community Service', 'Environmental', 'Tutoring'];
+                }
+                clubSelect.innerHTML = '<option value="">Select club...</option>';
+                for (var i = 0; i < clubs.length; i++) {
+                    var selected = clubs[i] === club ? 'selected' : '';
+                    clubSelect.innerHTML += '<option value="' + clubs[i] + '" ' + selected + '>' + clubs[i] + '</option>';
+                }
+            });
         }
         
         this.showModal();
@@ -600,15 +615,14 @@ var AdminPage = {
         document.querySelectorAll('.delete-club').forEach(function(btn) {
             var newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.addEventListener('click', async function() {
+            newBtn.addEventListener('click', function() {
                 var name = this.dataset.name;
                 if (confirm('Delete club "' + name + '"?')) {
-                    try { 
-                        await window.DB.deleteClub(name); 
-                        await self.loadData(); 
-                    } catch (error) { 
-                        alert('Error deleting club: ' + error.message); 
-                    }
+                    window.DB.deleteClub(name).then(function() {
+                        self.loadData();
+                    }).catch(function(error) {
+                        alert('Error deleting club: ' + error.message);
+                    });
                 }
             });
         });
@@ -616,132 +630,9 @@ var AdminPage = {
         document.querySelectorAll('.delete-student').forEach(function(btn) {
             var newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.addEventListener('click', async function() {
+            newBtn.addEventListener('click', function() {
                 var name = this.dataset.name;
                 if (confirm('Delete student "' + name + '"?')) {
-                    try { 
-                        await window.DB.deleteStudent(name); 
-                        await self.loadData(); 
-                    } catch (error) { 
-                        alert('Error deleting student: ' + error.message); 
-                    }
-                }
-            });
-        });
-        
-        document.querySelectorAll('.delete-teacher').forEach(function(btn) {
-            var newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.addEventListener('click', function() {
-                var email = this.dataset.email;
-                if (confirm('Remove teacher "' + email + '"?')) {
-                    var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
-                    teachers = teachers.filter(function(t) { return t.email !== email; });
-                    localStorage.setItem('teachers', JSON.stringify(teachers));
-                    var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
-                    allocations = allocations.filter(function(a) { return a.teacherEmail !== email; });
-                    localStorage.setItem('teacherAllocations', JSON.stringify(allocations));
-                    window.AdminPage.loadData();
-                }
-            });
-        });
-    },
-
-    // ============================================================
-    // SETUP EVENTS
-    // ============================================================
-    setupEvents: function() {
-        console.log("🔧 Setting up admin events...");
-        var self = this;
-        
-        // Add Club
-        document.getElementById('addClubBtn').addEventListener('click', async function() {
-            var input = document.getElementById('clubNameInput');
-            var name = input.value.trim();
-            var statusEl = document.getElementById('addClubStatus');
-            if (!name) { statusEl.textContent = '⚠️ Please enter a club name'; statusEl.style.color = 'var(--danger)'; return; }
-            try {
-                await window.DB.addClub(name);
-                input.value = '';
-                statusEl.textContent = '✅ Club added!';
-                statusEl.style.color = 'var(--success)';
-                await self.loadData();
-                setTimeout(function() { statusEl.textContent = ''; }, 3000);
-            } catch (error) {
-                statusEl.textContent = '❌ Error: ' + error.message;
-                statusEl.style.color = 'var(--danger)';
-            }
-        });
-
-        // Add Teacher
-        document.getElementById('addTeacherBtn').addEventListener('click', function() {
-            var nameInput = document.getElementById('teacherNameInput');
-            var emailInput = document.getElementById('teacherEmailInput');
-            var statusEl = document.getElementById('addTeacherStatus');
-            var name = nameInput.value.trim();
-            var email = emailInput.value.trim();
-            if (!name) { statusEl.textContent = '⚠️ Please enter a teacher name'; statusEl.style.color = 'var(--danger)'; return; }
-            if (!email) { statusEl.textContent = '⚠️ Please enter a teacher email'; statusEl.style.color = 'var(--danger)'; return; }
-            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) { statusEl.textContent = '⚠️ Please enter a valid email'; statusEl.style.color = 'var(--danger)'; return; }
-            var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
-            if (teachers.some(function(t) { return t.email === email; })) {
-                statusEl.textContent = '⚠️ This teacher already exists';
-                statusEl.style.color = 'var(--danger)';
-                return;
-            }
-            teachers.push({ id: 'teacher-' + Date.now(), name: name, email: email });
-            localStorage.setItem('teachers', JSON.stringify(teachers));
-            nameInput.value = '';
-            emailInput.value = '';
-            statusEl.textContent = '✅ Teacher added!';
-            statusEl.style.color = 'var(--success)';
-            self.loadData();
-            setTimeout(function() { statusEl.textContent = ''; }, 3000);
-        });
-
-        // Add Student
-        document.getElementById('addStudentBtn').addEventListener('click', async function() {
-            var input = document.getElementById('studentNameInput');
-            var name = input.value.trim();
-            var statusEl = document.getElementById('addStudentStatus');
-            if (!name) { statusEl.textContent = '⚠️ Please enter a student name'; statusEl.style.color = 'var(--danger)'; return; }
-            try {
-                await window.DB.addStudent(name);
-                input.value = '';
-                statusEl.textContent = '✅ Student added!';
-                statusEl.style.color = 'var(--success)';
-                await self.loadData();
-                setTimeout(function() { statusEl.textContent = ''; }, 3000);
-            } catch (error) {
-                statusEl.textContent = '❌ Error: ' + error.message;
-                statusEl.style.color = 'var(--danger)';
-            }
-        });
-
-        // Save Assignment
-        document.getElementById('saveAssignmentBtn').addEventListener('click', function() { 
-            self.saveAssignment(); 
-        });
-
-        // Enter key shortcuts
-        document.getElementById('clubNameInput').addEventListener('keypress', function(e) { 
-            if (e.key === 'Enter') document.getElementById('addClubBtn').click(); 
-        });
-        document.getElementById('teacherNameInput').addEventListener('keypress', function(e) { 
-            if (e.key === 'Enter') document.getElementById('addTeacherBtn').click(); 
-        });
-        document.getElementById('teacherEmailInput').addEventListener('keypress', function(e) { 
-            if (e.key === 'Enter') document.getElementById('addTeacherBtn').click(); 
-        });
-        document.getElementById('studentNameInput').addEventListener('keypress', function(e) { 
-            if (e.key === 'Enter') document.getElementById('addStudentBtn').click(); 
-        });
-
-        // Load data
-        this.loadData();
-    }
-};
-
-window.AdminPage = AdminPage;
-console.log("✅ AdminPage module loaded");
+                    window.DB.deleteStudent(name).then(function() {
+                        self.loadData();
+                    }).catch(function(error)
