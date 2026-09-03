@@ -1,9 +1,9 @@
 // ============================================================
-// REFLECTIONS PAGE - Teacher Dashboard with Student Filter
+// REFLECTIONS PAGE - Teacher Dashboard with Student Reflections
 // ============================================================
 
 var ReflectionsPage = {
-    // ----- RENDER HTML -----
+    // ----- RENDER HTML (NO MODALS HERE - JUST PAGE CONTENT) -----
     render: function() {
         return `
         <div id="reflectionsPage" class="page active-page">
@@ -56,119 +56,120 @@ var ReflectionsPage = {
                     <br>Loading reflections...
                 </div>
             </div>
-        </div>
-        
-        <!-- ===== STUDENT DETAIL MODAL ===== -->
-        <div id="studentDetailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-user-graduate" style="color: #6C63FF;"></i> 
-                        <span id="detailStudentName">Student Reflections</span>
-                        <span id="detailStudentCount" style="font-size: 0.9rem; font-weight: 400; color: var(--gray);"></span>
-                    </h3>
-                    <button onclick="window.ReflectionsPage.closeModal('studentDetailModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div id="studentDetailContent">
-                    <div style="text-align:center; padding: 20px; color: var(--gray);">
-                        <i class="fas fa-spinner fa-spin"></i> Loading...
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ===== TEACHER REFLECTION MODAL ===== -->
-        <div id="teacherReflectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-chalkboard-teacher" style="color: #FF6584;"></i> Teacher Reflection
-                        <span id="teacherRefClubName" style="font-size: 0.9rem; font-weight: 400; color: var(--gray);"></span>
-                    </h3>
-                    <button onclick="window.ReflectionsPage.closeModal('teacherReflectionModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Date</label>
-                    <input type="date" id="teacherRefDate" style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">
-                        <i class="fas fa-check-circle" style="color: var(--success);"></i> What went well?
-                    </label>
-                    <textarea id="teacherRefWentWell" placeholder="What aspects of the session were successful?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">
-                        <i class="fas fa-tools" style="color: var(--warning);"></i> What could be improved?
-                    </label>
-                    <textarea id="teacherRefImprove" placeholder="What would you do differently next time?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">
-                        <i class="fas fa-users" style="color: var(--primary);"></i> Notes on Student Engagement
-                    </label>
-                    <textarea id="teacherRefEngagement" placeholder="How engaged were students? Any notable moments?" rows="2" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="saveTeacherRefBtn" style="flex: 1; padding: 14px; background: var(--gradient-secondary);">
-                        <i class="fas fa-save"></i> Save Reflection
-                    </button>
-                    <button class="btn-outline" onclick="window.ReflectionsPage.closeModal('teacherReflectionModal')" style="flex: 0.5; padding: 14px;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
         </div>`;
     },
 
     // ============================================================
-    // RENDER MODALS
+    // RENDER MODALS (EXACT SAME AS TRACKER - MODALS CREATED HERE)
     // ============================================================
     renderModals: function() {
+        // Only render modals once
         if (document.getElementById('reflectionsModalContainer')) return;
         
-        var modals = document.querySelectorAll('#studentDetailModal, #teacherReflectionModal');
-        var modalHTML = '';
-        modals.forEach(function(modal) {
-            modalHTML += modal.outerHTML;
-        });
+        var modalHTML = `
+        <div id="reflectionsModalContainer">
+            <!-- ===== STUDENT DETAIL MODAL ===== -->
+            <div id="studentDetailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-user-graduate" style="color: #6C63FF;"></i> 
+                            <span id="detailStudentName">Student Reflections</span>
+                            <span id="detailStudentCount" style="font-size: 0.9rem; font-weight: 400; color: var(--gray);"></span>
+                        </h3>
+                        <button onclick="window.ReflectionsPage.closeModal('studentDetailModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="studentDetailContent">
+                        <div style="text-align:center; padding: 20px; color: var(--gray);">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== TEACHER REFLECTION MODAL ===== -->
+            <div id="teacherReflectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-chalkboard-teacher" style="color: #FF6584;"></i> Teacher Reflection
+                            <span id="teacherRefClubName" style="font-size: 0.9rem; font-weight: 400; color: var(--gray);"></span>
+                        </h3>
+                        <button onclick="window.ReflectionsPage.closeModal('teacherReflectionModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Date</label>
+                        <input type="date" id="teacherRefDate" style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">
+                            <i class="fas fa-check-circle" style="color: var(--success);"></i> What went well?
+                        </label>
+                        <textarea id="teacherRefWentWell" placeholder="What aspects of the session were successful?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">
+                            <i class="fas fa-tools" style="color: var(--warning);"></i> What could be improved?
+                        </label>
+                        <textarea id="teacherRefImprove" placeholder="What would you do differently next time?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">
+                            <i class="fas fa-users" style="color: var(--primary);"></i> Notes on Student Engagement
+                        </label>
+                        <textarea id="teacherRefEngagement" placeholder="How engaged were students? Any notable moments?" rows="2" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="saveTeacherRefBtn" style="flex: 1; padding: 14px; background: var(--gradient-secondary);">
+                            <i class="fas fa-save"></i> Save Reflection
+                        </button>
+                        <button class="btn-outline" onclick="window.ReflectionsPage.closeModal('teacherReflectionModal')" style="flex: 0.5; padding: 14px;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
         
         var container = document.createElement('div');
-        container.id = 'reflectionsModalContainer';
         container.innerHTML = modalHTML;
         document.body.appendChild(container.firstElementChild);
-        
-        // Hide originals
-        modals.forEach(function(modal) {
-            modal.style.display = 'none';
-        });
     },
 
-    // ----- SHOW MODAL -----
+    // ----- SHOW MODAL (EXACT SAME AS TRACKER) -----
     showModal: function(modalId) {
+        console.log("📝 Showing modal:", modalId);
+        
+        // Ensure modals are rendered
         this.renderModals();
+        
         var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            console.log("✅ Modal shown:", modalId);
+        } else {
+            console.error("❌ Modal not found:", modalId);
         }
     },
 
-    // ----- CLOSE MODAL -----
+    // ----- CLOSE MODAL (EXACT SAME AS TRACKER) -----
     closeModal: function(modalId) {
+        console.log("📝 Closing modal:", modalId);
         var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
+            console.log("✅ Modal closed:", modalId);
         }
     },
 
@@ -231,6 +232,9 @@ var ReflectionsPage = {
         var today = new Date().toISOString().slice(0, 10);
         var dateInput = document.getElementById('teacherRefDate');
         if (dateInput) dateInput.value = today;
+        
+        // Render modals once
+        this.renderModals();
     },
 
     // ----- LOAD STUDENTS FOR FILTER -----
@@ -506,7 +510,6 @@ var ReflectionsPage = {
         });
         
         // Show modal
-        this.renderModals();
         document.getElementById('detailStudentName').textContent = studentName + '\'s Reflections';
         document.getElementById('detailStudentCount').textContent = '(' + sorted.length + ' entries)';
         
@@ -551,6 +554,9 @@ var ReflectionsPage = {
             return;
         }
         
+        console.log("📝 Opening Teacher Reflection Modal");
+        
+        // Ensure modals are rendered
         this.renderModals();
         
         var today = new Date().toISOString().slice(0, 10);
@@ -641,6 +647,7 @@ var ReflectionsPage = {
             });
         }
         
+        // Render modals once
         this.renderModals();
         this.loadData();
     }
