@@ -1,5 +1,5 @@
 // ============================================================
-// TRACKER PAGE - Complete with Calendar View, Export, Check-in, Templates
+// TRACKER PAGE - Complete with All Features
 // ============================================================
 
 var TrackerPage = {
@@ -12,60 +12,63 @@ var TrackerPage = {
                 <span id="trackerClubName" style="font-size: 1rem; font-weight: 400; color: var(--primary);"></span>
             </div>
             
-            <!-- ===== CLUB SELECTOR ===== -->
-            <div class="toolbar" id="clubSelectorToolbar">
-                <label style="font-weight: 600; color: var(--dark);">
-                    <i class="fas fa-users"></i> Select Club:
-                </label>
-                <select id="trackerClubSelect" style="min-width: 200px; padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem; cursor: pointer;">
-                    <option value="">Loading clubs...</option>
-                </select>
+            <!-- ===== TOP ROW: CLUB SELECTOR + ACTION BUTTONS ===== -->
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 250px;">
+                    <label style="font-weight: 600; color: var(--dark); white-space: nowrap;">
+                        <i class="fas fa-users"></i> Club:
+                    </label>
+                    <select id="trackerClubSelect" style="flex: 1; min-width: 150px; padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem; cursor: pointer;">
+                        <option value="">Loading clubs...</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn-primary" id="addActivityBtn" style="padding: 10px 20px;">
+                        <i class="fas fa-plus"></i> Add Activity
+                    </button>
+                    <button class="btn-outline" id="exportDataBtn" style="padding: 10px 18px;">
+                        <i class="fas fa-file-export"></i> Export
+                    </button>
+                    <button class="btn-outline" id="toggleViewBtn" style="padding: 10px 18px;">
+                        <i class="fas fa-calendar-alt"></i> Calendar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- ===== PERIOD TABS ===== -->
+            <div class="toolbar" style="background: rgba(108, 99, 255, 0.04); margin-bottom: 16px;">
+                <button class="period-tab active" data-period="weekly">
+                    <i class="fas fa-calendar-week"></i> Weekly
+                </button>
+                <button class="period-tab" data-period="monthly">
+                    <i class="fas fa-calendar-alt"></i> Monthly
+                </button>
+                <button class="period-tab" data-period="yearly">
+                    <i class="fas fa-calendar-year"></i> Yearly
+                </button>
                 <div style="flex:1;"></div>
-                <button class="btn-primary" id="addActivityBtn">
-                    <i class="fas fa-plus"></i> Add Activity
-                </button>
-                <button class="btn-outline" id="exportDataBtn">
-                    <i class="fas fa-file-export"></i> Export
-                </button>
-                <button class="btn-outline" id="toggleViewBtn">
-                    <i class="fas fa-calendar-alt"></i> Calendar
+                <button class="btn-outline" id="templateBtn" style="padding: 6px 16px; font-size: 0.85rem;">
+                    <i class="fas fa-copy"></i> Templates
                 </button>
             </div>
             
-            <!-- ===== VIEW TOGGLE ===== -->
+            <!-- ===== VIEW CONTAINER ===== -->
             <div id="viewContainer">
-                <!-- TABLE VIEW (default) -->
+                <!-- TABLE VIEW -->
                 <div id="tableView">
-                    <!-- Period Tabs -->
-                    <div class="toolbar" style="background: rgba(108, 99, 255, 0.04);">
-                        <button class="period-tab active" data-period="weekly">
-                            <i class="fas fa-calendar-week"></i> Weekly
-                        </button>
-                        <button class="period-tab" data-period="monthly">
-                            <i class="fas fa-calendar-alt"></i> Monthly
-                        </button>
-                        <button class="period-tab" data-period="yearly">
-                            <i class="fas fa-calendar-year"></i> Yearly
-                        </button>
-                        <div style="flex:1;"></div>
-                        <button class="btn-outline" id="templateBtn" style="padding: 6px 16px; font-size: 0.85rem;">
-                            <i class="fas fa-copy"></i> Templates
-                        </button>
-                    </div>
-                    
-                    <!-- Activities Table -->
                     <div class="table-wrap">
                         <table>
                             <thead>
                                 <tr>
                                     <th style="width: 5%;"><input type="checkbox" id="selectAllActivities"></th>
                                     <th style="width: 12%;">Date</th>
-                                    <th style="width: 20%;">Activity</th>
+                                    <th style="width: 25%;">Activity</th>
                                     <th style="width: 15%;">Type</th>
                                     <th style="width: 10%;">Status</th>
                                     <th style="width: 10%;">Check-in</th>
                                     <th style="width: 8%;">Reminder</th>
-                                    <th style="width: 20%;">Actions</th>
+                                    <th style="width: 15%;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="trackerActivitiesBody">
@@ -77,7 +80,6 @@ var TrackerPage = {
                         </table>
                     </div>
                     
-                    <!-- Stats -->
                     <div class="tracker-stats" style="margin-top: 20px;">
                         <div class="stat-box"><span id="totalActivities">0</span> Total</div>
                         <div class="stat-box"><span id="completedActivities">0</span> Completed</div>
@@ -95,9 +97,7 @@ var TrackerPage = {
                         <button class="btn-outline" id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
                         <button class="btn-outline" id="todayBtn" style="padding: 4px 16px;">Today</button>
                     </div>
-                    <div id="calendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px;">
-                        <!-- Calendar rendered by JS -->
-                    </div>
+                    <div id="calendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px;"></div>
                 </div>
             </div>
             
@@ -158,412 +158,589 @@ var TrackerPage = {
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- ===== ADD ACTIVITY MODAL ===== -->
-        <div id="addActivityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-plus-circle" style="color: #6C63FF;"></i> Add New Activity
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('addActivityModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Title <span style="color: #FF6B6B;">*</span></label>
-                        <input type="text" id="activityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Description</label>
-                        <textarea id="activityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; font-family: Inter, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Type <span style="color: #FF6B6B;">*</span></label>
-                            <select id="activityType" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="Meeting">📋 Meeting</option>
-                                <option value="Training">🏋️ Training</option>
-                                <option value="Event">🎉 Event</option>
-                                <option value="Planning">📝 Planning</option>
-                                <option value="Volunteer">🤝 Volunteer</option>
-                                <option value="Other">📌 Other</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Date <span style="color: #FF6B6B;">*</span></label>
-                            <input type="date" id="activityDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                        </div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Period <span style="color: #FF6B6B;">*</span></label>
-                            <select id="activityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="weekly">📅 Weekly</option>
-                                <option value="monthly">📆 Monthly</option>
-                                <option value="yearly">📊 Yearly</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Status</label>
-                            <select id="activityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="pending">⏳ Pending</option>
-                                <option value="in-progress">🔄 In Progress</option>
-                                <option value="completed">✅ Completed</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Set Reminder</label>
-                        <div style="display: flex; gap: 16px; align-items: center;">
-                            <label style="font-weight: 400; font-size: 0.9rem; color: var(--gray);">
-                                <input type="checkbox" id="activityReminder" style="margin-right: 6px;"> Enable Reminder
-                            </label>
-                            <input type="number" id="reminderDays" value="1" min="0" max="7" style="width: 60px; padding: 6px 10px; border: 2px solid #E8ECF1; border-radius: 8px; font-size: 0.9rem;">
-                            <span style="font-size: 0.9rem; color: var(--gray);">days before</span>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Assign Students</label>
-                        <select id="activityStudents" multiple style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; min-height: 80px; box-sizing: border-box;">
-                            <option value="all">All Students</option>
-                        </select>
-                        <small style="color: #6C7A89; display: block; margin-top: 4px;">Hold Ctrl/Cmd to select multiple students</small>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="saveActivityBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-save"></i> Save Activity
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('addActivityModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ===== ADD TASK MODAL ===== -->
-        <div id="addTaskModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-tasks" style="color: #6C63FF;"></i> Add New Task
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('addTaskModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Task Description <span style="color: #FF6B6B;">*</span></label>
-                        <input type="text" id="taskTitle" placeholder="e.g., Prepare meeting agenda" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Priority</label>
-                            <select id="taskPriorityModal" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="low">🟢 Low</option>
-                                <option value="medium" selected>🟡 Medium</option>
-                                <option value="high">🔴 High</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Assign To</label>
-                            <select id="taskAssignedToModal" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="">Unassigned</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Due Date</label>
-                        <input type="date" id="taskDueDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="saveTaskBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-save"></i> Save Task
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('addTaskModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ===== EDIT ACTIVITY MODAL ===== -->
-        <div id="editActivityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-edit" style="color: #6C63FF;"></i> Edit Activity
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('editActivityModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <input type="hidden" id="editActivityId">
-                
-                <div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Title <span style="color: #FF6B6B;">*</span></label>
-                        <input type="text" id="editActivityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Description</label>
-                        <textarea id="editActivityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; font-family: Inter, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Type</label>
-                            <select id="editActivityType" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="Meeting">📋 Meeting</option>
-                                <option value="Training">🏋️ Training</option>
-                                <option value="Event">🎉 Event</option>
-                                <option value="Planning">📝 Planning</option>
-                                <option value="Volunteer">🤝 Volunteer</option>
-                                <option value="Other">📌 Other</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Date</label>
-                            <input type="date" id="editActivityDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                        </div>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Period</label>
-                            <select id="editActivityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="weekly">📅 Weekly</option>
-                                <option value="monthly">📆 Monthly</option>
-                                <option value="yearly">📊 Yearly</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Status</label>
-                            <select id="editActivityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                                <option value="pending">⏳ Pending</option>
-                                <option value="in-progress">🔄 In Progress</option>
-                                <option value="completed">✅ Completed</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="updateActivityBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-save"></i> Update Activity
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('editActivityModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ===== TEMPLATES MODAL ===== -->
-        <div id="templatesModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-copy" style="color: #6C63FF;"></i> Activity Templates
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('templatesModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div id="templatesList">
-                    <div style="text-align:center; padding: 20px; color: var(--gray);">
-                        <i class="fas fa-spinner fa-spin"></i> Loading templates...
-                    </div>
-                </div>
-                
-                <div style="margin-top: 16px; display: flex; gap: 12px;">
-                    <input type="text" id="templateNameInput" placeholder="Template name..." style="flex: 1; padding: 10px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
-                    <button class="btn-primary" id="saveTemplateBtn" style="padding: 10px 20px;">
-                        <i class="fas fa-save"></i> Save Current as Template
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ===== CHECK-IN MODAL ===== -->
-        <div id="checkInModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 450px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-clipboard-check" style="color: #6C63FF;"></i> Student Check-In
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('checkInModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <p style="color: var(--gray); margin-bottom: 16px;" id="checkInActivityTitle">Checking in for: Activity Name</p>
-                
-                <div id="checkInStudentsList">
-                    <div style="text-align:center; padding: 20px; color: var(--gray);">
-                        <i class="fas fa-spinner fa-spin"></i> Loading students...
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="saveCheckInBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-save"></i> Save Check-Ins
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('checkInModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ===== EXPORT MODAL ===== -->
-        <div id="exportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-file-export" style="color: #6C63FF;"></i> Export Data
-                    </h3>
-                    <button onclick="window.TrackerPage.closeModal('exportModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <button class="btn-primary" id="exportCSVBtn" style="padding: 12px;">
-                        <i class="fas fa-file-csv"></i> Export as CSV
-                    </button>
-                    <button class="btn-primary" id="exportJSONBtn" style="padding: 12px; background: var(--gradient-secondary);">
-                        <i class="fas fa-file-code"></i> Export as JSON
-                    </button>
-                    <button class="btn-outline" onclick="window.TrackerPage.closeModal('exportModal')" style="padding: 12px;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-        `;
+        </div>`;
     },
 
-    // ----- RENDER MODALS -----
+    // ============================================================
+    // RENDER MODALS
+    // ============================================================
     renderModals: function() {
         if (document.getElementById('modalContainer')) return;
         
-        var modalHTML = document.querySelector('#addActivityModal').outerHTML + 
-                        document.querySelector('#addTaskModal').outerHTML +
-                        document.querySelector('#editActivityModal').outerHTML +
-                        document.querySelector('#templatesModal').outerHTML +
-                        document.querySelector('#checkInModal').outerHTML +
-                        document.querySelector('#exportModal').outerHTML;
+        var modalHTML = `
+        <div id="modalContainer">
+            <!-- ===== ADD ACTIVITY MODAL ===== -->
+            <div id="addActivityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-plus-circle" style="color: #6C63FF;"></i> Add New Activity
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('addActivityModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Title <span style="color: #FF6B6B;">*</span></label>
+                            <input type="text" id="activityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Description</label>
+                            <textarea id="activityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; font-family: Inter, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Type <span style="color: #FF6B6B;">*</span></label>
+                                <select id="activityType" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="Meeting">📋 Meeting</option>
+                                    <option value="Training">🏋️ Training</option>
+                                    <option value="Event">🎉 Event</option>
+                                    <option value="Planning">📝 Planning</option>
+                                    <option value="Volunteer">🤝 Volunteer</option>
+                                    <option value="Other">📌 Other</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Date <span style="color: #FF6B6B;">*</span></label>
+                                <input type="date" id="activityDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Period <span style="color: #FF6B6B;">*</span></label>
+                                <select id="activityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="weekly">📅 Weekly</option>
+                                    <option value="monthly">📆 Monthly</option>
+                                    <option value="yearly">📊 Yearly</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Status</label>
+                                <select id="activityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="pending">⏳ Pending</option>
+                                    <option value="in-progress">🔄 In Progress</option>
+                                    <option value="completed">✅ Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Set Reminder</label>
+                            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                                <label style="font-weight: 400; font-size: 0.9rem; color: var(--gray); display: flex; align-items: center; gap: 6px;">
+                                    <input type="checkbox" id="activityReminder" style="width: 18px; height: 18px; accent-color: var(--primary);"> Enable Reminder
+                                </label>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <input type="number" id="reminderDays" value="1" min="0" max="7" style="width: 60px; padding: 6px 10px; border: 2px solid #E8ECF1; border-radius: 8px; font-size: 0.9rem;">
+                                    <span style="font-size: 0.9rem; color: var(--gray);">days before</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Assign Students</label>
+                            <select id="activityStudents" multiple style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; min-height: 80px; box-sizing: border-box;">
+                                <option value="all">All Students</option>
+                            </select>
+                            <small style="color: #6C7A89; display: block; margin-top: 4px;">Hold Ctrl/Cmd to select multiple students</small>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="saveActivityBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-save"></i> Save Activity
+                        </button>
+                        <button class="btn-outline" onclick="window.TrackerPage.closeModal('addActivityModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== ADD TASK MODAL ===== -->
+            <div id="addTaskModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-tasks" style="color: #6C63FF;"></i> Add New Task
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('addTaskModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Task Description <span style="color: #FF6B6B;">*</span></label>
+                            <input type="text" id="taskTitle" placeholder="e.g., Prepare meeting agenda" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Priority</label>
+                                <select id="taskPriorityModal" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="low">🟢 Low</option>
+                                    <option value="medium" selected>🟡 Medium</option>
+                                    <option value="high">🔴 High</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Assign To</label>
+                                <select id="taskAssignedToModal" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="">Unassigned</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Due Date</label>
+                            <input type="date" id="taskDueDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="saveTaskBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-save"></i> Save Task
+                        </button>
+                        <button class="btn-outline" onclick="window.TrackerPage.closeModal('addTaskModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== EDIT ACTIVITY MODAL ===== -->
+            <div id="editActivityModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-edit" style="color: #6C63FF;"></i> Edit Activity
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('editActivityModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <input type="hidden" id="editActivityId">
+                    
+                    <div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Title <span style="color: #FF6B6B;">*</span></label>
+                            <input type="text" id="editActivityTitle" placeholder="e.g., Weekly Planning Meeting" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Description</label>
+                            <textarea id="editActivityDescription" placeholder="What will the club do?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; font-family: Inter, sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Activity Type</label>
+                                <select id="editActivityType" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="Meeting">📋 Meeting</option>
+                                    <option value="Training">🏋️ Training</option>
+                                    <option value="Event">🎉 Event</option>
+                                    <option value="Planning">📝 Planning</option>
+                                    <option value="Volunteer">🤝 Volunteer</option>
+                                    <option value="Other">📌 Other</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Date</label>
+                                <input type="date" id="editActivityDate" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Period</label>
+                                <select id="editActivityPeriod" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="weekly">📅 Weekly</option>
+                                    <option value="monthly">📆 Monthly</option>
+                                    <option value="yearly">📊 Yearly</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; font-weight: 600; color: #1A1A2E; margin-bottom: 6px;">Status</label>
+                                <select id="editActivityStatus" style="width: 100%; padding: 12px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                                    <option value="pending">⏳ Pending</option>
+                                    <option value="in-progress">🔄 In Progress</option>
+                                    <option value="completed">✅ Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="updateActivityBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-save"></i> Update Activity
+                        </button>
+                        <button class="btn-outline" onclick="window.TrackerPage.closeModal('editActivityModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== TEMPLATES MODAL ===== -->
+            <div id="templatesModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-copy" style="color: #6C63FF;"></i> Activity Templates
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('templatesModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="templatesList">
+                        <div style="text-align:center; padding: 20px; color: var(--gray);">
+                            <i class="fas fa-spinner fa-spin"></i> Loading templates...
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+                        <input type="text" id="templateNameInput" placeholder="Template name..." style="flex: 1; min-width: 150px; padding: 10px 16px; border: 2px solid #E8ECF1; border-radius: 12px; font-size: 1rem; box-sizing: border-box;">
+                        <button class="btn-primary" id="saveTemplateBtn" style="padding: 10px 20px; white-space: nowrap;">
+                            <i class="fas fa-save"></i> Save as Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== CHECK-IN MODAL ===== -->
+            <div id="checkInModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 450px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-clipboard-check" style="color: #6C63FF;"></i> Student Check-In
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('checkInModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <p style="color: var(--gray); margin-bottom: 16px;" id="checkInActivityTitle">Checking in for: Activity Name</p>
+                    
+                    <div id="checkInStudentsList">
+                        <div style="text-align:center; padding: 20px; color: var(--gray);">
+                            <i class="fas fa-spinner fa-spin"></i> Loading students...
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="saveCheckInBtn" style="flex: 1; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%); color: white; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-save"></i> Save Check-Ins
+                        </button>
+                        <button class="btn-outline" onclick="window.TrackerPage.closeModal('checkInModal')" style="flex: 0.5; padding: 14px; border: 2px solid #E8ECF1; border-radius: 12px; background: transparent; color: #6C7A89; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== EXPORT MODAL ===== -->
+            <div id="exportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-file-export" style="color: #6C63FF;"></i> Export Data
+                        </h3>
+                        <button onclick="window.TrackerPage.closeModal('exportModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <button class="btn-primary" id="exportCSVBtn" style="padding: 12px;">
+                            <i class="fas fa-file-csv"></i> Export as CSV
+                        </button>
+                        <button class="btn-primary" id="exportJSONBtn" style="padding: 12px; background: var(--gradient-secondary);">
+                            <i class="fas fa-file-code"></i> Export as JSON
+                        </button>
+                        <button class="btn-outline" onclick="window.TrackerPage.closeModal('exportModal')" style="padding: 12px;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
         
         var container = document.createElement('div');
-        container.id = 'modalContainer';
         container.innerHTML = modalHTML;
-        document.body.appendChild(container);
+        document.body.appendChild(container.firstElementChild);
     },
 
-    // ----- SHOW MODAL -----
+    // ============================================================
+    // MODAL FUNCTIONS
+    // ============================================================
     showModal: function(modalId) {
+        console.log("📝 Showing modal:", modalId);
         this.renderModals();
         var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            console.log("✅ Modal shown:", modalId);
+        } else {
+            console.error("❌ Modal not found:", modalId);
         }
     },
 
-    // ----- CLOSE MODAL -----
     closeModal: function(modalId) {
+        console.log("📝 Closing modal:", modalId);
         var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
+            console.log("✅ Modal closed:", modalId);
         }
     },
 
     // ============================================================
-    // CALENDAR VIEW
+    // ADD ACTIVITY
     // ============================================================
-    
-    renderCalendar: function() {
-        var self = this;
-        var now = new Date();
-        var currentMonth = self.calendarMonth || now.getMonth();
-        var currentYear = self.calendarYear || now.getFullYear();
-        
-        document.getElementById('calendarMonthYear').textContent = new Date(currentYear, currentMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-        
-        var grid = document.getElementById('calendarGrid');
-        var firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        var today = new Date();
-        
-        // Day headers
-        var dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        var html = '';
-        for (var i = 0; i < dayHeaders.length; i++) {
-            html += '<div style="padding: 8px; text-align: center; font-weight: 600; color: var(--dark); background: rgba(108,99,255,0.04); border-radius: 8px;">' + dayHeaders[i] + '</div>';
-        }
-        
-        // Empty days before first day
-        for (var i = 0; i < firstDay; i++) {
-            html += '<div style="padding: 8px;"></div>';
-        }
-        
-        // Days
+    showAddActivityModal: function(templateData) {
         var clubId = document.getElementById('trackerClubSelect').value;
-        var activities = self.cachedActivities || [];
-        
-        for (var day = 1; day <= daysInMonth; day++) {
-            var date = currentYear + '-' + String(currentMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
-            var isToday = today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === day;
-            var hasActivity = activities.some(function(a) { return a.date === date; });
-            var isWeekend = [0, 6].includes(new Date(currentYear, currentMonth, day).getDay());
-            
-            html += '<div style="padding: 8px; text-align: center; border-radius: 8px; cursor: ' + (hasActivity ? 'pointer' : 'default') + '; ' +
-                (isToday ? 'background: var(--gradient-primary); color: white; font-weight: 600;' : '') +
-                (isWeekend && !isToday ? 'background: rgba(108,99,255,0.04);' : '') +
-                (hasActivity && !isToday ? 'background: rgba(0,210,160,0.1); border: 1px solid var(--success);' : '') +
-                '">' +
-                day +
-                (hasActivity ? '<div style="font-size: 0.6rem; color: var(--success);">●</div>' : '') +
-                '</div>';
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
         }
         
-        grid.innerHTML = html;
+        this.renderModals();
+        
+        document.getElementById('activityTitle').value = templateData ? templateData.name : '';
+        document.getElementById('activityDescription').value = '';
+        document.getElementById('activityType').value = templateData ? templateData.type : 'Meeting';
+        document.getElementById('activityPeriod').value = templateData ? templateData.period : 'weekly';
+        document.getElementById('activityStatus').value = templateData ? templateData.status : 'pending';
+        document.getElementById('activityDate').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('activityReminder').checked = false;
+        document.getElementById('reminderDays').value = 1;
+        
+        var self = this;
+        window.DB.getStudents().then(function(students) {
+            var studentSelect = document.getElementById('activityStudents');
+            if (studentSelect) {
+                studentSelect.innerHTML = '<option value="all">All Students</option>';
+                for (var i = 0; i < students.length; i++) {
+                    studentSelect.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
+                }
+            }
+        });
+        
+        this.showModal('addActivityModal');
+    },
+
+    saveActivityFromModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
+        }
+        
+        var title = document.getElementById('activityTitle').value.trim();
+        if (!title) {
+            alert('Please enter an activity title');
+            document.getElementById('activityTitle').focus();
+            return;
+        }
+        
+        var description = document.getElementById('activityDescription').value.trim();
+        var type = document.getElementById('activityType').value;
+        var date = document.getElementById('activityDate').value;
+        var period = document.getElementById('activityPeriod').value;
+        var status = document.getElementById('activityStatus').value;
+        var reminder = document.getElementById('activityReminder').checked;
+        var reminderDays = parseInt(document.getElementById('reminderDays').value) || 1;
+        
+        var studentSelect = document.getElementById('activityStudents');
+        var selectedStudents = [];
+        for (var i = 0; i < studentSelect.options.length; i++) {
+            if (studentSelect.options[i].selected) {
+                selectedStudents.push(studentSelect.options[i].value);
+            }
+        }
+        
+        if (selectedStudents.includes('all')) {
+            var allStudents = [];
+            for (var i = 0; i < studentSelect.options.length; i++) {
+                var val = studentSelect.options[i].value;
+                if (val !== 'all') allStudents.push(val);
+            }
+            selectedStudents = allStudents;
+        }
+        
+        var self = this;
+        window.DB.addActivity(clubId, {
+            title: title,
+            description: description,
+            type: type,
+            date: date,
+            period: period,
+            status: status,
+            students: selectedStudents,
+            reminder: reminder,
+            reminderDays: reminderDays,
+            checkedIn: []
+        }).then(function() {
+            self.closeModal('addActivityModal');
+            self.loadData();
+        });
+    },
+
+    // ============================================================
+    // ADD TASK
+    // ============================================================
+    showAddTaskModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
+        }
+        
+        this.renderModals();
+        
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskPriorityModal').value = 'medium';
+        document.getElementById('taskDueDate').value = '';
+        
+        window.DB.getStudents().then(function(students) {
+            var taskAssign = document.getElementById('taskAssignedToModal');
+            if (taskAssign) {
+                taskAssign.innerHTML = '<option value="">Unassigned</option>';
+                for (var i = 0; i < students.length; i++) {
+                    taskAssign.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
+                }
+            }
+        });
+        
+        this.showModal('addTaskModal');
+    },
+
+    saveTaskFromModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
+        }
+        
+        var title = document.getElementById('taskTitle').value.trim();
+        if (!title) {
+            alert('Please enter a task description');
+            document.getElementById('taskTitle').focus();
+            return;
+        }
+        
+        var priority = document.getElementById('taskPriorityModal').value;
+        var assignedTo = document.getElementById('taskAssignedToModal').value;
+        var dueDate = document.getElementById('taskDueDate').value;
+        
+        var self = this;
+        window.DB.addTask(clubId, title, priority, assignedTo, dueDate).then(function() {
+            self.closeModal('addTaskModal');
+            self.loadData();
+        });
+    },
+
+    // ============================================================
+    // EDIT ACTIVITY
+    // ============================================================
+    showEditActivityModal: function(activityId, activity) {
+        this.renderModals();
+        document.getElementById('editActivityId').value = activityId;
+        document.getElementById('editActivityTitle').value = activity.title || '';
+        document.getElementById('editActivityDescription').value = activity.description || '';
+        document.getElementById('editActivityType').value = activity.type || 'Meeting';
+        document.getElementById('editActivityDate').value = activity.date || new Date().toISOString().slice(0, 10);
+        document.getElementById('editActivityPeriod').value = activity.period || 'weekly';
+        document.getElementById('editActivityStatus').value = activity.status || 'pending';
+        this.showModal('editActivityModal');
+    },
+
+    updateActivityFromModal: function() {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        if (!clubId) {
+            alert('Please select a club first');
+            return;
+        }
+        
+        var activityId = document.getElementById('editActivityId').value;
+        var title = document.getElementById('editActivityTitle').value.trim();
+        if (!title) {
+            alert('Please enter an activity title');
+            document.getElementById('editActivityTitle').focus();
+            return;
+        }
+        
+        var description = document.getElementById('editActivityDescription').value.trim();
+        var type = document.getElementById('editActivityType').value;
+        var date = document.getElementById('editActivityDate').value;
+        var period = document.getElementById('editActivityPeriod').value;
+        var status = document.getElementById('editActivityStatus').value;
+        
+        var self = this;
+        window.DB.deleteActivity(clubId, activityId).then(function() {
+            return window.DB.addActivity(clubId, {
+                title: title,
+                description: description,
+                type: type,
+                date: date,
+                period: period,
+                status: status
+            });
+        }).then(function() {
+            self.closeModal('editActivityModal');
+            self.loadData();
+        });
+    },
+
+    // ============================================================
+    // EDIT ACTIVITY HELPER
+    // ============================================================
+    editActivity: function(activityId) {
+        var clubId = document.getElementById('trackerClubSelect').value;
+        var self = this;
+        var periodTab = document.querySelector('.period-tab.active');
+        var period = periodTab ? periodTab.dataset.period : 'weekly';
+        
+        window.DB.getActivities(clubId, period).then(function(activities) {
+            var activity = null;
+            for (var i = 0; i < activities.length; i++) {
+                if ((activities[i].id || activities[i]._id) === activityId) {
+                    activity = activities[i];
+                    break;
+                }
+            }
+            if (activity) {
+                self.showEditActivityModal(activityId, activity);
+            } else {
+                alert('Activity not found');
+            }
+        });
     },
 
     // ============================================================
     // TEMPLATES
     // ============================================================
-    
     loadTemplates: function() {
         var self = this;
         window.DB.getTemplates().then(function(templates) {
             var list = document.getElementById('templatesList');
+            if (!list) return;
+            
             if (!templates || templates.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--gray);">No templates saved yet. Create one from an activity!</div>';
                 return;
@@ -603,22 +780,16 @@ var TrackerPage = {
     },
 
     saveCurrentAsTemplate: function() {
-        var clubId = document.getElementById('trackerClubSelect').value;
-        if (!clubId) {
-            alert('Please select a club first');
-            return;
-        }
-        
         var templateName = document.getElementById('templateNameInput').value.trim();
         if (!templateName) {
             alert('Please enter a template name');
             return;
         }
         
-        // Get current activity data from the form
         var type = document.getElementById('activityType').value;
         var period = document.getElementById('activityPeriod').value;
         var status = document.getElementById('activityStatus').value;
+        var clubId = document.getElementById('trackerClubSelect').value;
         
         window.DB.saveTemplate({
             name: templateName,
@@ -636,10 +807,11 @@ var TrackerPage = {
     // ============================================================
     // CHECK-IN
     // ============================================================
-    
     showCheckInModal: function(activityId) {
         var self = this;
         var clubId = document.getElementById('trackerClubSelect').value;
+        
+        this.renderModals();
         
         window.DB.getActivityById(clubId, activityId).then(function(activity) {
             if (!activity) {
@@ -651,8 +823,9 @@ var TrackerPage = {
             
             window.DB.getStudents().then(function(students) {
                 var list = document.getElementById('checkInStudentsList');
-                var checkedIn = activity.checkedIn || [];
+                if (!list) return;
                 
+                var checkedIn = activity.checkedIn || [];
                 var html = '';
                 for (var i = 0; i < students.length; i++) {
                     var isChecked = checkedIn.indexOf(students[i]) !== -1;
@@ -663,8 +836,6 @@ var TrackerPage = {
                     '</div>';
                 }
                 list.innerHTML = html;
-                
-                // Store activity ID for saving
                 list.dataset.activityId = activityId;
             });
         });
@@ -674,10 +845,12 @@ var TrackerPage = {
 
     saveCheckIns: function() {
         var list = document.getElementById('checkInStudentsList');
+        if (!list) return;
+        
         var activityId = list.dataset.activityId;
         var clubId = document.getElementById('trackerClubSelect').value;
-        
         var checkedIn = [];
+        
         document.querySelectorAll('.checkin-student:checked').forEach(function(cb) {
             checkedIn.push(cb.dataset.name);
         });
@@ -692,11 +865,9 @@ var TrackerPage = {
     // ============================================================
     // EXPORT
     // ============================================================
-    
     exportCSV: function() {
         var clubId = document.getElementById('trackerClubSelect').value;
         var clubName = document.getElementById('trackerClubSelect').options[document.getElementById('trackerClubSelect').selectedIndex]?.text || 'Club';
-        
         var periodTab = document.querySelector('.period-tab.active');
         var period = periodTab ? periodTab.dataset.period : 'weekly';
         
@@ -704,7 +875,6 @@ var TrackerPage = {
         window.DB.getActivities(clubId, period).then(function(activities) {
             var rows = [];
             rows.push('"Date","Activity","Type","Status","Description","Students"');
-            
             for (var i = 0; i < activities.length; i++) {
                 var a = activities[i];
                 var students = a.students ? a.students.join('; ') : '';
@@ -721,7 +891,6 @@ var TrackerPage = {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
             self.closeModal('exportModal');
         });
     },
@@ -729,7 +898,6 @@ var TrackerPage = {
     exportJSON: function() {
         var clubId = document.getElementById('trackerClubSelect').value;
         var clubName = document.getElementById('trackerClubSelect').options[document.getElementById('trackerClubSelect').selectedIndex]?.text || 'Club';
-        
         var periodTab = document.querySelector('.period-tab.active');
         var period = periodTab ? periodTab.dataset.period : 'weekly';
         
@@ -752,7 +920,6 @@ var TrackerPage = {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
             self.closeModal('exportModal');
         });
     },
@@ -760,7 +927,6 @@ var TrackerPage = {
     // ============================================================
     // LOAD DATA
     // ============================================================
-    
     loadData: function() {
         console.log("📊 Loading tracker data...");
         var select = document.getElementById('trackerClubSelect');
@@ -776,7 +942,6 @@ var TrackerPage = {
         var periodTab = document.querySelector('.period-tab.active');
         var period = periodTab ? periodTab.dataset.period : 'weekly';
         
-        // Load activities
         window.DB.getActivities(clubId, period).then(function(activities) {
             console.log("📋 Activities loaded:", activities ? activities.length : 0);
             self.cachedActivities = activities;
@@ -788,41 +953,29 @@ var TrackerPage = {
                 self.renderActivities(activities);
                 self.updateStats(activities);
             }
-        }).catch(function(error) {
-            console.error("❌ Error loading activities:", error);
-            self.showGettingStarted();
-            self.updateStats([]);
         });
         
-        // Load tasks
         window.DB.getTasks(clubId).then(function(tasks) {
             self.renderTasks(tasks);
-        }).catch(function(error) {
-            console.error("❌ Error loading tasks:", error);
         });
         
-        // Load media
         window.DB.getMedia(clubId).then(function(media) {
             self.renderMedia(media);
-        }).catch(function(error) {
-            console.error("❌ Error loading media:", error);
         });
         
-        // Load students for dropdowns
         window.DB.getStudents().then(function(students) {
             var studentCount = document.getElementById('studentCount');
             if (studentCount) studentCount.textContent = students.length || 0;
-        }).catch(function(error) {
-            console.error("❌ Error loading students:", error);
         });
         
-        // Refresh calendar if visible
         if (document.getElementById('calendarView').style.display !== 'none') {
             self.renderCalendar();
         }
     },
 
-    // ----- SHOW GETTING STARTED GUIDE -----
+    // ============================================================
+    // RENDER ACTIVITIES
+    // ============================================================
     showGettingStarted: function() {
         var tbody = document.getElementById('trackerActivitiesBody');
         if (!tbody) return;
@@ -845,7 +998,6 @@ var TrackerPage = {
         </tr>`;
     },
 
-    // ----- RENDER ACTIVITIES -----
     renderActivities: function(activities) {
         var tbody = document.getElementById('trackerActivitiesBody');
         if (!tbody) return;
@@ -870,14 +1022,8 @@ var TrackerPage = {
         for (var i = 0; i < activities.length; i++) {
             var a = activities[i];
             var typeColor = typeColors[a.type] || '#6C7A89';
-            
-            // Check if activity is upcoming or overdue
-            var isUpcoming = a.date && a.date > today && a.status !== 'completed';
-            var isOverdue = a.date && a.date < today && a.status !== 'completed';
             var isToday = a.date === today;
-            
-            var reminderIcon = a.reminder ? '🔔' : '';
-            var statusEmoji = a.status === 'completed' ? '✅' : (a.status === 'in-progress' ? '🔄' : '⏳');
+            var isOverdue = a.date && a.date < today && a.status !== 'completed';
             var checkInCount = a.checkedIn ? a.checkedIn.length : 0;
             
             html += '<tr>' +
@@ -888,7 +1034,7 @@ var TrackerPage = {
                     (a.students && a.students.length > 0 ? '<br><small style="color: var(--primary);"><i class="fas fa-user"></i> ' + a.students.join(', ') + '</small>' : '') +
                 '</td>' +
                 '<td><span style="background: ' + typeColor + '; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.8rem; font-weight: 600;">' + (a.type || 'General') + '</span></td>' +
-                '<td>' + statusEmoji + ' ' + (a.status || 'pending') + '</td>' +
+                '<td>' + (a.status || 'pending') + '</td>' +
                 '<td style="text-align:center;">' +
                     '<button onclick="window.TrackerPage.showCheckInModal(\'' + (a.id || a._id) + '\')" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 1.1rem;" title="Check-in students">' +
                         '<i class="fas fa-clipboard-check"></i> ' + checkInCount +
@@ -903,7 +1049,6 @@ var TrackerPage = {
         }
         tbody.innerHTML = html;
         
-        // Setup event handlers
         var self = this;
         document.querySelectorAll('.delete-activity').forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -912,14 +1057,11 @@ var TrackerPage = {
                     var clubId = document.getElementById('trackerClubSelect').value;
                     window.DB.deleteActivity(clubId, id).then(function() {
                         self.loadData();
-                    }).catch(function(error) {
-                        console.error("❌ Error deleting activity:", error);
                     });
                 }
             });
         });
         
-        // Select all checkbox
         var selectAll = document.getElementById('selectAllActivities');
         if (selectAll) {
             selectAll.addEventListener('change', function() {
@@ -930,7 +1072,9 @@ var TrackerPage = {
         }
     },
 
-    // ----- RENDER TASKS -----
+    // ============================================================
+    // RENDER TASKS
+    // ============================================================
     renderTasks: function(tasks) {
         var tbody = document.getElementById('trackerTasksBody');
         if (!tbody) return;
@@ -977,7 +1121,6 @@ var TrackerPage = {
         }
         tbody.innerHTML = html;
         
-        // Task checkbox handlers
         var self = this;
         document.querySelectorAll('.task-checkbox').forEach(function(cb) {
             cb.addEventListener('change', function() {
@@ -986,8 +1129,6 @@ var TrackerPage = {
                 var clubId = document.getElementById('trackerClubSelect').value;
                 window.DB.updateTaskStatus(clubId, id, completed).then(function() {
                     self.loadData();
-                }).catch(function(error) {
-                    console.error("❌ Error updating task:", error);
                 });
             });
         });
@@ -999,15 +1140,15 @@ var TrackerPage = {
                     var clubId = document.getElementById('trackerClubSelect').value;
                     window.DB.deleteTask(clubId, id).then(function() {
                         self.loadData();
-                    }).catch(function(error) {
-                        console.error("❌ Error deleting task:", error);
                     });
                 }
             });
         });
     },
 
-    // ----- RENDER MEDIA -----
+    // ============================================================
+    // RENDER MEDIA
+    // ============================================================
     renderMedia: function(media) {
         var gallery = document.getElementById('mediaGallery');
         if (!gallery) return;
@@ -1051,15 +1192,15 @@ var TrackerPage = {
                     var clubId = document.getElementById('trackerClubSelect').value;
                     window.DB.deleteMedia(clubId, id).then(function() {
                         window.TrackerPage.loadData();
-                    }).catch(function(error) {
-                        console.error("❌ Error deleting media:", error);
                     });
                 }
             });
         });
     },
 
-    // ----- UPDATE STATS -----
+    // ============================================================
+    // UPDATE STATS
+    // ============================================================
     updateStats: function(activities) {
         var total = activities ? activities.length : 0;
         var completed = 0;
@@ -1081,195 +1222,57 @@ var TrackerPage = {
     },
 
     // ============================================================
-    // SHOW ADD ACTIVITY MODAL (with optional template data)
+    // CALENDAR VIEW
     // ============================================================
-    
-    showAddActivityModal: function(templateData) {
-        var clubId = document.getElementById('trackerClubSelect').value;
-        if (!clubId) {
-            alert('Please select a club first');
-            return;
-        }
-        
-        // Reset form
-        document.getElementById('activityTitle').value = templateData ? templateData.name : '';
-        document.getElementById('activityDescription').value = '';
-        document.getElementById('activityType').value = templateData ? templateData.type : 'Meeting';
-        document.getElementById('activityPeriod').value = templateData ? templateData.period : 'weekly';
-        document.getElementById('activityStatus').value = templateData ? templateData.status : 'pending';
-        document.getElementById('activityDate').value = new Date().toISOString().slice(0, 10);
-        document.getElementById('activityReminder').checked = false;
-        document.getElementById('reminderDays').value = 1;
-        
-        // Load students into dropdown
+    renderCalendar: function() {
         var self = this;
-        window.DB.getStudents().then(function(students) {
-            var studentSelect = document.getElementById('activityStudents');
-            if (studentSelect) {
-                studentSelect.innerHTML = '<option value="all">All Students</option>';
-                for (var i = 0; i < students.length; i++) {
-                    studentSelect.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
-                }
-            }
-        }).catch(function(error) {
-            console.error("❌ Error loading students:", error);
-        });
+        var now = new Date();
+        var currentMonth = self.calendarMonth !== undefined ? self.calendarMonth : now.getMonth();
+        var currentYear = self.calendarYear !== undefined ? self.calendarYear : now.getFullYear();
         
-        this.showModal('addActivityModal');
-    },
-
-    // ----- SAVE ACTIVITY FROM MODAL -----
-    saveActivityFromModal: function() {
-        console.log("📝 Saving activity from modal...");
+        document.getElementById('calendarMonthYear').textContent = new Date(currentYear, currentMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         
-        var clubId = document.getElementById('trackerClubSelect').value;
-        if (!clubId) {
-            alert('Please select a club first');
-            return;
+        var grid = document.getElementById('calendarGrid');
+        if (!grid) return;
+        
+        var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        var today = new Date();
+        
+        var dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        var html = '';
+        for (var i = 0; i < dayHeaders.length; i++) {
+            html += '<div style="padding: 8px; text-align: center; font-weight: 600; color: var(--dark); background: rgba(108,99,255,0.04); border-radius: 8px;">' + dayHeaders[i] + '</div>';
         }
         
-        var title = document.getElementById('activityTitle').value.trim();
-        if (!title) {
-            alert('Please enter an activity title');
-            document.getElementById('activityTitle').focus();
-            return;
+        for (var i = 0; i < firstDay; i++) {
+            html += '<div style="padding: 8px;"></div>';
         }
         
-        var description = document.getElementById('activityDescription').value.trim();
-        var type = document.getElementById('activityType').value;
-        var date = document.getElementById('activityDate').value;
-        var period = document.getElementById('activityPeriod').value;
-        var status = document.getElementById('activityStatus').value;
-        var reminder = document.getElementById('activityReminder').checked;
-        var reminderDays = parseInt(document.getElementById('reminderDays').value) || 1;
-        
-        // Get selected students
-        var studentSelect = document.getElementById('activityStudents');
-        var selectedStudents = [];
-        for (var i = 0; i < studentSelect.options.length; i++) {
-            if (studentSelect.options[i].selected) {
-                selectedStudents.push(studentSelect.options[i].value);
-            }
-        }
-        
-        if (selectedStudents.includes('all')) {
-            var allStudents = [];
-            for (var i = 0; i < studentSelect.options.length; i++) {
-                var val = studentSelect.options[i].value;
-                if (val !== 'all') allStudents.push(val);
-            }
-            selectedStudents = allStudents;
-        }
-        
-        var self = this;
-        window.DB.addActivity(clubId, {
-            title: title,
-            description: description,
-            type: type,
-            date: date,
-            period: period,
-            status: status,
-            students: selectedStudents,
-            reminder: reminder,
-            reminderDays: reminderDays,
-            checkedIn: []
-        }).then(function() {
-            console.log("✅ Activity added successfully!");
-            self.closeModal('addActivityModal');
-            self.loadData();
-        }).catch(function(error) {
-            console.error("❌ Error adding activity:", error);
-            alert('Error adding activity: ' + error.message);
-        });
-    },
-
-    // ============================================================
-    // EDIT ACTIVITY
-    // ============================================================
-    
-    editActivity: function(activityId) {
-        var clubId = document.getElementById('trackerClubSelect').value;
-        var self = this;
-        
-        var periodTab = document.querySelector('.period-tab.active');
-        var period = periodTab ? periodTab.dataset.period : 'weekly';
-        
-        window.DB.getActivities(clubId, period).then(function(activities) {
-            var activity = null;
-            for (var i = 0; i < activities.length; i++) {
-                if ((activities[i].id || activities[i]._id) === activityId) {
-                    activity = activities[i];
-                    break;
-                }
+        var activities = self.cachedActivities || [];
+        for (var day = 1; day <= daysInMonth; day++) {
+            var date = currentYear + '-' + String(currentMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+            var isToday = today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === day;
+            var hasActivity = activities.some(function(a) { return a.date === date; });
+            
+            var style = 'padding: 8px; text-align: center; border-radius: 8px;';
+            if (isToday) {
+                style += 'background: var(--gradient-primary); color: white; font-weight: 600;';
+            } else if (hasActivity) {
+                style += 'background: rgba(0,210,160,0.1); border: 1px solid var(--success); cursor: pointer;';
+            } else {
+                style += 'color: var(--dark);';
             }
             
-            if (activity) {
-                self.showEditActivityModal(activityId, activity);
-            } else {
-                alert('Activity not found');
-            }
-        }).catch(function(error) {
-            console.error("❌ Error fetching activity:", error);
-            alert('Error fetching activity data');
-        });
-    },
-
-    showEditActivityModal: function(activityId, activity) {
-        document.getElementById('editActivityId').value = activityId;
-        document.getElementById('editActivityTitle').value = activity.title || '';
-        document.getElementById('editActivityDescription').value = activity.description || '';
-        document.getElementById('editActivityType').value = activity.type || 'Meeting';
-        document.getElementById('editActivityDate').value = activity.date || new Date().toISOString().slice(0, 10);
-        document.getElementById('editActivityPeriod').value = activity.period || 'weekly';
-        document.getElementById('editActivityStatus').value = activity.status || 'pending';
-        
-        this.showModal('editActivityModal');
-    },
-
-    updateActivityFromModal: function() {
-        var clubId = document.getElementById('trackerClubSelect').value;
-        if (!clubId) {
-            alert('Please select a club first');
-            return;
+            html += '<div style="' + style + '">' + day + (hasActivity ? '<div style="font-size: 0.6rem; color: var(--success);">●</div>' : '') + '</div>';
         }
         
-        var activityId = document.getElementById('editActivityId').value;
-        var title = document.getElementById('editActivityTitle').value.trim();
-        if (!title) {
-            alert('Please enter an activity title');
-            document.getElementById('editActivityTitle').focus();
-            return;
-        }
-        
-        var description = document.getElementById('editActivityDescription').value.trim();
-        var type = document.getElementById('editActivityType').value;
-        var date = document.getElementById('editActivityDate').value;
-        var period = document.getElementById('editActivityPeriod').value;
-        var status = document.getElementById('editActivityStatus').value;
-        
-        var self = this;
-        window.DB.deleteActivity(clubId, activityId).then(function() {
-            return window.DB.addActivity(clubId, {
-                title: title,
-                description: description,
-                type: type,
-                date: date,
-                period: period,
-                status: status
-            });
-        }).then(function() {
-            self.closeModal('editActivityModal');
-            self.loadData();
-        }).catch(function(error) {
-            console.error("❌ Error updating activity:", error);
-            alert('Error updating activity: ' + error.message);
-        });
+        grid.innerHTML = html;
     },
 
     // ============================================================
     // LOAD SAMPLE DATA
     // ============================================================
-    
     loadSampleData: function() {
         var clubId = document.getElementById('trackerClubSelect').value;
         if (!clubId) {
@@ -1314,15 +1317,6 @@ var TrackerPage = {
                 reminder: true,
                 reminderDays: 2,
                 checkedIn: []
-            },
-            {
-                title: 'End of Year Celebration',
-                description: 'Celebrate all achievements this year',
-                type: 'Event',
-                date: new Date(new Date().getFullYear(), 11, 15).toISOString().slice(0, 10),
-                period: 'yearly',
-                status: 'pending',
-                checkedIn: []
             }
         ];
         
@@ -1334,13 +1328,10 @@ var TrackerPage = {
                 if (count === activities.length) {
                     alert('✅ Sample data loaded successfully!');
                     self.loadData();
-                    // Also load calendar if visible
                     if (document.getElementById('calendarView').style.display !== 'none') {
                         self.renderCalendar();
                     }
                 }
-            }).catch(function(error) {
-                console.error("❌ Error adding sample data:", error);
             });
         });
     },
@@ -1348,7 +1339,6 @@ var TrackerPage = {
     // ============================================================
     // LOAD TEACHER CLUBS
     // ============================================================
-    
     loadTeacherClubs: function() {
         console.log("📋 Loading teacher's clubs...");
         var select = document.getElementById('trackerClubSelect');
@@ -1385,76 +1375,16 @@ var TrackerPage = {
                 select.value = clubs[0].id;
                 self.loadData();
             }
-        }).catch(function(error) {
-            console.error("❌ Error loading clubs:", error);
-            select.innerHTML = '<option value="">Error loading clubs</option>';
-        });
-    },
-
-    // ============================================================
-    // SHOW ADD TASK MODAL
-    // ============================================================
-    
-    showAddTaskModal: function() {
-        var clubId = document.getElementById('trackerClubSelect').value;
-        if (!clubId) {
-            alert('Please select a club first');
-            return;
-        }
-        
-        document.getElementById('taskTitle').value = '';
-        document.getElementById('taskPriorityModal').value = 'medium';
-        document.getElementById('taskDueDate').value = '';
-        
-        window.DB.getStudents().then(function(students) {
-            var taskAssign = document.getElementById('taskAssignedToModal');
-            if (taskAssign) {
-                taskAssign.innerHTML = '<option value="">Unassigned</option>';
-                for (var i = 0; i < students.length; i++) {
-                    taskAssign.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
-                }
-            }
-        });
-        
-        this.showModal('addTaskModal');
-    },
-
-    saveTaskFromModal: function() {
-        var clubId = document.getElementById('trackerClubSelect').value;
-        if (!clubId) {
-            alert('Please select a club first');
-            return;
-        }
-        
-        var title = document.getElementById('taskTitle').value.trim();
-        if (!title) {
-            alert('Please enter a task description');
-            document.getElementById('taskTitle').focus();
-            return;
-        }
-        
-        var priority = document.getElementById('taskPriorityModal').value;
-        var assignedTo = document.getElementById('taskAssignedToModal').value;
-        var dueDate = document.getElementById('taskDueDate').value;
-        
-        var self = this;
-        window.DB.addTask(clubId, title, priority, assignedTo, dueDate).then(function() {
-            self.closeModal('addTaskModal');
-            self.loadData();
-        }).catch(function(error) {
-            alert('Error adding task: ' + error.message);
         });
     },
 
     // ============================================================
     // SETUP EVENTS
     // ============================================================
-    
     setupEvents: function() {
         console.log("🔧 Setting up tracker events...");
         var self = this;
         
-        // Render modals once
         this.renderModals();
         
         var select = document.getElementById('trackerClubSelect');
@@ -1467,7 +1397,6 @@ var TrackerPage = {
             });
         }
         
-        // Period tabs
         var periodTabs = document.querySelectorAll('.period-tab');
         for (var i = 0; i < periodTabs.length; i++) {
             (function(tab) {
@@ -1481,7 +1410,6 @@ var TrackerPage = {
             })(periodTabs[i]);
         }
         
-        // Add Activity
         document.getElementById('addActivityBtn').addEventListener('click', function() {
             self.showAddActivityModal();
         });
@@ -1489,7 +1417,6 @@ var TrackerPage = {
             self.saveActivityFromModal();
         });
         
-        // Add Task
         document.getElementById('addTaskBtn').addEventListener('click', function() {
             self.showAddTaskModal();
         });
@@ -1497,12 +1424,10 @@ var TrackerPage = {
             self.saveTaskFromModal();
         });
         
-        // Update Activity
         document.getElementById('updateActivityBtn').addEventListener('click', function() {
             self.updateActivityFromModal();
         });
         
-        // Templates
         document.getElementById('templateBtn').addEventListener('click', function() {
             self.showModal('templatesModal');
             self.loadTemplates();
@@ -1511,12 +1436,10 @@ var TrackerPage = {
             self.saveCurrentAsTemplate();
         });
         
-        // Check-in
         document.getElementById('saveCheckInBtn').addEventListener('click', function() {
             self.saveCheckIns();
         });
         
-        // Export
         document.getElementById('exportDataBtn').addEventListener('click', function() {
             self.showModal('exportModal');
         });
@@ -1527,7 +1450,6 @@ var TrackerPage = {
             self.exportJSON();
         });
         
-        // Calendar View Toggle
         document.getElementById('toggleViewBtn').addEventListener('click', function() {
             var tableView = document.getElementById('tableView');
             var calendarView = document.getElementById('calendarView');
@@ -1536,14 +1458,12 @@ var TrackerPage = {
                 tableView.style.display = 'block';
                 calendarView.style.display = 'none';
                 this.innerHTML = '<i class="fas fa-calendar-alt"></i> Calendar';
-                // Reset calendar data
-                self.calendarMonth = null;
-                self.calendarYear = null;
+                self.calendarMonth = undefined;
+                self.calendarYear = undefined;
             } else {
                 tableView.style.display = 'none';
                 calendarView.style.display = 'block';
                 this.innerHTML = '<i class="fas fa-table"></i> Table';
-                // Set calendar to current date
                 var now = new Date();
                 self.calendarMonth = now.getMonth();
                 self.calendarYear = now.getFullYear();
@@ -1551,7 +1471,6 @@ var TrackerPage = {
             }
         });
         
-        // Calendar navigation
         document.getElementById('prevMonthBtn').addEventListener('click', function() {
             self.calendarMonth--;
             if (self.calendarMonth < 0) {
@@ -1577,7 +1496,6 @@ var TrackerPage = {
             self.renderCalendar();
         });
         
-        // Media Upload
         document.getElementById('mediaUploadBtn').addEventListener('click', function() {
             document.getElementById('mediaUploadInput').click();
         });
@@ -1603,18 +1521,15 @@ var TrackerPage = {
                             statusEl.textContent = '✅ ' + files.length + ' files uploaded!';
                             self.loadData();
                             setTimeout(function() {
-                                if (statusEl) statusEl.textContent = '';
+                                statusEl.textContent = '';
                             }, 3000);
                         }
-                    }).catch(function(error) {
-                        statusEl.textContent = '❌ Upload failed: ' + error.message;
                     });
                 })(files[i], i);
             }
             this.value = '';
         });
         
-        // Close modals on Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 self.closeModal('addActivityModal');
