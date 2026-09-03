@@ -84,7 +84,7 @@ var LoginPage = {
                         <input type="password" id="loginPassword" placeholder="Password" value="">
                     </div>
                     
-                    <!-- Coordinator Hint (hidden by default) -->
+                    <!-- Coordinator Hint -->
                     <div id="coordinatorHint" style="
                         display: none;
                         padding: 8px 12px;
@@ -158,7 +158,6 @@ var LoginPage = {
         console.log("🔧 Setting up login events...");
         var self = this;
         
-        // ===== ROLE SELECTOR =====
         var teacherBtn = document.getElementById('loginRoleTeacher');
         var coordinatorBtn = document.getElementById('loginRoleCoordinator');
         var coordinatorHint = document.getElementById('coordinatorHint');
@@ -166,8 +165,10 @@ var LoginPage = {
         var googleBtn = document.getElementById('googleLoginBtn');
         var loginError = document.getElementById('loginError');
         
+        // ===== ROLE SELECTOR =====
         if (teacherBtn && coordinatorBtn) {
             teacherBtn.addEventListener('click', function() {
+                console.log("🔄 Switching to Teacher role");
                 document.querySelectorAll('.role-selector').forEach(function(b) {
                     b.style.background = 'transparent';
                     b.style.color = 'var(--gray-500)';
@@ -188,6 +189,7 @@ var LoginPage = {
             });
             
             coordinatorBtn.addEventListener('click', function() {
+                console.log("🔄 Switching to Coordinator role");
                 document.querySelectorAll('.role-selector').forEach(function(b) {
                     b.style.background = 'transparent';
                     b.style.color = 'var(--gray-500)';
@@ -199,7 +201,7 @@ var LoginPage = {
                 
                 coordinatorHint.style.display = 'block';
                 loginBtn.innerHTML = '<i class="fas fa-crown"></i> Sign in as Coordinator';
-                if (googleBtn) googleBtn.style.display = 'none';  // Hide Google for coordinator
+                if (googleBtn) googleBtn.style.display = 'none';
                 
                 document.getElementById('loginEmail').placeholder = 'Coordinator email address';
                 document.getElementById('loginEmail').value = 'admin@csl.com';
@@ -215,9 +217,13 @@ var LoginPage = {
                 var password = document.getElementById('loginPassword').value;
                 var errorEl = document.getElementById('loginError');
                 
+                console.log("🔐 Login attempt with email:", email);
+                
                 // Check which role is selected
                 var isCoordinator = coordinatorBtn && coordinatorBtn.style.background !== 'transparent' && 
                                    coordinatorBtn.style.color === 'var(--secondary)';
+                
+                console.log("📌 Role selected:", isCoordinator ? 'Coordinator' : 'Teacher');
                 
                 if (!email || !password) {
                     errorEl.textContent = '⚠️ Please enter both email and password';
@@ -229,10 +235,15 @@ var LoginPage = {
                     
                     if (isCoordinator) {
                         // Coordinator login
+                        console.log("🔑 Attempting Coordinator login...");
                         var admins = JSON.parse(localStorage.getItem('admins') || '[]');
+                        console.log("📋 Admins found:", admins.length);
+                        
                         var admin = admins.find(function(a) { return a.email === email; });
+                        console.log("👤 Admin found:", admin ? admin.email : 'No admin found');
                         
                         if (admin && admin.password === password) {
+                            console.log("✅ Coordinator login successful!");
                             var user = {
                                 email: email,
                                 uid: 'admin-' + Date.now(),
@@ -247,12 +258,15 @@ var LoginPage = {
                             window.app.showMainApp(user);
                             return;
                         } else {
+                            console.log("❌ Coordinator login failed - invalid credentials");
                             errorEl.textContent = '❌ Invalid coordinator credentials. Please try again.';
                             return;
                         }
                     } else {
                         // Teacher login
+                        console.log("🔑 Attempting Teacher login...");
                         var user = await window.Auth.login(email, password);
+                        console.log("✅ Teacher login successful!");
                         errorEl.textContent = '';
                         window.app.showMainApp(user);
                     }
