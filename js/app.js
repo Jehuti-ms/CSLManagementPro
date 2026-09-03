@@ -1,5 +1,5 @@
 // ============================================================
-// js/app.js - MAIN APP CONTROLLER (NO ES6, PURE JS)
+// js/app.js - MAIN APP CONTROLLER (Updated)
 // ============================================================
 
 console.log("🚀 Starting app...");
@@ -12,7 +12,7 @@ var App = {
     init: function() {
         console.log("📱 App initializing...");
         this.setupNavigation();
-        this.navigateTo('landing');  // Show landing page first
+        this.navigateTo('landing');
         this.setupAuthListener();
         console.log("✅ App initialized successfully");
     },
@@ -31,7 +31,6 @@ var App = {
             });
         }
         
-        // Check for mock user
         if (window.__firebase && window.__firebase.useMock) {
             var mockUser = localStorage.getItem('mockUser') || sessionStorage.getItem('mockUser');
             if (mockUser) {
@@ -59,15 +58,9 @@ var App = {
                     var page = this.dataset.page;
                     console.log("📄 Navigating to: " + page);
                     
-                    // If clicking Admin tab and not logged in as admin, show admin login
-                    if (page === 'admin' && !self.currentUser) {
-                        self.navigateTo('adminlogin');
-                        return;
-                    }
-                    
-                    // If clicking Admin Profile and not logged in as admin, show admin login
-                    if (page === 'adminprofile' && !self.currentUser) {
-                        self.navigateTo('adminlogin');
+                    // If clicking Admin or Profile tabs and not logged in, show login
+                    if ((page === 'admin' || page === 'adminprofile') && !self.currentUser) {
+                        self.showLogin();
                         return;
                     }
                     
@@ -83,7 +76,6 @@ var App = {
                 if (window.Auth && window.Auth.logout) {
                     window.Auth.logout().then(function() {
                         self.currentUser = null;
-                        // Remove login overlay if present
                         var overlay = document.getElementById('loginOverlay');
                         if (overlay) overlay.remove();
                         self.navigateTo('landing');
@@ -98,14 +90,12 @@ var App = {
     showLogin: function() {
         console.log("📄 Showing login page...");
         
-        // Check if login overlay already exists
         var existingOverlay = document.getElementById('loginOverlay');
         if (existingOverlay) {
             existingOverlay.style.display = 'flex';
             return;
         }
         
-        // Navigate to landing page if not already there
         if (this.currentPage !== 'landing') {
             this.navigateTo('landing');
         }
@@ -121,7 +111,6 @@ var App = {
             return;
         }
         
-        // Create login overlay
         var loginOverlay = document.createElement('div');
         loginOverlay.id = 'loginOverlay';
         loginOverlay.style.cssText = `
@@ -143,7 +132,6 @@ var App = {
         loginOverlay.innerHTML = loginHTML;
         document.body.appendChild(loginOverlay);
         
-        // Setup login events
         var self = this;
         setTimeout(function() {
             console.log("🔧 Setting up login events...");
@@ -156,17 +144,14 @@ var App = {
     showMainApp: function(user) {
         console.log("📄 Showing main app...");
         
-        // Remove login overlay if present
         var overlay = document.getElementById('loginOverlay');
         if (overlay) overlay.remove();
         
-        // Show navigation and user badge
         var navTabs = document.getElementById('navTabs');
         var userBadge = document.getElementById('userBadge');
         if (navTabs) navTabs.style.display = 'flex';
         if (userBadge) userBadge.style.display = 'flex';
         
-        // Update user email
         var userEmail = document.getElementById('userEmail');
         if (userEmail) {
             userEmail.textContent = user.displayName || user.email || 'Teacher';
@@ -174,7 +159,6 @@ var App = {
         
         // Check if user is admin/coordinator
         if (user.isAdmin || user.userType === 'coordinator') {
-            // Show admin badge in user badge
             var badge = document.querySelector('.user-badge .admin-badge');
             if (!badge) {
                 var badgeElement = document.createElement('span');
@@ -200,21 +184,16 @@ var App = {
             }
         }
         
-        // Check if this is first login and password is default
         this.checkFirstLogin(user);
-        
-        // Navigate to attendance page
         this.navigateTo('attendance');
     },
     
     checkFirstLogin: function(user) {
-        // Check if this is a coordinator with default password
         if (user.isAdmin || user.userType === 'coordinator') {
             var admins = JSON.parse(localStorage.getItem('admins') || '[]');
             var admin = admins.find(function(a) { return a.email === user.email; });
             
             if (admin && admin.password === 'admin123') {
-                // First login - show notification
                 setTimeout(function() {
                     var notification = document.createElement('div');
                     notification.style.cssText = `
@@ -247,7 +226,6 @@ var App = {
                     `;
                     document.body.appendChild(notification);
                     
-                    // Auto-remove after 10 seconds
                     setTimeout(function() {
                         if (notification.parentNode) {
                             notification.remove();
@@ -269,13 +247,11 @@ var App = {
             return;
         }
         
-        // Show/hide nav tabs and user badge based on page
         var navTabs = document.getElementById('navTabs');
         var userBadge = document.getElementById('userBadge');
         var isLoggedIn = this.currentUser !== null;
         
-        // Handle nav visibility
-        if (pageId === 'landing' || pageId === 'adminlogin') {
+        if (pageId === 'landing') {
             if (navTabs) navTabs.style.display = 'none';
             if (userBadge) userBadge.style.display = 'none';
         } else if (isLoggedIn) {
@@ -283,7 +259,6 @@ var App = {
             if (userBadge) userBadge.style.display = 'flex';
         }
         
-        // Update active tab
         var tabs = document.querySelectorAll('.nav-tab');
         for (var i = 0; i < tabs.length; i++) {
             if (tabs[i].dataset.page === pageId) {
@@ -293,7 +268,6 @@ var App = {
             }
         }
         
-        // Render the page
         var html = '';
         try {
             switch (pageId) {
@@ -304,15 +278,6 @@ var App = {
                     } else {
                         html = '<p>Landing page not loaded</p>';
                         console.error("❌ LandingPage not available");
-                    }
-                    break;
-                case 'adminlogin':
-                    if (window.AdminLoginPage && typeof window.AdminLoginPage.render === 'function') {
-                        html = window.AdminLoginPage.render();
-                        console.log("✅ Admin Login HTML generated");
-                    } else {
-                        html = '<p>Admin Login page not loaded</p>';
-                        console.error("❌ AdminLoginPage not available");
                     }
                     break;
                 case 'adminprofile':
@@ -377,18 +342,12 @@ var App = {
         container.innerHTML = html;
         console.log("✅ Page rendered: " + pageId);
         
-        // Setup page events
         setTimeout(function() {
             try {
                 switch (pageId) {
                     case 'landing':
                         if (window.LandingPage && typeof window.LandingPage.setupEvents === 'function') {
                             window.LandingPage.setupEvents();
-                        }
-                        break;
-                    case 'adminlogin':
-                        if (window.AdminLoginPage && typeof window.AdminLoginPage.setupEvents === 'function') {
-                            window.AdminLoginPage.setupEvents();
                         }
                         break;
                     case 'adminprofile':
@@ -434,6 +393,5 @@ var App = {
     }
 };
 
-// Start the app
 window.app = App;
 App.init();
