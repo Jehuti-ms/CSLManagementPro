@@ -9,44 +9,29 @@ var App = {
     currentUser: null,
     currentPage: 'landing',
     
-init: function() {
-    console.log("📱 App initializing...");
+    init: function() {
+        console.log("📱 App initializing...");
+        
+        // ===== FORCE INITIALIZE DEFAULT ADMIN =====
+        this.initializeDefaultAdmin();
+        
+        this.setupNavigation();
+        this.navigateTo('landing');
+        this.setupAuthListener();
+        console.log("✅ App initialized successfully");
+    },
     
-    // ===== FORCE INITIALIZE DEFAULT ADMIN =====
-    this.initializeDefaultAdmin();
-    
-    this.setupNavigation();
-    this.navigateTo('landing');
-    this.setupAuthListener();
-    console.log("✅ App initialized successfully");
-},
-
-// ----- INITIALIZE DEFAULT ADMIN -----
-initializeDefaultAdmin: function() {
-    console.log("🔐 Checking for admin accounts...");
-    
-    // Check if admins exist in localStorage
-    var admins = JSON.parse(localStorage.getItem('admins') || '[]');
-    
-    console.log("📋 Current admins:", admins);
-    
-    if (admins.length === 0) {
-        // Create default admin
-        var defaultAdmin = {
-            id: 'admin-' + Date.now(),
-            email: 'admin@csl.com',
-            name: 'Club Coordinator',
-            password: 'admin123',
-            isPrimary: true,
-            created: new Date().toISOString()
-        };
-        admins.push(defaultAdmin);
-        localStorage.setItem('admins', JSON.stringify(admins));
-        console.log("✅ Default admin created:", defaultAdmin.email, defaultAdmin.password);
-    } else {
-        // Check if admin@csl.com exists, if not add it
-        var exists = admins.some(function(a) { return a.email === 'admin@csl.com'; });
-        if (!exists) {
+    // ----- INITIALIZE DEFAULT ADMIN -----
+    initializeDefaultAdmin: function() {
+        console.log("🔐 Checking for admin accounts...");
+        
+        // Check if admins exist in localStorage
+        var admins = JSON.parse(localStorage.getItem('admins') || '[]');
+        
+        console.log("📋 Current admins:", admins);
+        
+        if (admins.length === 0) {
+            // Create default admin
             var defaultAdmin = {
                 id: 'admin-' + Date.now(),
                 email: 'admin@csl.com',
@@ -57,16 +42,31 @@ initializeDefaultAdmin: function() {
             };
             admins.push(defaultAdmin);
             localStorage.setItem('admins', JSON.stringify(admins));
-            console.log("✅ Default admin added:", defaultAdmin.email, defaultAdmin.password);
+            console.log("✅ Default admin created:", defaultAdmin.email, defaultAdmin.password);
         } else {
-            console.log("✅ Admin already exists");
+            // Check if admin@csl.com exists, if not add it
+            var exists = admins.some(function(a) { return a.email === 'admin@csl.com'; });
+            if (!exists) {
+                var defaultAdmin = {
+                    id: 'admin-' + Date.now(),
+                    email: 'admin@csl.com',
+                    name: 'Club Coordinator',
+                    password: 'admin123',
+                    isPrimary: true,
+                    created: new Date().toISOString()
+                };
+                admins.push(defaultAdmin);
+                localStorage.setItem('admins', JSON.stringify(admins));
+                console.log("✅ Default admin added:", defaultAdmin.email, defaultAdmin.password);
+            } else {
+                console.log("✅ Admin already exists");
+            }
         }
-    }
-    
-    // Log all admins for debugging
-    var allAdmins = JSON.parse(localStorage.getItem('admins') || '[]');
-    console.log("📋 All admins:", allAdmins.map(function(a) { return a.email + ' (password: ' + a.password + ')'; }));
-},
+        
+        // Log all admins for debugging
+        var allAdmins = JSON.parse(localStorage.getItem('admins') || '[]');
+        console.log("📋 All admins:", allAdmins.map(function(a) { return a.email + ' (password: ' + a.password + ')'; }));
+    },
     
     setupAuthListener: function() {
         console.log("👤 Setting up auth listener...");
@@ -188,6 +188,7 @@ initializeDefaultAdmin: function() {
             cursor: pointer;
         `;
         
+        // Close on click outside
         loginOverlay.addEventListener('click', function(e) {
             if (e.target === this) {
                 window.app.closeLogin();
@@ -223,6 +224,7 @@ initializeDefaultAdmin: function() {
             userEmail.textContent = user.displayName || user.email || 'Teacher';
         }
         
+        // Check if user is admin/coordinator
         if (user.isAdmin || user.userType === 'coordinator') {
             var badge = document.querySelector('.user-badge .admin-badge');
             if (!badge) {
