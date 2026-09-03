@@ -1,52 +1,48 @@
 // ============================================================
-// AUTHENTICATION SERVICE - With Session Persistence
+// AUTHENTICATION SERVICE - Email & Google Sign-In
 // ============================================================
 
-var Auth = {
+const Auth = {
     // ----- EMAIL/PASSWORD LOGIN -----
     async login(email, password) {
         console.log("🔐 Attempting login for:", email);
         
         if (window.__firebase.useMock) {
+            console.log("📦 Using mock authentication");
             if (password && password.length >= 6) {
-                var isStudent = email.includes('student') || email.includes('@student.');
-                var user = { 
+                // Determine user type based on email
+                let userType = 'teacher';
+                if (email.includes('student') || email.includes('@student.')) {
+                    userType = 'student';
+                }
+                
+                const user = { 
                     email: email, 
                     uid: 'mock-user-' + Date.now(), 
                     displayName: email.split('@')[0] || 'User',
-                    userType: isStudent ? 'student' : 'teacher'
+                    userType: userType
                 };
+                
+                // ✅ Save to both sessionStorage AND localStorage for persistence
                 sessionStorage.setItem('mockUser', JSON.stringify(user));
-                localStorage.setItem('mockUser', JSON.stringify(user));  // ← Save to localStorage too
-                console.log("✅ Mock login successful for:", email);
+                localStorage.setItem('mockUser', JSON.stringify(user));
+                console.log("✅ Mock login successful for:", email, "Type:", userType);
                 return user;
             }
             throw new Error('Password must be at least 6 characters');
         }
         
         try {
-            // Set persistence to LOCAL so user stays logged in
-            if (window.__firebase.auth && window.__firebase.auth.setPersistence) {
-                await window.__firebase.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            }
+            // ✅ Set persistence to LOCAL before signing in
+            await window.__firebase.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
             
-            var userCred = await window.__firebase.auth.signInWithEmailAndPassword(email, password);
-            var user = userCred.user;
-            
-            var userDoc = await window.__firebase.db.collection('users').doc(user.uid).get();
-            if (userDoc.exists) {
-                var userData = userDoc.data();
-                user.userType = userData.userType || 'teacher';
-            } else {
-                user.userType = 'teacher';
-            }
-            
-            console.log("✅ User logged in:", user.email);
-            return user;
+            const userCred = await window.__firebase.auth.signInWithEmailAndPassword(email, password);
+            console.log("✅ User logged in:", userCred.user.email);
+            return userCred.user;
         } catch (error) {
             console.error("❌ Login error:", error.code, error.message);
             
-            var message = error.message;
+            let message = error.message;
             if (error.code === 'auth/user-not-found') {
                 message = 'No account found with this email';
             } else if (error.code === 'auth/wrong-password') {
@@ -61,29 +57,119 @@ var Auth = {
         }
     },
 
-    // ----- GET CURRENT USER -----
-    getCurrentUser: function() {
+    // ----- GOOGLE SIGN-IN -----
+    async loginWithGoogle() {
+        console.log("🔐 Attempting Google login...");
+        
         if (window.__firebase.useMock) {
-            // Check sessionStorage first, then localStorage
-            var mockUser = sessionStorage.getItem('mockUser') || localStorage.getItem('mockUser');
+            console.log("📦 Using mock Google authentication");
+            const user = { 
+                email: 'user@gmail.com', 
+                uid: 'mock-google-' + Date.now(), 
+                displayName: 'Google User',
+                photoURL: 'https://ui-avatars.com/api/?name=Google+User&background=6C63FF&color=fff',
+                userType: 'teacher'
+            };
+            sessionStorage.setItem('mockUser', JSON.stringify(user));
+            localStorage.setItem('mockUser', JSON.stringify(user));
+            console.log("✅ Mock Google login successful");
+            return user;
+        }
+        
+        try {
+            const userCred = await window.__firebase.auth.signInWithPopup(window.__firebase.googleProvider);
+            console.log("✅ Google user logged in:", userCred.user.displayName);
+            return userCred.user;
+        } catch (error) {
+            console.error("❌ Google login error:", error.code, error.message);
+            
+            let message = error.message;
+            if (error.code === 'auth/popup-closed-by-user') {
+                message = 'Sign-in popup was closed';
+            } else if (error.code === 'auth/popup-blocked') {
+                message = 'Pop-up was blocked. Please allow pop-ups for this site';
+            }
+            
+            throw new Error(message);
+        }
+    },
+
+    // ----- LOGOUT -----
+    async logout() {
+        console.log("🚪 Logging out...");
+        
+        if (window.__firebase.useMock) {
+            sessionStorage.removeItem('mockUser');
+            localStorage.removeItem('mockUser');
+            console.log("✅ Mock logout successful");
+            return;
+        }
+        
+        try {
+            await window.__firebase.auth.signOut();
+            console.log("✅ User logged out");
+        } catch (error) {
+            console.error("❌ Logout error:", error);
+            throw error;
+        }
+    },
+
+    // ----- AUTH STATE LISTENER -----
+    onAuthStateChanged(callback) {
+        console.log("👤 Setting up auth state listener...");
+        
+        if (window.__firebase.useMock) {
+            // ✅ Check localStorage first, then sessionStorage
+            let mockUser = localStorage.getItem('mockUser') || sessionStorage.getItem('mockUser');
+            if (mockUser) {
+                try {
+                    const user = JSON.parse(mockUser);
+                    console.log("📦 Mock user found:", user.email);
+                    callback(user);
+                } catch (e) {
+                    console.warn("⚠️ Could not parse mock user:", e);
+                    callback(null);
+                }
+            } else {
+                console.log("📦 No mock user found");
+                callback(null);
+            }
+            return () => {};
+        }
+        
+        return window.__firebase.auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log("👤 Auth state changed:", user.email);
+            } else {
+                console.log("👤 Auth state: No user");
+            }
+            callback(user);
+        });
+    },
+
+    // ----- GET CURRENT USER -----
+    getCurrentUser() {
+        if (window.__firebase.useMock) {
+            // ✅ Check localStorage first, then sessionStorage
+            let mockUser = localStorage.getItem('mockUser') || sessionStorage.getItem('mockUser');
             return mockUser ? JSON.parse(mockUser) : null;
         }
-        return window.__firebase.auth ? window.__firebase.auth.currentUser : null;
+        return window.__firebase.auth.currentUser;
     },
 
     // ----- GET USER TYPE -----
-    getUserType: function() {
-        var user = this.getCurrentUser();
+    getUserType() {
+        const user = this.getCurrentUser();
         return user ? user.userType || 'teacher' : null;
     },
 
     // ----- CHECK IF USER IS STUDENT -----
-    isStudent: function() {
+    isStudent() {
         return this.getUserType() === 'student';
     },
 
     // ----- CHECK IF USER IS TEACHER -----
-    isTeacher: function() {
+    isTeacher() {
         return this.getUserType() === 'teacher';
     }
 };
