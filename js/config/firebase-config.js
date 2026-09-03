@@ -24,7 +24,16 @@ try {
     // Get auth, firestore, and storage instances
     auth = firebase.auth();
     db = firebase.firestore();
-    storage = firebase.storage();  // ADD THIS
+    storage = firebase.storage();
+    
+    // ✅ SET PERSISTENCE TO LOCAL - This keeps user logged in
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(function() {
+            console.log("✅ Auth persistence set to LOCAL");
+        })
+        .catch(function(error) {
+            console.warn("⚠️ Auth persistence error:", error);
+        });
     
     // Setup Google Auth Provider
     googleProvider = new firebase.auth.GoogleAuthProvider();
@@ -46,7 +55,7 @@ try {
 window.__firebase = { 
     auth, 
     db, 
-    storage,  // ADD THIS
+    storage,
     googleProvider, 
     useMock,
     config: firebaseConfig
