@@ -1,5 +1,5 @@
 // ============================================================
-// AUTHENTICATION SERVICE - Email & Google Sign-In
+// AUTHENTICATION SERVICE - With Session Persistence
 // ============================================================
 
 var Auth = {
@@ -8,44 +8,40 @@ var Auth = {
         console.log("🔐 Attempting login for:", email);
         
         if (window.__firebase.useMock) {
-            // Mock login - accept any valid-looking email with password
             if (password && password.length >= 6) {
-                // Determine user type based on email
-                var userType = 'teacher';
                 var isStudent = email.includes('student') || email.includes('@student.');
-                
-                if (isStudent) {
-                    userType = 'student';
-                }
-                
                 var user = { 
                     email: email, 
                     uid: 'mock-user-' + Date.now(), 
                     displayName: email.split('@')[0] || 'User',
-                    userType: userType
+                    userType: isStudent ? 'student' : 'teacher'
                 };
                 sessionStorage.setItem('mockUser', JSON.stringify(user));
-                console.log("✅ Mock login successful for:", email, "Type:", userType);
+                localStorage.setItem('mockUser', JSON.stringify(user));  // ← Save to localStorage too
+                console.log("✅ Mock login successful for:", email);
                 return user;
             }
             throw new Error('Password must be at least 6 characters');
         }
         
         try {
+            // Set persistence to LOCAL so user stays logged in
+            if (window.__firebase.auth && window.__firebase.auth.setPersistence) {
+                await window.__firebase.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            }
+            
             var userCred = await window.__firebase.auth.signInWithEmailAndPassword(email, password);
             var user = userCred.user;
             
-            // Check user type from Firestore
             var userDoc = await window.__firebase.db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 var userData = userDoc.data();
                 user.userType = userData.userType || 'teacher';
             } else {
-                // Default to teacher if not specified
                 user.userType = 'teacher';
             }
             
-            console.log("✅ User logged in:", user.email, "Type:", user.userType);
+            console.log("✅ User logged in:", user.email);
             return user;
         } catch (error) {
             console.error("❌ Login error:", error.code, error.message);
@@ -68,10 +64,11 @@ var Auth = {
     // ----- GET CURRENT USER -----
     getCurrentUser: function() {
         if (window.__firebase.useMock) {
-            var mockUser = sessionStorage.getItem('mockUser');
+            // Check sessionStorage first, then localStorage
+            var mockUser = sessionStorage.getItem('mockUser') || localStorage.getItem('mockUser');
             return mockUser ? JSON.parse(mockUser) : null;
         }
-        return window.__firebase.auth.currentUser;
+        return window.__firebase.auth ? window.__firebase.auth.currentUser : null;
     },
 
     // ----- GET USER TYPE -----
