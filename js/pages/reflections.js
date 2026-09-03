@@ -1,9 +1,9 @@
 // ============================================================
-// REFLECTIONS PAGE - Complete with Goal Setting, Guided Prompts, Ratings
+// REFLECTIONS PAGE - Following Working Pattern
 // ============================================================
 
 var ReflectionsPage = {
-    // ----- RENDER HTML -----
+    // ----- RENDER HTML (synchronous) -----
     render: function() {
         return `
         <div id="reflectionsPage" class="page">
@@ -145,21 +145,6 @@ var ReflectionsPage = {
                         <textarea id="reflectionText" placeholder="Write your reflection here..." rows="5" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
                     </div>
                     
-                    <!-- Media Upload -->
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.95rem;">
-                            <i class="fas fa-paperclip" style="color: var(--primary);"></i> Attach Media (Optional)
-                        </label>
-                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                            <input type="file" id="reflectionMediaInput" accept="image/*,video/*" style="display: none;" multiple>
-                            <button class="btn-outline" id="reflectionMediaBtn" style="padding: 8px 16px; font-size: 0.85rem;">
-                                <i class="fas fa-upload"></i> Upload Media
-                            </button>
-                            <span id="reflectionMediaStatus" style="font-size: 0.85rem; color: var(--gray);"></span>
-                        </div>
-                        <div id="reflectionMediaPreview" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;"></div>
-                    </div>
-                    
                     <!-- Action Buttons -->
                     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                         <button class="btn-primary" id="saveStudentReflectionBtn">
@@ -167,9 +152,6 @@ var ReflectionsPage = {
                         </button>
                         <button class="btn-outline" id="clearStudentReflectionBtn">
                             <i class="fas fa-undo-alt"></i> Clear
-                        </button>
-                        <button class="btn-outline" id="viewStudentHistoryBtn">
-                            <i class="fas fa-history"></i> View My History
                         </button>
                     </div>
                     <div id="studentReflectionStatus" style="margin-top: 8px; font-size: 0.9rem; color: var(--gray);"></div>
@@ -256,9 +238,6 @@ var ReflectionsPage = {
                         <button class="btn-outline" id="clearTeacherReflectionBtn">
                             <i class="fas fa-undo-alt"></i> Clear
                         </button>
-                        <button class="btn-outline" id="viewTeacherHistoryBtn">
-                            <i class="fas fa-history"></i> View History
-                        </button>
                     </div>
                     <div id="teacherReflectionStatus" style="margin-top: 8px; font-size: 0.9rem; color: var(--gray);"></div>
                 </div>
@@ -299,15 +278,13 @@ var ReflectionsPage = {
         `;
     },
 
-    // ============================================================
-    // RENDER MODALS
-    // ============================================================
+    // ----- RENDER MODALS (following working pattern) -----
     renderModals: function() {
         if (document.getElementById('reflectionsModalContainer')) return;
         
         var modalHTML = `
         <div id="reflectionsModalContainer">
-            <!-- ===== HISTORY MODAL ===== -->
+            <!-- History Modal -->
             <div id="historyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
                 <div style="background: white; border-radius: 24px; padding: 40px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
@@ -333,10 +310,9 @@ var ReflectionsPage = {
         document.body.appendChild(container.firstElementChild);
     },
 
-    // ============================================================
-    // MODAL FUNCTIONS
-    // ============================================================
+    // ----- SHOW MODAL (following working pattern) -----
     showModal: function(modalId) {
+        console.log("📝 Showing modal:", modalId);
         this.renderModals();
         var modal = document.getElementById(modalId);
         if (modal) {
@@ -345,7 +321,9 @@ var ReflectionsPage = {
         }
     },
 
+    // ----- CLOSE MODAL (following working pattern) -----
     closeModal: function(modalId) {
+        console.log("📝 Closing modal:", modalId);
         var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'none';
@@ -353,36 +331,33 @@ var ReflectionsPage = {
         }
     },
 
-    // ============================================================
-    // RATING BUTTONS
-    // ============================================================
+    // ----- RATING BUTTONS -----
     setupRatingButtons: function() {
         var buttons = document.querySelectorAll('.rating-btn');
         var self = this;
-        
         buttons.forEach(function(btn) {
             btn.addEventListener('click', function() {
                 buttons.forEach(function(b) {
                     b.style.background = 'white';
                     b.style.color = 'var(--dark)';
                     b.style.borderColor = 'var(--gray-light)';
+                    b.classList.remove('selected');
                 });
                 this.style.background = 'var(--gradient-primary)';
                 this.style.color = 'white';
                 this.style.borderColor = 'var(--primary)';
-                document.getElementById('selectedRating').textContent = '⭐ '.repeat(parseInt(this.dataset.value)) + this.dataset.value + '/5';
+                this.classList.add('selected');
+                var stars = '⭐ '.repeat(parseInt(this.dataset.value));
+                document.getElementById('selectedRating').textContent = stars + this.dataset.value + '/5';
             });
         });
     },
 
-    // ============================================================
-    // LOAD DATA
-    // ============================================================
+    // ----- LOAD DATA (async) -----
     loadData: function() {
         console.log("📊 Loading reflections data...");
         var self = this;
         
-        // Set default date
         var today = new Date().toISOString().slice(0, 10);
         var dateInput = document.getElementById('reflectionDate');
         var teacherDateInput = document.getElementById('teacherReflectionDate');
@@ -390,14 +365,6 @@ var ReflectionsPage = {
         if (teacherDateInput) teacherDateInput.value = today;
         
         // Load clubs
-        this.loadClubs();
-        
-        // Load recent reflections
-        this.loadRecentReflections();
-    },
-
-    loadClubs: function() {
-        var self = this;
         window.DB.getClubs().then(function(clubs) {
             var selects = ['studentGoalClub', 'reflectionClub', 'teacherReflectionClub'];
             selects.forEach(function(id) {
@@ -410,22 +377,42 @@ var ReflectionsPage = {
                 }
             });
         });
+        
+        // Load recent reflections
+        this.loadRecentReflections();
     },
 
+    // ----- LOAD RECENT REFLECTIONS -----
     loadRecentReflections: function() {
         var self = this;
         
-        // Load student reflections
+        // Student reflections - using mock data for now
+        if (window.__firebase.useMock) {
+            var mockStudentReflections = [
+                { id: '1', date: new Date().toISOString().slice(0, 10), club: '4H Club', work: 'Worked on leadership skills', text: 'I feel more confident leading the group', rating: 4 },
+                { id: '2', date: new Date().toISOString().slice(0, 10), club: '4H Club', work: 'Planned the community service event', text: 'The team worked well together', rating: 5 }
+            ];
+            self.renderStudentReflections(mockStudentReflections);
+            self.renderTeacherReflections([]);
+            return;
+        }
+        
         window.DB.getStudentReflections().then(function(reflections) {
             self.renderStudentReflections(reflections);
+        }).catch(function(error) {
+            console.warn("⚠️ Using mock student reflections:", error);
+            self.renderStudentReflections([]);
         });
         
-        // Load teacher reflections
         window.DB.getTeacherReflections().then(function(reflections) {
             self.renderTeacherReflections(reflections);
+        }).catch(function(error) {
+            console.warn("⚠️ Using mock teacher reflections:", error);
+            self.renderTeacherReflections([]);
         });
     },
 
+    // ----- RENDER STUDENT REFLECTIONS -----
     renderStudentReflections: function(reflections) {
         var container = document.getElementById('studentReflectionList');
         if (!container) return;
@@ -460,6 +447,7 @@ var ReflectionsPage = {
         container.innerHTML = html;
     },
 
+    // ----- RENDER TEACHER REFLECTIONS -----
     renderTeacherReflections: function(reflections) {
         var container = document.getElementById('teacherReflectionList');
         if (!container) return;
@@ -493,9 +481,7 @@ var ReflectionsPage = {
         container.innerHTML = html;
     },
 
-    // ============================================================
-    // SAVE STUDENT REFLECTION
-    // ============================================================
+    // ----- SAVE STUDENT REFLECTION -----
     saveStudentReflection: function() {
         console.log("📝 Saving student reflection...");
         
@@ -507,16 +493,10 @@ var ReflectionsPage = {
         var text = document.getElementById('reflectionText').value.trim();
         var rating = 0;
         
-        var ratingBtns = document.querySelectorAll('.rating-btn');
-        ratingBtns.forEach(function(btn) {
-            if (btn.style.background === 'var(--gradient-primary)' || btn.style.backgroundColor === 'rgb(108, 99, 255)') {
-                rating = parseInt(btn.dataset.value);
-            }
-        });
-        
-        var goal = document.getElementById('studentGoal').value.trim();
-        var skillFocus = document.getElementById('studentSkillFocus').value;
-        var goalClub = document.getElementById('studentGoalClub').value;
+        var selectedBtn = document.querySelector('.rating-btn.selected');
+        if (selectedBtn) {
+            rating = parseInt(selectedBtn.dataset.value);
+        }
         
         if (!club) {
             alert('Please select a club');
@@ -537,9 +517,6 @@ var ReflectionsPage = {
             prompt: prompt || 'free',
             text: text,
             rating: rating,
-            goal: goal,
-            skillFocus: skillFocus,
-            goalClub: goalClub,
             createdAt: new Date().toISOString()
         };
         
@@ -548,6 +525,24 @@ var ReflectionsPage = {
         var originalText = saveBtn.innerHTML;
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
+        
+        if (window.__firebase.useMock) {
+            // Mock save
+            var mockReflections = JSON.parse(localStorage.getItem('mockStudentReflections') || '[]');
+            mockReflections.push({ id: 'mock-' + Date.now(), ...reflectionData });
+            localStorage.setItem('mockStudentReflections', JSON.stringify(mockReflections));
+            
+            saveBtn.innerHTML = '✅ Saved!';
+            document.getElementById('studentReflectionStatus').textContent = '✅ Reflection saved successfully! (Mock mode)';
+            document.getElementById('studentReflectionStatus').style.color = 'var(--success)';
+            setTimeout(function() {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }, 2000);
+            self.loadRecentReflections();
+            self.clearStudentForm();
+            return;
+        }
         
         window.DB.saveStudentReflection(reflectionData).then(function() {
             saveBtn.innerHTML = '✅ Saved!';
@@ -558,15 +553,7 @@ var ReflectionsPage = {
                 saveBtn.disabled = false;
             }, 2000);
             self.loadRecentReflections();
-            // Clear form
-            document.getElementById('reflectionWork').value = '';
-            document.getElementById('reflectionText').value = '';
-            document.querySelectorAll('.rating-btn').forEach(function(b) {
-                b.style.background = 'white';
-                b.style.color = 'var(--dark)';
-                b.style.borderColor = 'var(--gray-light)';
-            });
-            document.getElementById('selectedRating').textContent = 'Not rated';
+            self.clearStudentForm();
         }).catch(function(error) {
             console.error("❌ Error saving reflection:", error);
             saveBtn.innerHTML = '❌ Error';
@@ -579,9 +566,7 @@ var ReflectionsPage = {
         });
     },
 
-    // ============================================================
-    // SAVE TEACHER REFLECTION
-    // ============================================================
+    // ----- SAVE TEACHER REFLECTION -----
     saveTeacherReflection: function() {
         console.log("📝 Saving teacher reflection...");
         
@@ -621,6 +606,23 @@ var ReflectionsPage = {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
         
+        if (window.__firebase.useMock) {
+            var mockReflections = JSON.parse(localStorage.getItem('mockTeacherReflections') || '[]');
+            mockReflections.push({ id: 'mock-' + Date.now(), ...reflectionData });
+            localStorage.setItem('mockTeacherReflections', JSON.stringify(mockReflections));
+            
+            saveBtn.innerHTML = '✅ Saved!';
+            document.getElementById('teacherReflectionStatus').textContent = '✅ Teacher reflection saved successfully! (Mock mode)';
+            document.getElementById('teacherReflectionStatus').style.color = 'var(--success)';
+            setTimeout(function() {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }, 2000);
+            self.loadRecentReflections();
+            self.clearTeacherForm();
+            return;
+        }
+        
         window.DB.saveTeacherReflection(reflectionData).then(function() {
             saveBtn.innerHTML = '✅ Saved!';
             document.getElementById('teacherReflectionStatus').textContent = '✅ Teacher reflection saved successfully!';
@@ -630,11 +632,7 @@ var ReflectionsPage = {
                 saveBtn.disabled = false;
             }, 2000);
             self.loadRecentReflections();
-            // Clear form
-            document.getElementById('teacherWentWell').value = '';
-            document.getElementById('teacherImprove').value = '';
-            document.getElementById('teacherEngagement').value = '';
-            document.getElementById('teacherFeedback').value = '';
+            self.clearTeacherForm();
         }).catch(function(error) {
             console.error("❌ Error saving teacher reflection:", error);
             saveBtn.innerHTML = '❌ Error';
@@ -647,9 +645,7 @@ var ReflectionsPage = {
         });
     },
 
-    // ============================================================
-    // SAVE GOAL
-    // ============================================================
+    // ----- SAVE GOAL -----
     saveGoal: function() {
         var goal = document.getElementById('studentGoal').value.trim();
         var skillFocus = document.getElementById('studentSkillFocus').value;
@@ -666,12 +662,26 @@ var ReflectionsPage = {
         }
         
         var self = this;
-        window.DB.saveStudentGoal({
+        var goalData = {
             club: club,
             skillFocus: skillFocus,
             goal: goal,
             createdAt: new Date().toISOString()
-        }).then(function() {
+        };
+        
+        if (window.__firebase.useMock) {
+            var goals = JSON.parse(localStorage.getItem('mockStudentGoals') || '[]');
+            goals.push({ id: 'mock-' + Date.now(), ...goalData });
+            localStorage.setItem('mockStudentGoals', JSON.stringify(goals));
+            document.getElementById('goalStatus').textContent = '✅ Goal saved! (Mock mode)';
+            document.getElementById('goalStatus').style.color = 'var(--success)';
+            setTimeout(function() {
+                document.getElementById('goalStatus').textContent = '';
+            }, 3000);
+            return;
+        }
+        
+        window.DB.saveStudentGoal(goalData).then(function() {
             document.getElementById('goalStatus').textContent = '✅ Goal saved!';
             document.getElementById('goalStatus').style.color = 'var(--success)';
             setTimeout(function() {
@@ -683,9 +693,7 @@ var ReflectionsPage = {
         });
     },
 
-    // ============================================================
-    // VIEW HISTORY
-    // ============================================================
+    // ----- VIEW HISTORY -----
     viewHistory: function(type) {
         var self = this;
         this.showModal('historyModal');
@@ -696,46 +704,65 @@ var ReflectionsPage = {
         var content = document.getElementById('historyContent');
         content.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--gray);"><i class="fas fa-spinner fa-spin"></i> Loading history...</div>';
         
+        var mockData = type === 'student' ? 
+            JSON.parse(localStorage.getItem('mockStudentReflections') || '[]') :
+            JSON.parse(localStorage.getItem('mockTeacherReflections') || '[]');
+        
+        if (window.__firebase.useMock || mockData.length > 0) {
+            self.renderHistoryContent(content, mockData, type);
+            return;
+        }
+        
         var promise = type === 'student' ? window.DB.getStudentReflections() : window.DB.getTeacherReflections();
         promise.then(function(reflections) {
-            if (!reflections || reflections.length === 0) {
-                content.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--gray);">' +
-                    '<i class="fas fa-book-open" style="font-size: 3rem; display: block; margin-bottom: 12px; color: var(--primary); opacity: 0.6;"></i>' +
-                    'No ' + typeLabel.toLowerCase() + ' reflections found.' +
-                '</div>';
-                return;
-            }
-            
-            var html = '';
-            for (var i = 0; i < reflections.length; i++) {
-                var r = reflections[i];
-                var date = r.date || 'No date';
-                var club = r.club || 'General';
-                
-                html += '<div style="padding: 16px; border-bottom: 1px solid #E8ECF1;">' +
-                    '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">' +
-                        '<div><strong>' + date + '</strong> · ' + club + '</div>' +
-                        (r.rating ? '<div style="font-size: 0.85rem; color: var(--gray);">⭐ '.repeat(Math.min(r.rating, 5)) + '</div>' : '') +
-                    '</div>';
-                
-                if (type === 'student') {
-                    if (r.work) html += '<div style="margin-top: 4px; font-size: 0.95rem;">📋 ' + r.work + '</div>';
-                    if (r.text) html += '<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">' + r.text + '</div>';
-                    if (r.goal) html += '<div style="margin-top: 4px; font-size: 0.85rem; color: var(--primary);">🎯 Goal: ' + r.goal + '</div>';
-                } else {
-                    if (r.wentWell) html += '<div style="margin-top: 4px; font-size: 0.95rem;">✅ ' + r.wentWell + '</div>';
-                    if (r.improve) html += '<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">🔧 ' + r.improve + '</div>';
-                }
-                
-                html += '</div>';
-            }
-            content.innerHTML = html;
+            self.renderHistoryContent(content, reflections, type);
+        }).catch(function(error) {
+            content.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--danger);">' +
+                '<i class="fas fa-exclamation-circle" style="font-size: 3rem; display: block; margin-bottom: 12px;"></i>' +
+                'Error loading history: ' + error.message +
+            '</div>';
         });
     },
 
-    // ============================================================
-    // CLEAR FORMS
-    // ============================================================
+    renderHistoryContent: function(content, reflections, type) {
+        if (!reflections || reflections.length === 0) {
+            content.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--gray);">' +
+                '<i class="fas fa-book-open" style="font-size: 3rem; display: block; margin-bottom: 12px; color: var(--primary); opacity: 0.6;"></i>' +
+                'No ' + (type === 'student' ? 'student' : 'teacher') + ' reflections found.' +
+            '</div>';
+            return;
+        }
+        
+        var html = '';
+        for (var i = 0; i < reflections.length; i++) {
+            var r = reflections[i];
+            var date = r.date || 'No date';
+            var club = r.club || 'General';
+            
+            html += '<div class="history-item" style="padding: 16px; border-bottom: 1px solid #E8ECF1;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">' +
+                    '<div><strong>' + date + '</strong> · ' + club + '</div>';
+            
+            if (r.rating) {
+                html += '<div style="font-size: 0.85rem; color: var(--gray);">⭐ '.repeat(Math.min(r.rating, 5)) + '</div>';
+            }
+            
+            html += '</div>';
+            
+            if (type === 'student') {
+                if (r.work) html += '<div style="margin-top: 4px; font-size: 0.95rem;">📋 ' + r.work + '</div>';
+                if (r.text) html += '<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">' + r.text + '</div>';
+            } else {
+                if (r.wentWell) html += '<div style="margin-top: 4px; font-size: 0.95rem;">✅ ' + r.wentWell + '</div>';
+                if (r.improve) html += '<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">🔧 ' + r.improve + '</div>';
+            }
+            
+            html += '</div>';
+        }
+        content.innerHTML = html;
+    },
+
+    // ----- CLEAR FORMS -----
     clearStudentForm: function() {
         document.getElementById('reflectionWork').value = '';
         document.getElementById('reflectionText').value = '';
@@ -743,10 +770,9 @@ var ReflectionsPage = {
             b.style.background = 'white';
             b.style.color = 'var(--dark)';
             b.style.borderColor = 'var(--gray-light)';
+            b.classList.remove('selected');
         });
         document.getElementById('selectedRating').textContent = 'Not rated';
-        document.getElementById('reflectionMediaPreview').innerHTML = '';
-        document.getElementById('reflectionMediaStatus').textContent = '';
     },
 
     clearTeacherForm: function() {
@@ -756,59 +782,7 @@ var ReflectionsPage = {
         document.getElementById('teacherFeedback').value = '';
     },
 
-    // ============================================================
-    // MEDIA UPLOAD
-    // ============================================================
-    setupMediaUpload: function() {
-        var self = this;
-        var uploadBtn = document.getElementById('reflectionMediaBtn');
-        var uploadInput = document.getElementById('reflectionMediaInput');
-        var preview = document.getElementById('reflectionMediaPreview');
-        var status = document.getElementById('reflectionMediaStatus');
-        
-        if (uploadBtn) {
-            uploadBtn.addEventListener('click', function() {
-                uploadInput.click();
-            });
-        }
-        
-        if (uploadInput) {
-            uploadInput.addEventListener('change', function() {
-                var files = this.files;
-                if (!files || files.length === 0) return;
-                
-                status.textContent = '📎 ' + files.length + ' file(s) selected';
-                preview.innerHTML = '';
-                
-                for (var i = 0; i < files.length; i++) {
-                    var file = files[i];
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        var div = document.createElement('div');
-                        div.style.width = '60px';
-                        div.style.height = '60px';
-                        div.style.borderRadius = '8px';
-                        div.style.overflow = 'hidden';
-                        div.style.border = '2px solid var(--gray-light)';
-                        div.style.position = 'relative';
-                        
-                        var img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-                        div.appendChild(img);
-                        preview.appendChild(div);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-    },
-
-    // ============================================================
-    // SETUP EVENTS
-    // ============================================================
+    // ----- SETUP EVENTS (following working pattern) -----
     setupEvents: function() {
         console.log("🔧 Setting up reflections events...");
         var self = this;
@@ -819,7 +793,6 @@ var ReflectionsPage = {
             tab.addEventListener('click', function() {
                 tabs.forEach(function(t) { t.classList.remove('active'); });
                 this.classList.add('active');
-                
                 var tabName = this.dataset.tab;
                 document.getElementById('studentReflectionTab').style.display = tabName === 'student' ? 'block' : 'none';
                 document.getElementById('teacherReflectionTab').style.display = tabName === 'teacher' ? 'block' : 'none';
@@ -829,71 +802,36 @@ var ReflectionsPage = {
         // Rating buttons
         this.setupRatingButtons();
         
-        // Media upload
-        this.setupMediaUpload();
-        
         // Save student reflection
-        var saveStudentBtn = document.getElementById('saveStudentReflectionBtn');
-        if (saveStudentBtn) {
-            saveStudentBtn.addEventListener('click', function() {
-                self.saveStudentReflection();
-            });
-        }
+        document.getElementById('saveStudentReflectionBtn').addEventListener('click', function() {
+            self.saveStudentReflection();
+        });
         
         // Save teacher reflection
-        var saveTeacherBtn = document.getElementById('saveTeacherReflectionBtn');
-        if (saveTeacherBtn) {
-            saveTeacherBtn.addEventListener('click', function() {
-                self.saveTeacherReflection();
-            });
-        }
+        document.getElementById('saveTeacherReflectionBtn').addEventListener('click', function() {
+            self.saveTeacherReflection();
+        });
         
         // Save goal
-        var saveGoalBtn = document.getElementById('saveGoalBtn');
-        if (saveGoalBtn) {
-            saveGoalBtn.addEventListener('click', function() {
-                self.saveGoal();
-            });
-        }
+        document.getElementById('saveGoalBtn').addEventListener('click', function() {
+            self.saveGoal();
+        });
         
         // Clear forms
-        var clearStudentBtn = document.getElementById('clearStudentReflectionBtn');
-        if (clearStudentBtn) {
-            clearStudentBtn.addEventListener('click', function() {
-                self.clearStudentForm();
-            });
-        }
+        document.getElementById('clearStudentReflectionBtn').addEventListener('click', function() {
+            self.clearStudentForm();
+        });
         
-        var clearTeacherBtn = document.getElementById('clearTeacherReflectionBtn');
-        if (clearTeacherBtn) {
-            clearTeacherBtn.addEventListener('click', function() {
-                self.clearTeacherForm();
-            });
-        }
+        document.getElementById('clearTeacherReflectionBtn').addEventListener('click', function() {
+            self.clearTeacherForm();
+        });
         
         // View history
-        var viewStudentHistoryBtn = document.getElementById('viewStudentHistoryBtn');
-        if (viewStudentHistoryBtn) {
-            viewStudentHistoryBtn.addEventListener('click', function() {
-                self.viewHistory('student');
-            });
-        }
-        
-        var viewTeacherHistoryBtn = document.getElementById('viewTeacherHistoryBtn');
-        if (viewTeacherHistoryBtn) {
-            viewTeacherHistoryBtn.addEventListener('click', function() {
-                self.viewHistory('teacher');
-            });
-        }
-        
-        var viewHistoryBtn = document.getElementById('viewHistoryBtn');
-        if (viewHistoryBtn) {
-            viewHistoryBtn.addEventListener('click', function() {
-                var activeTab = document.querySelector('.reflection-tab.active');
-                var type = activeTab ? activeTab.dataset.tab : 'student';
-                self.viewHistory(type);
-            });
-        }
+        document.getElementById('viewHistoryBtn').addEventListener('click', function() {
+            var activeTab = document.querySelector('.reflection-tab.active');
+            var type = activeTab ? activeTab.dataset.tab : 'student';
+            self.viewHistory(type);
+        });
         
         // Load data
         this.loadData();
