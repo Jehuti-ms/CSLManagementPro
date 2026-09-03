@@ -1,5 +1,5 @@
 // ============================================================
-// STUDENT PAGE - Dashboard for Students
+// STUDENT PAGE - Dashboard for Students (Modal Centering Fixed)
 // ============================================================
 
 var StudentPage = {
@@ -92,7 +92,7 @@ var StudentPage = {
             </div>
         </div>
         
-        <!-- ===== STUDENT REFLECTION MODAL (in page for extraction) ===== -->
+        <!-- ===== STUDENT REFLECTION MODAL (HIDDEN IN PAGE - WILL BE EXTRACTED) ===== -->
         <div id="studentReflectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
             <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
@@ -160,8 +160,8 @@ var StudentPage = {
         // Clone it and move to body
         var modalClone = modal.cloneNode(true);
         modalClone.id = 'studentReflectionModal';
-        modalClone.style.display = 'none';
         
+        // Create container
         var container = document.createElement('div');
         container.id = 'studentModalContainer';
         container.appendChild(modalClone);
@@ -173,7 +173,7 @@ var StudentPage = {
         console.log("✅ Student modal rendered");
     },
 
-    // ----- SHOW MODAL -----
+    // ----- SHOW MODAL (EXACT SAME AS TRACKER) -----
     showModal: function() {
         console.log("📝 Showing student reflection modal");
         
@@ -190,7 +190,7 @@ var StudentPage = {
         }
     },
 
-    // ----- CLOSE MODAL -----
+    // ----- CLOSE MODAL (EXACT SAME AS TRACKER) -----
     closeModal: function() {
         console.log("📝 Closing student reflection modal");
         
@@ -396,6 +396,7 @@ var StudentPage = {
         
         console.log("📝 Opening Student Reflection Modal");
         
+        // Ensure modals are rendered
         this.renderModals();
         
         var today = new Date().toISOString().slice(0, 10);
@@ -565,6 +566,7 @@ var StudentPage = {
             });
         }
         
+        // Render modals once
         this.renderModals();
         this.loadData();
     }
