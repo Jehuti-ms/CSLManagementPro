@@ -1,5 +1,5 @@
 // ============================================================
-// STUDENT PAGE - Dashboard for Students (Modal Centering Fixed)
+// STUDENT PAGE - Dashboard for Students (Using Working Modal Pattern)
 // ============================================================
 
 var StudentPage = {
@@ -42,14 +42,12 @@ var StudentPage = {
                     <span style="font-size: 0.8rem; font-weight: 400; color: var(--gray);">record your progress</span>
                 </h4>
                 
-                <!-- Add Reflection -->
                 <div style="margin-bottom: 16px;">
                     <button class="btn-primary" id="addStudentReflectionBtn" style="padding: 8px 20px;">
                         <i class="fas fa-plus"></i> Add Reflection
                     </button>
                 </div>
                 
-                <!-- Reflection List -->
                 <div id="studentReflectionsList">
                     <div style="text-align:center; padding: 20px; color: var(--gray);">
                         <i class="fas fa-spinner fa-spin"></i> Loading reflections...
@@ -92,111 +90,99 @@ var StudentPage = {
                     <strong>Current Goal:</strong> <span id="currentGoalDisplay"></span>
                 </div>
             </div>
-        </div>
-        
-        <!-- ===== STUDENT REFLECTION MODAL (in the page for extraction) ===== -->
-        <div id="studentReflectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
-                        <i class="fas fa-pen-fancy" style="color: #6C63FF;"></i> My Reflection
-                    </h3>
-                    <button onclick="window.StudentPage.closeModal()" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Date</label>
-                    <input type="date" id="studentRefDate" style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">What did you work on today?</label>
-                    <input type="text" id="studentRefWork" placeholder="Describe what you focused on..." style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Reflection</label>
-                    <textarea id="studentRefText" placeholder="Write your reflection here..." rows="4" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
-                </div>
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">How do you feel about your progress?</label>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="rating-btn-small" data-value="1" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">1</button>
-                        <button class="rating-btn-small" data-value="2" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">2</button>
-                        <button class="rating-btn-small" data-value="3" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">3</button>
-                        <button class="rating-btn-small" data-value="4" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">4</button>
-                        <button class="rating-btn-small" data-value="5" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">5</button>
-                        <span id="studentRatingDisplay" style="margin-left: 8px; font-size: 0.9rem; color: var(--gray);">Not rated</span>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                    <button class="btn-primary" id="saveStudentRefBtn" style="flex: 1; padding: 14px;">
-                        <i class="fas fa-save"></i> Save Reflection
-                    </button>
-                    <button class="btn-outline" onclick="window.StudentPage.closeModal()" style="flex: 0.5; padding: 14px;">
-                        Cancel
-                    </button>
-                </div>
-            </div>
         </div>`;
     },
 
-    // ----- RENDER MODALS (EXACT SAME AS TRACKER) -----
+    // ============================================================
+    // RENDER MODALS (EXACT SAME AS TRACKER)
+    // ============================================================
     renderModals: function() {
         // Only render modals once
         if (document.getElementById('studentModalContainer')) return;
         
-        // Get the modal from the page
-        var modal = document.getElementById('studentReflectionModal');
-        if (!modal) {
-            console.error("❌ Modal not found in page");
-            return;
-        }
-        
-        // Clone it and move to body
-        var modalClone = modal.cloneNode(true);
-        modalClone.id = 'studentReflectionModal';
-        modalClone.style.display = 'none';
+        var modalHTML = `
+        <div id="studentModalContainer">
+            <!-- ===== STUDENT REFLECTION MODAL ===== -->
+            <div id="studentReflectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                            <i class="fas fa-pen-fancy" style="color: #6C63FF;"></i> My Reflection
+                        </h3>
+                        <button onclick="window.StudentPage.closeModal('studentReflectionModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Date</label>
+                        <input type="date" id="studentRefDate" style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">What did you work on today?</label>
+                        <input type="text" id="studentRefWork" placeholder="Describe what you focused on..." style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Reflection</label>
+                        <textarea id="studentRefText" placeholder="Write your reflection here..." rows="4" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">How do you feel about your progress?</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button class="rating-btn-small" data-value="1" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">1</button>
+                            <button class="rating-btn-small" data-value="2" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">2</button>
+                            <button class="rating-btn-small" data-value="3" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">3</button>
+                            <button class="rating-btn-small" data-value="4" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">4</button>
+                            <button class="rating-btn-small" data-value="5" style="padding: 6px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; cursor: pointer; transition: var(--transition);">5</button>
+                            <span id="studentRatingDisplay" style="margin-left: 8px; font-size: 0.9rem; color: var(--gray);">Not rated</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                        <button class="btn-primary" id="saveStudentRefBtn" style="flex: 1; padding: 14px;">
+                            <i class="fas fa-save"></i> Save Reflection
+                        </button>
+                        <button class="btn-outline" onclick="window.StudentPage.closeModal('studentReflectionModal')" style="flex: 0.5; padding: 14px;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
         
         var container = document.createElement('div');
-        container.id = 'studentModalContainer';
-        container.appendChild(modalClone);
-        document.body.appendChild(container);
-        
-        // Hide the original modal in the page
-        modal.style.display = 'none';
+        container.innerHTML = modalHTML;
+        document.body.appendChild(container.firstElementChild);
     },
 
     // ----- SHOW MODAL (EXACT SAME AS TRACKER) -----
-    showModal: function() {
-        console.log("📝 Showing student reflection modal");
+    showModal: function(modalId) {
+        console.log("📝 Showing modal:", modalId);
         
         // Ensure modals are rendered
         this.renderModals();
         
-        var modal = document.getElementById('studentReflectionModal');
+        var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            console.log("✅ Modal shown");
+            console.log("✅ Modal shown:", modalId);
         } else {
-            console.error("❌ Modal not found");
+            console.error("❌ Modal not found:", modalId);
         }
     },
 
     // ----- CLOSE MODAL (EXACT SAME AS TRACKER) -----
-    closeModal: function() {
-        console.log("📝 Closing student reflection modal");
-        
-        var modal = document.getElementById('studentReflectionModal');
+    closeModal: function(modalId) {
+        console.log("📝 Closing modal:", modalId);
+        var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
-            console.log("✅ Modal closed");
+            console.log("✅ Modal closed:", modalId);
         }
     },
 
@@ -205,13 +191,11 @@ var StudentPage = {
         console.log("📊 Loading student data...");
         var self = this;
         
-        // Get current user
         var user = window.Auth.getCurrentUser();
         if (user) {
             document.getElementById('studentName').textContent = 'Welcome, ' + (user.displayName || user.email);
         }
         
-        // Load clubs
         this.loadClubs();
     },
 
@@ -244,7 +228,6 @@ var StudentPage = {
             });
         }
         
-        // Also load club selector change
         var select = document.getElementById('studentClubSelect');
         if (select) {
             select.addEventListener('change', function() {
@@ -265,7 +248,6 @@ var StudentPage = {
         
         var container = document.getElementById('studentTasksList');
         
-        // Get tasks from localStorage
         var allTasks = JSON.parse(localStorage.getItem('mockTasks') || '[]');
         var myTasks = allTasks.filter(function(t) {
             return t.club === clubId && (t.assignedTo === userName || t.assignedTo === '');
@@ -294,14 +276,12 @@ var StudentPage = {
         }
         container.innerHTML = html;
         
-        // Task checkbox handlers
         document.querySelectorAll('.student-task-checkbox').forEach(function(cb) {
             cb.addEventListener('change', function() {
                 var id = this.dataset.id;
                 var completed = this.checked;
                 var clubId = document.getElementById('studentClubSelect').value;
                 
-                // Update in localStorage
                 var allTasks = JSON.parse(localStorage.getItem('mockTasks') || '[]');
                 var idx = allTasks.findIndex(function(t) { return t.id === id; });
                 if (idx !== -1) {
@@ -309,7 +289,6 @@ var StudentPage = {
                     localStorage.setItem('mockTasks', JSON.stringify(allTasks));
                 }
                 
-                // Also update in DB if available
                 if (window.DB && window.DB.updateTaskStatus) {
                     window.DB.updateTaskStatus(clubId, id, completed).catch(function(error) {
                         console.warn("⚠️ Firebase update failed:", error);
@@ -331,7 +310,6 @@ var StudentPage = {
         
         var container = document.getElementById('studentReflectionsList');
         
-        // Get reflections from localStorage
         var allReflections = JSON.parse(localStorage.getItem('studentReflections') || '[]');
         var myReflections = allReflections.filter(function(r) {
             return r.club === clubId && (r.student === userName || r.student === '');
@@ -402,7 +380,6 @@ var StudentPage = {
         
         console.log("📝 Opening Student Reflection Modal");
         
-        // Ensure modals are rendered
         this.renderModals();
         
         var today = new Date().toISOString().slice(0, 10);
@@ -416,7 +393,6 @@ var StudentPage = {
         if (textInput) textInput.value = '';
         if (ratingDisplay) ratingDisplay.textContent = 'Not rated';
         
-        // Reset rating buttons
         document.querySelectorAll('.rating-btn-small').forEach(function(btn) {
             btn.style.background = 'white';
             btn.style.color = 'var(--dark)';
@@ -424,7 +400,7 @@ var StudentPage = {
             btn.classList.remove('selected');
         });
         
-        this.showModal();
+        this.showModal('studentReflectionModal');
     },
 
     // ----- SAVE STUDENT REFLECTION -----
@@ -469,7 +445,6 @@ var StudentPage = {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
         
-        // Save to localStorage
         var allReflections = JSON.parse(localStorage.getItem('studentReflections') || '[]');
         allReflections.unshift(reflectionData);
         localStorage.setItem('studentReflections', JSON.stringify(allReflections));
@@ -480,7 +455,7 @@ var StudentPage = {
             saveBtn.disabled = false;
         }, 1500);
         
-        self.closeModal();
+        self.closeModal('studentReflectionModal');
         self.loadReflections();
     },
 
@@ -537,7 +512,6 @@ var StudentPage = {
         console.log("🔧 Setting up student events...");
         var self = this;
         
-        // Rating buttons
         document.querySelectorAll('.rating-btn-small').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.rating-btn-small').forEach(function(b) {
@@ -554,7 +528,6 @@ var StudentPage = {
             });
         });
         
-        // Add reflection button
         var addBtn = document.getElementById('addStudentReflectionBtn');
         if (addBtn) {
             addBtn.addEventListener('click', function() {
@@ -562,7 +535,6 @@ var StudentPage = {
             });
         }
         
-        // Save reflection
         var saveBtn = document.getElementById('saveStudentRefBtn');
         if (saveBtn) {
             saveBtn.addEventListener('click', function() {
@@ -570,7 +542,6 @@ var StudentPage = {
             });
         }
         
-        // Save goal
         var saveGoalBtn = document.getElementById('saveStudentGoalBtn');
         if (saveGoalBtn) {
             saveGoalBtn.addEventListener('click', function() {
@@ -578,7 +549,6 @@ var StudentPage = {
             });
         }
         
-        // Render modals once
         this.renderModals();
         this.loadData();
     }
