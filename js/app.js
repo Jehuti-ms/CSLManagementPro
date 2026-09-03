@@ -1,5 +1,5 @@
 // ============================================================
-// js/app.js - MAIN APP CONTROLLER (Updated)
+// js/app.js - MAIN APP CONTROLLER (NO ES6, PURE JS)
 // ============================================================
 
 console.log("🚀 Starting app...");
@@ -87,6 +87,15 @@ var App = {
         }
     },
     
+    // ----- CLOSE LOGIN -----
+    closeLogin: function() {
+        console.log("📄 Closing login...");
+        var overlay = document.getElementById('loginOverlay');
+        if (overlay) {
+            overlay.remove();
+        }
+    },
+    
     showLogin: function() {
         console.log("📄 Showing login page...");
         
@@ -126,7 +135,15 @@ var App = {
             align-items: center;
             justify-content: center;
             padding: 20px;
+            cursor: pointer;
         `;
+        
+        // Close on click outside
+        loginOverlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                window.app.closeLogin();
+            }
+        });
         
         var loginHTML = window.LoginPage.render();
         loginOverlay.innerHTML = loginHTML;
