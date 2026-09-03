@@ -296,6 +296,106 @@ const DB = {
     },
 
     // ============================================================
+    // REFLECTIONS - Student
+    // ============================================================
+    async saveStudentReflection(data) {
+        if (window.__firebase.useMock) {
+            if (!mockData.studentReflections) mockData.studentReflections = [];
+            var newReflection = { id: 'mock-ref-' + Date.now(), ...data };
+            mockData.studentReflections.push(newReflection);
+            saveMock();
+            return newReflection;
+        }
+        try {
+            var docRef = await window.__firebase.db.collection('studentReflections').add({
+                ...data,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { id: docRef.id, ...data };
+        } catch (error) {
+            console.error("❌ Error saving student reflection:", error);
+            throw error;
+        }
+    },
+    
+    async getStudentReflections() {
+        if (window.__firebase.useMock) {
+            return mockData.studentReflections || [];
+        }
+        try {
+            var snapshot = await window.__firebase.db.collection('studentReflections')
+                .orderBy('timestamp', 'desc')
+                .get();
+            return snapshot.docs.map(function(doc) {
+                return { id: doc.id, ...doc.data() };
+            });
+        } catch (error) {
+            console.error("❌ Error getting student reflections:", error);
+            return [];
+        }
+    },
+    
+    async saveStudentGoal(data) {
+        if (window.__firebase.useMock) {
+            if (!mockData.studentGoals) mockData.studentGoals = [];
+            var newGoal = { id: 'mock-goal-' + Date.now(), ...data };
+            mockData.studentGoals.push(newGoal);
+            saveMock();
+            return newGoal;
+        }
+        try {
+            var docRef = await window.__firebase.db.collection('studentGoals').add({
+                ...data,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { id: docRef.id, ...data };
+        } catch (error) {
+            console.error("❌ Error saving student goal:", error);
+            throw error;
+        }
+    },
+    
+    // ============================================================
+    // REFLECTIONS - Teacher
+    // ============================================================
+    async saveTeacherReflection(data) {
+        if (window.__firebase.useMock) {
+            if (!mockData.teacherReflections) mockData.teacherReflections = [];
+            var newReflection = { id: 'mock-teacher-ref-' + Date.now(), ...data };
+            mockData.teacherReflections.push(newReflection);
+            saveMock();
+            return newReflection;
+        }
+        try {
+            var docRef = await window.__firebase.db.collection('teacherReflections').add({
+                ...data,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { id: docRef.id, ...data };
+        } catch (error) {
+            console.error("❌ Error saving teacher reflection:", error);
+            throw error;
+        }
+    },
+    
+    async getTeacherReflections() {
+        if (window.__firebase.useMock) {
+            return mockData.teacherReflections || [];
+        }
+        try {
+            var snapshot = await window.__firebase.db.collection('teacherReflections')
+                .orderBy('timestamp', 'desc')
+                .get();
+            return snapshot.docs.map(function(doc) {
+                return { id: doc.id, ...doc.data() };
+            });
+        } catch (error) {
+            console.error("❌ Error getting teacher reflections:", error);
+            return [];
+        }
+    },
+    
+    // ============================================================
     // TRACKER - TEACHER CLUBS
     // ============================================================
     async getTeacherClubs() {
