@@ -65,6 +65,12 @@ var App = {
                         return;
                     }
                     
+                    // If clicking Admin Profile and not logged in as admin, show admin login
+                    if (page === 'adminprofile' && !self.currentUser) {
+                        self.navigateTo('adminlogin');
+                        return;
+                    }
+                    
                     self.navigateTo(page);
                 });
             })(tabs[i]);
@@ -194,8 +200,62 @@ var App = {
             }
         }
         
+        // Check if this is first login and password is default
+        this.checkFirstLogin(user);
+        
         // Navigate to attendance page
         this.navigateTo('attendance');
+    },
+    
+    checkFirstLogin: function(user) {
+        // Check if this is a coordinator with default password
+        if (user.isAdmin || user.userType === 'coordinator') {
+            var admins = JSON.parse(localStorage.getItem('admins') || '[]');
+            var admin = admins.find(function(a) { return a.email === user.email; });
+            
+            if (admin && admin.password === 'admin123') {
+                // First login - show notification
+                setTimeout(function() {
+                    var notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        bottom: 24px;
+                        right: 24px;
+                        background: var(--bg-primary);
+                        border: 1px solid var(--secondary);
+                        border-radius: var(--radius-lg);
+                        padding: 20px 24px;
+                        box-shadow: var(--shadow-heavy);
+                        z-index: 100000;
+                        max-width: 400px;
+                        animation: modalSlideIn 0.3s ease;
+                        border-left: 4px solid var(--secondary);
+                    `;
+                    notification.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-shield-alt" style="color: var(--secondary); font-size: 1.4rem;"></i>
+                            <div>
+                                <div style="font-weight: 600; color: var(--primary);">Welcome, ${user.displayName || 'Coordinator'}!</div>
+                                <div style="font-size: 0.85rem; color: var(--gray-500);">
+                                    Please change your default password in the <a href="#" onclick="window.app.navigateTo('adminprofile'); this.closest('div').remove();" style="color: var(--secondary); font-weight: 600; text-decoration: none;">Profile</a> section.
+                                </div>
+                            </div>
+                            <button onclick="this.closest('div').remove()" style="background: none; border: none; font-size: 1.2rem; color: var(--gray-400); cursor: pointer; padding: 4px;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    // Auto-remove after 10 seconds
+                    setTimeout(function() {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 10000);
+                }, 1500);
+            }
+        }
     },
     
     navigateTo: function(pageId) {
@@ -253,6 +313,15 @@ var App = {
                     } else {
                         html = '<p>Admin Login page not loaded</p>';
                         console.error("❌ AdminLoginPage not available");
+                    }
+                    break;
+                case 'adminprofile':
+                    if (window.AdminProfilePage && typeof window.AdminProfilePage.render === 'function') {
+                        html = window.AdminProfilePage.render();
+                        console.log("✅ Admin Profile HTML generated");
+                    } else {
+                        html = '<p>Admin Profile page not loaded</p>';
+                        console.error("❌ AdminProfilePage not available");
                     }
                     break;
                 case 'attendance':
@@ -320,6 +389,12 @@ var App = {
                     case 'adminlogin':
                         if (window.AdminLoginPage && typeof window.AdminLoginPage.setupEvents === 'function') {
                             window.AdminLoginPage.setupEvents();
+                        }
+                        break;
+                    case 'adminprofile':
+                        if (window.AdminProfilePage && typeof window.AdminProfilePage.setupEvents === 'function') {
+                            console.log("🔧 Setting up admin profile events...");
+                            window.AdminProfilePage.setupEvents();
                         }
                         break;
                     case 'attendance':
