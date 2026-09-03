@@ -11,10 +11,39 @@ var App = {
     
     init: function() {
         console.log("📱 App initializing...");
+        
+        // ===== INITIALIZE DEFAULT ADMIN =====
+        this.initializeDefaultAdmin();
+        
         this.setupNavigation();
         this.navigateTo('landing');
         this.setupAuthListener();
         console.log("✅ App initialized successfully");
+    },
+    
+    // ----- INITIALIZE DEFAULT ADMIN -----
+    initializeDefaultAdmin: function() {
+        console.log("🔐 Initializing default admin...");
+        
+        // Check if admins exist in localStorage
+        var admins = JSON.parse(localStorage.getItem('admins') || '[]');
+        
+        if (admins.length === 0) {
+            // Create default admin
+            var defaultAdmin = {
+                id: 'admin-' + Date.now(),
+                email: 'admin@csl.com',
+                name: 'Club Coordinator',
+                password: 'admin123',
+                isPrimary: true,
+                created: new Date().toISOString()
+            };
+            admins.push(defaultAdmin);
+            localStorage.setItem('admins', JSON.stringify(admins));
+            console.log("✅ Default admin created: admin@csl.com / admin123");
+        } else {
+            console.log("✅ Admin(s) already exist:", admins.length);
+        }
     },
     
     setupAuthListener: function() {
@@ -58,7 +87,6 @@ var App = {
                     var page = this.dataset.page;
                     console.log("📄 Navigating to: " + page);
                     
-                    // If clicking Admin or Profile tabs and not logged in, show login
                     if ((page === 'admin' || page === 'adminprofile') && !self.currentUser) {
                         self.showLogin();
                         return;
@@ -138,7 +166,6 @@ var App = {
             cursor: pointer;
         `;
         
-        // Close on click outside
         loginOverlay.addEventListener('click', function(e) {
             if (e.target === this) {
                 window.app.closeLogin();
@@ -174,7 +201,6 @@ var App = {
             userEmail.textContent = user.displayName || user.email || 'Teacher';
         }
         
-        // Check if user is admin/coordinator
         if (user.isAdmin || user.userType === 'coordinator') {
             var badge = document.querySelector('.user-badge .admin-badge');
             if (!badge) {
