@@ -164,7 +164,7 @@ var App = {
                 case 'attendance':
                     html = window.AttendancePage ? window.AttendancePage.render() : '<p>Attendance page not loaded</p>';
                     break;
-               case 'tracker':
+                case 'tracker':
                     if (window.TrackerPage && typeof window.TrackerPage.render === 'function') {
                         html = window.TrackerPage.render();
                         console.log("✅ Tracker HTML generated");
@@ -176,17 +176,19 @@ var App = {
                 case 'reflections':
                     html = window.ReflectionsPage ? window.ReflectionsPage.render() : '<p>Reflections page not loaded</p>';
                     break;
+                case 'student':
+                    if (window.StudentPage && typeof window.StudentPage.render === 'function') {
+                        html = window.StudentPage.render();
+                        console.log("✅ Student HTML generated");
+                    } else {
+                        html = '<p>Student page not loaded</p>';
+                        console.error("❌ StudentPage not available");
+                    }
+                    break;
                 case 'admin':
                     html = window.AdminPage ? window.AdminPage.render() : '<p>Admin page not loaded</p>';
                     break;
                 default:
-                case 'student':
-                    if (window.StudentPage && typeof window.StudentPage.render === 'function') {
-                        html = window.StudentPage.render();
-                    } else {
-                        html = '<p>Student page not loaded</p>';
-                    }
-                    break;
                     html = '<p>Page not found</p>';
             }
         } catch (error) {
@@ -216,11 +218,19 @@ var App = {
                             window.ReflectionsPage.setupEvents();
                         }
                         break;
+                    case 'student':
+                        if (window.StudentPage && typeof window.StudentPage.setupEvents === 'function') {
+                            console.log("🔧 Setting up student events...");
+                            window.StudentPage.setupEvents();
+                        }
+                        break;
                     case 'admin':
                         if (window.AdminPage && typeof window.AdminPage.setupEvents === 'function') {
                             window.AdminPage.setupEvents();
                         }
                         break;
+                    default:
+                        console.warn("⚠️ Unknown page: " + pageId);
                 }
             } catch (error) {
                 console.error("❌ Error setting up events for " + pageId + ":", error);
