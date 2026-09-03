@@ -58,6 +58,13 @@ var App = {
                 tab.addEventListener('click', function() {
                     var page = this.dataset.page;
                     console.log("📄 Navigating to: " + page);
+                    
+                    // If clicking Admin tab and not logged in as admin, show admin login
+                    if (page === 'admin' && !self.currentUser) {
+                        self.navigateTo('adminlogin');
+                        return;
+                    }
+                    
                     self.navigateTo(page);
                 });
             })(tabs[i]);
@@ -159,6 +166,34 @@ var App = {
             userEmail.textContent = user.displayName || user.email || 'Teacher';
         }
         
+        // Check if user is admin/coordinator
+        if (user.isAdmin || user.userType === 'coordinator') {
+            // Show admin badge in user badge
+            var badge = document.querySelector('.user-badge .admin-badge');
+            if (!badge) {
+                var badgeElement = document.createElement('span');
+                badgeElement.className = 'admin-badge';
+                badgeElement.style.cssText = `
+                    background: var(--secondary);
+                    color: white;
+                    padding: 1px 10px;
+                    border-radius: var(--radius-full);
+                    font-size: 0.6rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                `;
+                badgeElement.textContent = 'Coordinator';
+                var userBadgeEl = document.getElementById('userBadge');
+                if (userBadgeEl) {
+                    var emailSpan = userBadgeEl.querySelector('span');
+                    if (emailSpan) {
+                        emailSpan.after(badgeElement);
+                    }
+                }
+            }
+        }
+        
         // Navigate to attendance page
         this.navigateTo('attendance');
     },
@@ -174,13 +209,13 @@ var App = {
             return;
         }
         
-        // Update nav tabs - only if user is logged in or on landing
+        // Show/hide nav tabs and user badge based on page
         var navTabs = document.getElementById('navTabs');
         var userBadge = document.getElementById('userBadge');
         var isLoggedIn = this.currentUser !== null;
         
         // Handle nav visibility
-        if (pageId === 'landing') {
+        if (pageId === 'landing' || pageId === 'adminlogin') {
             if (navTabs) navTabs.style.display = 'none';
             if (userBadge) userBadge.style.display = 'none';
         } else if (isLoggedIn) {
@@ -209,6 +244,15 @@ var App = {
                     } else {
                         html = '<p>Landing page not loaded</p>';
                         console.error("❌ LandingPage not available");
+                    }
+                    break;
+                case 'adminlogin':
+                    if (window.AdminLoginPage && typeof window.AdminLoginPage.render === 'function') {
+                        html = window.AdminLoginPage.render();
+                        console.log("✅ Admin Login HTML generated");
+                    } else {
+                        html = '<p>Admin Login page not loaded</p>';
+                        console.error("❌ AdminLoginPage not available");
                     }
                     break;
                 case 'attendance':
@@ -271,6 +315,11 @@ var App = {
                     case 'landing':
                         if (window.LandingPage && typeof window.LandingPage.setupEvents === 'function') {
                             window.LandingPage.setupEvents();
+                        }
+                        break;
+                    case 'adminlogin':
+                        if (window.AdminLoginPage && typeof window.AdminLoginPage.setupEvents === 'function') {
+                            window.AdminLoginPage.setupEvents();
                         }
                         break;
                     case 'attendance':
