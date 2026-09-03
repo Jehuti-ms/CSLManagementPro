@@ -504,3 +504,25 @@
         grid-template-columns: 1fr !important;
     }
 }
+/* ============================================================
+   REFLECTIONS - Detail Modal
+   ============================================================ */
+
+#studentDetailContent {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+#studentDetailContent::-webkit-scrollbar {
+    width: 6px;
+}
+
+#studentDetailContent::-webkit-scrollbar-track {
+    background: var(--gray-light);
+    border-radius: 10px;
+}
+
+#studentDetailContent::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
