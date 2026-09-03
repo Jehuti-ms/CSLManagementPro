@@ -1,1 +1,448 @@
+/* ============================================================
+   REFLECTIONS PAGE - Specific Styles
+   ============================================================ */
 
+/* ----- Tabs ----- */
+.reflection-tab {
+    padding: 10px 22px;
+    border: 2px solid transparent;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    color: var(--gray);
+    font-size: 0.95rem;
+}
+
+.reflection-tab:hover {
+    background: rgba(108, 99, 255, 0.05);
+    color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.reflection-tab.active {
+    border-color: var(--primary);
+    background: rgba(108, 99, 255, 0.08);
+    color: var(--primary);
+}
+
+.reflection-tab i {
+    margin-right: 8px;
+}
+
+/* ----- Tab Content ----- */
+.reflection-tab-content {
+    display: none;
+    animation: fadeSlide 0.3s ease;
+}
+
+.reflection-tab-content.active {
+    display: block;
+}
+
+/* ----- Goal Setting Section ----- */
+.goal-setting-section {
+    background: rgba(108, 99, 255, 0.04);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.goal-setting-section h4 {
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.goal-setting-section h4 i {
+    color: var(--primary);
+}
+
+.goal-setting-section .goal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.goal-status {
+    margin-left: 12px;
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+.goal-status.success {
+    color: var(--success);
+}
+
+.goal-status.error {
+    color: var(--danger);
+}
+
+/* ----- Reflection Entry Section ----- */
+.reflection-entry-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    border: 1px solid var(--gray-light);
+}
+
+.reflection-entry-section h4 {
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.reflection-entry-section h4 i {
+    color: var(--primary);
+}
+
+/* ----- Form Elements ----- */
+.reflection-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.reflection-form-group {
+    margin-bottom: 16px;
+}
+
+.reflection-form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+}
+
+.reflection-form-group label i {
+    color: var(--primary);
+}
+
+.reflection-form-group input,
+.reflection-form-group select,
+.reflection-form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--gray-light);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.95rem;
+    transition: var(--transition);
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+
+.reflection-form-group input:focus,
+.reflection-form-group select:focus,
+.reflection-form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
+}
+
+.reflection-form-group textarea {
+    resize: vertical;
+}
+
+/* ----- Rating Buttons ----- */
+.rating-container {
+    background: rgba(108, 99, 255, 0.04);
+    padding: 16px;
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 16px;
+}
+
+.rating-container label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.rating-container label i {
+    color: var(--primary);
+}
+
+.rating-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.rating-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-light);
+    background: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    color: var(--dark);
+}
+
+.rating-btn:hover {
+    transform: scale(1.1);
+    border-color: var(--primary);
+}
+
+.rating-btn.selected {
+    background: var(--gradient-primary);
+    color: white !important;
+    border-color: var(--primary);
+}
+
+.rating-label {
+    font-size: 0.8rem;
+    color: var(--gray);
+}
+
+.rating-display {
+    font-weight: 600;
+    color: var(--primary);
+    margin-left: 8px;
+}
+
+/* ----- Media Upload ----- */
+.media-upload-area {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.media-preview {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.media-preview-item {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--gray-light);
+    position: relative;
+}
+
+.media-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ----- Action Buttons ----- */
+.reflection-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.reflection-status {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.reflection-status.success {
+    color: var(--success);
+}
+
+.reflection-status.error {
+    color: var(--danger);
+}
+
+/* ----- Recent Reflections List ----- */
+.reflection-list {
+    margin-top: 24px;
+}
+
+.reflection-list h4 {
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.reflection-list h4 i {
+    color: var(--primary);
+}
+
+.reflection-item {
+    background: rgba(108, 99, 255, 0.04);
+    border-radius: var(--border-radius-sm);
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--primary);
+}
+
+.reflection-item.teacher {
+    background: rgba(255, 101, 132, 0.04);
+    border-left-color: var(--secondary);
+}
+
+.reflection-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.reflection-item-header .date {
+    font-weight: 600;
+}
+
+.reflection-item-header .club {
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.reflection-item-header .rating {
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+.reflection-item .work {
+    margin-top: 4px;
+    font-size: 0.95rem;
+}
+
+.reflection-item .text {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.reflection-item .goal {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: var(--primary);
+}
+
+/* ----- Empty State ----- */
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--gray);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+    color: var(--primary);
+    opacity: 0.6;
+}
+
+.empty-state .empty-icon-teacher {
+    color: var(--secondary);
+}
+
+/* ----- History Modal ----- */
+.history-content {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.history-item-body {
+    margin-top: 4px;
+}
+
+.history-item-body .work {
+    font-size: 0.95rem;
+}
+
+.history-item-body .text {
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.history-item-body .goal {
+    font-size: 0.85rem;
+    color: var(--primary);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+    .reflection-form-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .reflection-tab {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .goal-setting-section .goal-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .reflection-form-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .rating-buttons {
+        justify-content: center;
+    }
+    
+    .reflection-actions {
+        flex-direction: column;
+    }
+    
+    .reflection-actions .btn-primary,
+    .reflection-actions .btn-outline {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .rating-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 0.8rem;
+    }
+    
+    .reflection-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+}
