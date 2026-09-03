@@ -1,5 +1,5 @@
 // ============================================================
-// ADMIN PAGE - Premium Design with Role-Based Access
+// ADMIN PAGE - Complete with Teacher Allocation
 // ============================================================
 
 var AdminPage = {
@@ -18,36 +18,6 @@ var AdminPage = {
                 <div class="stat-box"><span id="adminTotalStudents">0</span> Students</div>
                 <div class="stat-box"><span id="adminTotalTeachers">0</span> Teachers</div>
                 <div class="stat-box"><span id="adminTotalActivities">0</span> Activities</div>
-            </div>
-            
-            <!-- ===== ROLE BADGE ===== -->
-            <div style="
-                background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.02));
-                border: 1px solid rgba(201,168,76,0.15);
-                border-radius: var(--radius-lg);
-                padding: 12px 20px;
-                margin-bottom: 20px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                flex-wrap: wrap;
-            ">
-                <div style="
-                    background: var(--secondary);
-                    color: white;
-                    padding: 4px 16px;
-                    border-radius: var(--radius-full);
-                    font-size: 0.7rem;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                ">
-                    <i class="fas fa-crown"></i> Coordinator
-                </div>
-                <span style="color: var(--gray-700); font-size: 0.9rem;">
-                    <i class="fas fa-shield-alt" style="color: var(--secondary);"></i>
-                    You have full administrative access to manage all clubs, students, and teacher allocations.
-                </span>
             </div>
             
             <!-- ===== QUICK ADD ===== -->
@@ -184,7 +154,7 @@ var AdminPage = {
                 ">assign teachers to clubs</span>
             </h3>
             
-            <!-- Teacher Allocation Cards -->
+            <!-- Teacher Allocation Grid -->
             <div id="teacherAllocationGrid" style="
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -248,64 +218,67 @@ var AdminPage = {
                     Teachers can only manage their assigned clubs.
                 </span>
             </div>
+        </div>
+        
+        <!-- ===== ASSIGN TEACHER MODAL ===== -->
+        <div id="assignTeacherModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.3rem; margin: 0;">
+                        <i class="fas fa-chalkboard-teacher" style="color: var(--secondary);"></i> Assign Teacher to Club
+                    </h3>
+                    <button onclick="window.AdminPage.closeModal()" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Teacher</label>
+                    <select id="assignTeacherSelect" style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
+                        <option value="">Select teacher...</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Club</label>
+                    <select id="assignClubSelect" style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
+                        <option value="">Select club...</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
+                    <button class="btn-primary" id="saveAssignmentBtn" style="flex: 1; padding: 14px; background: var(--secondary);">
+                        <i class="fas fa-save"></i> Assign Teacher
+                    </button>
+                    <button class="btn-outline" onclick="window.AdminPage.closeModal()" style="flex: 0.5; padding: 14px;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
         </div>`;
     },
 
     // ============================================================
-    // RENDER MODALS (for teacher allocation)
+    // RENDER MODALS (EXACT SAME AS TRACKER)
     // ============================================================
     renderModals: function() {
         if (document.getElementById('adminModalContainer')) return;
         
-        var modalHTML = `
-        <div id="adminModalContainer">
-            <!-- ===== ASSIGN TEACHER MODAL ===== -->
-            <div id="assignTeacherModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-                <div style="background: white; border-radius: 24px; padding: 40px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
-                        <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.3rem; margin: 0;">
-                            <i class="fas fa-chalkboard-teacher" style="color: var(--secondary);"></i> Assign Teacher to Club
-                        </h3>
-                        <button onclick="window.AdminPage.closeModal('assignTeacherModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Teacher</label>
-                        <select id="assignTeacherSelect" style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
-                            <option value="">Select teacher...</option>
-                        </select>
-                    </div>
-                    
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.9rem;">Club</label>
-                        <select id="assignClubSelect" style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
-                            <option value="">Select club...</option>
-                        </select>
-                    </div>
-                    
-                    <div style="display: flex; gap: 12px; margin-top: 20px; padding-top: 15px; border-top: 2px solid #E8ECF1;">
-                        <button class="btn-primary" id="saveAssignmentBtn" style="flex: 1; padding: 14px; background: var(--secondary);">
-                            <i class="fas fa-save"></i> Assign Teacher
-                        </button>
-                        <button class="btn-outline" onclick="window.AdminPage.closeModal('assignTeacherModal')" style="flex: 0.5; padding: 14px;">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-        
+        var modalHTML = document.querySelector('#assignTeacherModal').outerHTML;
         var container = document.createElement('div');
+        container.id = 'adminModalContainer';
         container.innerHTML = modalHTML;
         document.body.appendChild(container.firstElementChild);
+        
+        // Hide original
+        var original = document.getElementById('assignTeacherModal');
+        if (original) original.style.display = 'none';
     },
 
     // ----- SHOW MODAL -----
-    showModal: function(modalId) {
+    showModal: function() {
         this.renderModals();
-        var modal = document.getElementById(modalId);
+        var modal = document.getElementById('assignTeacherModal');
         if (modal) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -313,8 +286,8 @@ var AdminPage = {
     },
 
     // ----- CLOSE MODAL -----
-    closeModal: function(modalId) {
-        var modal = document.getElementById(modalId);
+    closeModal: function() {
+        var modal = document.getElementById('assignTeacherModal');
         if (modal) {
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -328,7 +301,21 @@ var AdminPage = {
         try {
             var clubs = await window.DB.getClubs();
             var students = await window.DB.getStudents();
-            var teachers = await window.DB.getTeachers ? await window.DB.getTeachers() : ['dmoseley@gams.edu.bb (Coordinator)'];
+            
+            // Get teachers from localStorage
+            var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+            if (teachers.length === 0) {
+                // Default teachers
+                teachers = [
+                    { id: 'teacher-1', name: 'John Brown', email: 'john@school.com' },
+                    { id: 'teacher-2', name: 'Sarah Smith', email: 'sarah@school.com' },
+                    { id: 'teacher-3', name: 'Mike Johnson', email: 'mike@school.com' }
+                ];
+                localStorage.setItem('teachers', JSON.stringify(teachers));
+            }
+            
+            // Get teacher allocations
+            var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
             
             console.log("📋 Loaded " + clubs.length + " clubs, " + students.length + " students, " + teachers.length + " teachers");
             
@@ -349,10 +336,13 @@ var AdminPage = {
             this.renderStudents(students);
             
             // Render teacher allocations
-            this.renderTeacherAllocations(teachers, clubs);
+            this.renderTeacherAllocations(teachers, clubs, allocations);
             
             // Setup delete handlers
             this.setupDeleteHandlers();
+            
+            // Setup assign teacher handlers
+            this.setupAssignHandlers();
             
             console.log("✅ Admin data loaded successfully");
         } catch (error) {
@@ -443,15 +433,6 @@ var AdminPage = {
         }
         
         grid.innerHTML = html;
-        
-        // Assign teacher button handlers
-        var self = this;
-        document.querySelectorAll('.assign-teacher-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                var club = this.dataset.club;
-                self.showAssignTeacherModal(club);
-            });
-        });
     },
 
     // ----- RENDER STUDENTS (Card Grid) -----
@@ -526,7 +507,7 @@ var AdminPage = {
     },
 
     // ----- RENDER TEACHER ALLOCATIONS -----
-    renderTeacherAllocations: function(teachers, clubs) {
+    renderTeacherAllocations: function(teachers, clubs, allocations) {
         var grid = document.getElementById('teacherAllocationGrid');
         if (!grid) return;
         
@@ -544,8 +525,11 @@ var AdminPage = {
         var html = '';
         for (var i = 0; i < teachers.length; i++) {
             var teacher = teachers[i];
-            var isCoordinator = teacher.includes('Coordinator') || teacher.includes('dmoseley');
-            var assignedClub = clubs && clubs.length > 0 ? clubs[i % clubs.length] : 'Not assigned';
+            
+            // Find allocations for this teacher
+            var teacherAllocations = allocations.filter(function(a) { return a.teacherId === teacher.id; });
+            var assignedClubs = teacherAllocations.map(function(a) { return a.club; });
+            var assignedClubNames = assignedClubs.length > 0 ? assignedClubs.join(', ') : 'Not assigned';
             
             html += `
                 <div style="
@@ -560,7 +544,7 @@ var AdminPage = {
                             width: 44px;
                             height: 44px;
                             border-radius: 50%;
-                            background: ${isCoordinator ? 'var(--secondary)' : 'var(--accent)'};
+                            background: var(--accent);
                             color: white;
                             display: flex;
                             align-items: center;
@@ -568,25 +552,22 @@ var AdminPage = {
                             font-weight: 700;
                             font-size: 0.8rem;
                             flex-shrink: 0;
-                        ">${teacher.charAt(0).toUpperCase()}</div>
+                        ">${teacher.name.charAt(0).toUpperCase()}</div>
                         <div style="flex: 1;">
                             <div style="font-weight: 600; color: var(--gray-900); font-size: 0.9rem;">
-                                ${teacher}
-                                ${isCoordinator ? '<span style="background: var(--secondary); color: white; padding: 1px 10px; border-radius: var(--radius-full); font-size: 0.6rem; font-weight: 700; margin-left: 8px;">COORDINATOR</span>' : ''}
+                                ${teacher.name}
                             </div>
                             <div style="font-size: 0.8rem; color: var(--gray-500);">
-                                <i class="fas fa-users"></i> ${assignedClub}
+                                <i class="fas fa-users"></i> ${assignedClubNames}
                             </div>
                         </div>
-                        ${!isCoordinator ? `
-                            <button class="btn-outline" style="
-                                padding: 4px 12px;
-                                font-size: 0.7rem;
-                                border-radius: var(--radius-sm);
-                            " onclick="window.AdminPage.showAssignTeacherModal('${assignedClub}')">
-                                <i class="fas fa-edit"></i> Assign
-                            </button>
-                        ` : ''}
+                        <button class="btn-outline assign-teacher-btn" data-teacher-id="${teacher.id}" data-teacher-name="${teacher.name}" style="
+                            padding: 4px 12px;
+                            font-size: 0.7rem;
+                            border-radius: var(--radius-sm);
+                        ">
+                            <i class="fas fa-edit"></i> Assign
+                        </button>
                     </div>
                 </div>
             `;
@@ -595,14 +576,35 @@ var AdminPage = {
         grid.innerHTML = html;
     },
 
+    // ----- SETUP ASSIGN HANDLERS -----
+    setupAssignHandlers: function() {
+        var self = this;
+        
+        document.querySelectorAll('.assign-teacher-btn').forEach(function(btn) {
+            var newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.addEventListener('click', function() {
+                var club = this.dataset.club || '';
+                var teacherId = this.dataset.teacherId || '';
+                var teacherName = this.dataset.teacherName || '';
+                self.showAssignTeacherModal(club, teacherId, teacherName);
+            });
+        });
+    },
+
     // ----- SHOW ASSIGN TEACHER MODAL -----
-    showAssignTeacherModal: function(club) {
+    showAssignTeacherModal: function(club, teacherId, teacherName) {
         this.renderModals();
         
         // Populate clubs
         var clubSelect = document.getElementById('assignClubSelect');
         if (clubSelect) {
-            var clubs = ['4H Club', 'Community Service', 'Environmental', 'Tutoring'];
+            var clubs = JSON.parse(localStorage.getItem('clubs') || '[]');
+            // If clubs empty, use default
+            if (clubs.length === 0) {
+                clubs = ['4H Club', 'Community Service', 'Environmental', 'Tutoring'];
+            }
             clubSelect.innerHTML = '<option value="">Select club...</option>';
             for (var i = 0; i < clubs.length; i++) {
                 var selected = clubs[i] === club ? 'selected' : '';
@@ -613,28 +615,60 @@ var AdminPage = {
         // Populate teachers
         var teacherSelect = document.getElementById('assignTeacherSelect');
         if (teacherSelect) {
-            var teachers = ['dmoseley@gams.edu.bb (Coordinator)', 'teacher1@gmail.com', 'teacher2@gmail.com'];
+            var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+            if (teachers.length === 0) {
+                teachers = [
+                    { id: 'teacher-1', name: 'John Brown', email: 'john@school.com' },
+                    { id: 'teacher-2', name: 'Sarah Smith', email: 'sarah@school.com' },
+                    { id: 'teacher-3', name: 'Mike Johnson', email: 'mike@school.com' }
+                ];
+                localStorage.setItem('teachers', JSON.stringify(teachers));
+            }
             teacherSelect.innerHTML = '<option value="">Select teacher...</option>';
             for (var i = 0; i < teachers.length; i++) {
-                teacherSelect.innerHTML += '<option value="' + teachers[i] + '">' + teachers[i] + '</option>';
+                var selected = teachers[i].id === teacherId ? 'selected' : '';
+                teacherSelect.innerHTML += '<option value="' + teachers[i].id + '" ' + selected + '>' + teachers[i].name + ' (' + teachers[i].email + ')</option>';
             }
         }
         
-        this.showModal('assignTeacherModal');
+        this.showModal();
     },
 
     // ----- SAVE ASSIGNMENT -----
     saveAssignment: function() {
-        var teacher = document.getElementById('assignTeacherSelect').value;
+        var teacherId = document.getElementById('assignTeacherSelect').value;
         var club = document.getElementById('assignClubSelect').value;
         
-        if (!teacher || !club) {
+        if (!teacherId || !club) {
             alert('Please select both a teacher and a club');
             return;
         }
         
-        alert('✅ Teacher "' + teacher + '" assigned to "' + club + '"!');
-        this.closeModal('assignTeacherModal');
+        // Get existing allocations
+        var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
+        
+        // Check if this allocation already exists
+        var exists = allocations.some(function(a) {
+            return a.teacherId === teacherId && a.club === club;
+        });
+        
+        if (exists) {
+            alert('This teacher is already assigned to this club');
+            return;
+        }
+        
+        // Add new allocation
+        allocations.push({
+            id: 'alloc-' + Date.now(),
+            teacherId: teacherId,
+            club: club,
+            created: new Date().toISOString()
+        });
+        
+        localStorage.setItem('teacherAllocations', JSON.stringify(allocations));
+        
+        alert('✅ Teacher assigned to "' + club + '" successfully!');
+        this.closeModal();
         this.loadData();
     },
 
@@ -679,17 +713,6 @@ var AdminPage = {
                 }
             });
         });
-        
-        // Save assignment button
-        var saveBtn = document.getElementById('saveAssignmentBtn');
-        if (saveBtn) {
-            var newSaveBtn = saveBtn.cloneNode(true);
-            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
-            
-            newSaveBtn.addEventListener('click', function() {
-                self.saveAssignment();
-            });
-        }
     },
 
     // ----- SETUP EVENTS (called after render) -----
@@ -716,6 +739,17 @@ var AdminPage = {
             
             newBtn.addEventListener('click', async function() {
                 await self.addStudent();
+            });
+        }
+        
+        // Save Assignment
+        var saveBtn = document.getElementById('saveAssignmentBtn');
+        if (saveBtn) {
+            var newSaveBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+            
+            newSaveBtn.addEventListener('click', function() {
+                self.saveAssignment();
             });
         }
         
