@@ -75,8 +75,8 @@ var AttendancePage = {
                 <div class="stat-box"><span id="avgEngagement">0</span> Avg Engagement</div>
             </div>
             
-            <!-- ===== SAVE BUTTON ===== -->
-            <div class="toolbar" style="margin-top: 16px; justify-content: flex-end; background: rgba(108, 99, 255, 0.04);">
+            <!-- ===== SAVE BUTTONS - CENTERED ===== -->
+            <div class="toolbar" style="margin-top: 16px; justify-content: center; background: rgba(108, 99, 255, 0.04);">
                 <button class="btn-primary" id="saveAttendance" style="padding: 12px 32px; font-size: 1rem;">
                     <i class="fas fa-save"></i> Save Attendance
                 </button>
@@ -103,8 +103,7 @@ var AttendancePage = {
                     </button>
                 </div>
             </div>
-        </div>
-        `;
+        </div>`;
     },
 
     // ----- LOAD CLUBS FOR ATTENDANCE -----
@@ -148,10 +147,8 @@ var AttendancePage = {
             return;
         }
         
-        // Load students for the club
         var self = this;
         window.DB.getStudents().then(function(students) {
-            // For now, use all students. In the future, filter by club
             var clubStudents = students;
             self.renderAttendance(clubStudents, date);
         }).catch(function(error) {
@@ -177,15 +174,9 @@ var AttendancePage = {
             return;
         }
         
-        // Get existing attendance records for this date
         var self = this;
         window.DB.getAttendance(date).then(function(records) {
             var html = '';
-            var statusOptions = {
-                'present': 'Present',
-                'absent': 'Absent',
-                'late': 'Late'
-            };
             
             for (var i = 0; i < students.length; i++) {
                 var name = students[i];
@@ -236,9 +227,7 @@ var AttendancePage = {
     setupEventHandlers: function(students, date) {
         var self = this;
         
-        // Status change handlers
         document.querySelectorAll('.status-select').forEach(function(sel) {
-            // Remove old listeners
             var newSel = sel.cloneNode(true);
             sel.parentNode.replaceChild(newSel, sel);
             
@@ -256,7 +245,6 @@ var AttendancePage = {
             });
         });
         
-        // Late time input handlers
         document.querySelectorAll('.late-time-input').forEach(function(inp) {
             var newInp = inp.cloneNode(true);
             inp.parentNode.replaceChild(newInp, inp);
@@ -266,7 +254,6 @@ var AttendancePage = {
             });
         });
         
-        // Engagement select handlers
         document.querySelectorAll('.engagement-select').forEach(function(sel) {
             var newSel = sel.cloneNode(true);
             sel.parentNode.replaceChild(newSel, sel);
@@ -276,7 +263,6 @@ var AttendancePage = {
             });
         });
         
-        // Reset student handlers
         document.querySelectorAll('.reset-student').forEach(function(btn) {
             var newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
@@ -301,7 +287,6 @@ var AttendancePage = {
             });
         });
         
-        // Mark all present
         var markAllBtn = document.getElementById('markAllPresent');
         if (markAllBtn) {
             var newMarkAll = markAllBtn.cloneNode(true);
@@ -321,7 +306,6 @@ var AttendancePage = {
             });
         }
         
-        // Reset all
         var resetBtn = document.getElementById('resetAttendance');
         if (resetBtn) {
             var newReset = resetBtn.cloneNode(true);
@@ -346,7 +330,6 @@ var AttendancePage = {
             });
         }
         
-        // Save attendance
         var saveBtn = document.getElementById('saveAttendance');
         if (saveBtn) {
             var newSave = saveBtn.cloneNode(true);
@@ -357,7 +340,6 @@ var AttendancePage = {
             });
         }
         
-        // Export CSV
         var exportBtn = document.getElementById('exportAttendance');
         if (exportBtn) {
             var newExport = exportBtn.cloneNode(true);
@@ -472,7 +454,6 @@ var AttendancePage = {
             };
         });
         
-        // Show saving indicator
         var saveBtn = document.getElementById('saveAttendance');
         var originalText = saveBtn.innerHTML;
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
@@ -509,7 +490,6 @@ var AttendancePage = {
             return;
         }
         
-        // Build CSV data
         var rows = [];
         var header = ['Student', 'Status', 'Late Time', 'Engagement (1-5)'];
         rows.push(header.join(','));
@@ -542,7 +522,6 @@ var AttendancePage = {
     setupEvents: function() {
         console.log("🔧 Setting up attendance events...");
         
-        // Set default date
         var dateInput = document.getElementById('attendanceDate');
         if (dateInput) {
             var today = new Date().toISOString().slice(0, 10);
@@ -554,7 +533,6 @@ var AttendancePage = {
             });
         }
         
-        // Club selector change
         var clubSelect = document.getElementById('attendanceClubSelect');
         if (clubSelect) {
             var self = this;
@@ -563,10 +541,7 @@ var AttendancePage = {
             });
         }
         
-        // Load clubs
         this.loadClubs();
-        
-        // Initial load
         this.loadData();
     }
 };
