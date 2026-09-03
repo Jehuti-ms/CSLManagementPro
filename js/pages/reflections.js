@@ -1,5 +1,5 @@
 // ============================================================
-// REFLECTIONS PAGE - Teacher Dashboard with Student Reflections
+// REFLECTIONS PAGE - Teacher Dashboard with Student Filter
 // ============================================================
 
 var ReflectionsPage = {
@@ -13,13 +13,21 @@ var ReflectionsPage = {
             </div>
             
             <!-- ===== CLUB SELECTOR ===== -->
-            <div class="toolbar" style="margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px;">
+            <div class="toolbar" style="margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 12px; flex: 2; min-width: 200px;">
                     <label style="font-weight: 600; color: var(--dark); white-space: nowrap;">
                         <i class="fas fa-users"></i> Club:
                     </label>
                     <select id="reflectionClubSelect" style="flex: 1; min-width: 150px; padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem; cursor: pointer;">
                         <option value="">Loading clubs...</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; flex: 1.5; min-width: 180px;">
+                    <label style="font-weight: 600; color: var(--dark); white-space: nowrap;">
+                        <i class="fas fa-user-graduate"></i> Student:
+                    </label>
+                    <select id="studentFilterSelect" style="flex: 1; min-width: 120px; padding: 10px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); background: white; font-size: 0.95rem; cursor: pointer;">
+                        <option value="all">All Students</option>
                     </select>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -38,13 +46,35 @@ var ReflectionsPage = {
                 <div class="stat-box"><span id="totalReflections">0</span> Total Reflections</div>
                 <div class="stat-box"><span id="avgRating">0</span> Avg Rating</div>
                 <div class="stat-box"><span id="thisWeek">0</span> This Week</div>
+                <div class="stat-box" id="selectedStudentStat" style="display: none;"><span id="selectedStudentCount">0</span> Selected Student</div>
             </div>
             
-            <!-- ===== STUDENT REFLECTIONS GRID ===== -->
+            <!-- ===== REFLECTIONS GRID ===== -->
             <div id="reflectionsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-top: 12px;">
                 <div style="grid-column: 1 / -1; text-align:center; padding: 40px; color: var(--gray);">
                     <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
                     <br>Loading reflections...
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== STUDENT DETAIL MODAL ===== -->
+        <div id="studentDetailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 12px; font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-user-graduate" style="color: #6C63FF;"></i> 
+                        <span id="detailStudentName">Student Reflections</span>
+                        <span id="detailStudentCount" style="font-size: 0.9rem; font-weight: 400; color: var(--gray);"></span>
+                    </h3>
+                    <button onclick="window.ReflectionsPage.closeModal('studentDetailModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="studentDetailContent">
+                    <div style="text-align:center; padding: 20px; color: var(--gray);">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
                 </div>
             </div>
         </div>
@@ -57,7 +87,7 @@ var ReflectionsPage = {
                         <i class="fas fa-chalkboard-teacher" style="color: #FF6584;"></i> Teacher Reflection
                         <span id="teacherRefClubName" style="font-size: 0.9rem; font-weight: 400; color: var(--gray);"></span>
                     </h3>
-                    <button onclick="window.ReflectionsPage.closeModal()" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
+                    <button onclick="window.ReflectionsPage.closeModal('teacherReflectionModal')" style="background: none; border: none; font-size: 1.8rem; color: #6C7A89; cursor: pointer; padding: 4px 8px;">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -92,7 +122,7 @@ var ReflectionsPage = {
                     <button class="btn-primary" id="saveTeacherRefBtn" style="flex: 1; padding: 14px; background: var(--gradient-secondary);">
                         <i class="fas fa-save"></i> Save Reflection
                     </button>
-                    <button class="btn-outline" onclick="window.ReflectionsPage.closeModal()" style="flex: 0.5; padding: 14px;">
+                    <button class="btn-outline" onclick="window.ReflectionsPage.closeModal('teacherReflectionModal')" style="flex: 0.5; padding: 14px;">
                         Cancel
                     </button>
                 </div>
@@ -106,21 +136,27 @@ var ReflectionsPage = {
     renderModals: function() {
         if (document.getElementById('reflectionsModalContainer')) return;
         
-        var modalHTML = document.querySelector('#teacherReflectionModal').outerHTML;
+        var modals = document.querySelectorAll('#studentDetailModal, #teacherReflectionModal');
+        var modalHTML = '';
+        modals.forEach(function(modal) {
+            modalHTML += modal.outerHTML;
+        });
+        
         var container = document.createElement('div');
         container.id = 'reflectionsModalContainer';
         container.innerHTML = modalHTML;
         document.body.appendChild(container.firstElementChild);
         
-        // Hide original
-        var original = document.getElementById('teacherReflectionModal');
-        if (original) original.style.display = 'none';
+        // Hide originals
+        modals.forEach(function(modal) {
+            modal.style.display = 'none';
+        });
     },
 
     // ----- SHOW MODAL -----
-    showModal: function() {
+    showModal: function(modalId) {
         this.renderModals();
-        var modal = document.getElementById('teacherReflectionModal');
+        var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -128,8 +164,8 @@ var ReflectionsPage = {
     },
 
     // ----- CLOSE MODAL -----
-    closeModal: function() {
-        var modal = document.getElementById('teacherReflectionModal');
+    closeModal: function(modalId) {
+        var modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -141,7 +177,6 @@ var ReflectionsPage = {
         console.log("📊 Loading reflections data...");
         var self = this;
         
-        // Load clubs
         if (window.DB && window.DB.getTeacherClubs) {
             window.DB.getTeacherClubs().then(function(clubs) {
                 var select = document.getElementById('reflectionClubSelect');
@@ -166,6 +201,7 @@ var ReflectionsPage = {
                     
                     if (clubs.length > 0) {
                         select.value = clubs[0].id;
+                        self.loadStudents();
                         self.loadReflections();
                     }
                 }
@@ -178,6 +214,15 @@ var ReflectionsPage = {
         var select = document.getElementById('reflectionClubSelect');
         if (select) {
             select.addEventListener('change', function() {
+                self.loadStudents();
+                self.loadReflections();
+            });
+        }
+        
+        // Student filter change
+        var studentFilter = document.getElementById('studentFilterSelect');
+        if (studentFilter) {
+            studentFilter.addEventListener('change', function() {
                 self.loadReflections();
             });
         }
@@ -188,9 +233,35 @@ var ReflectionsPage = {
         if (dateInput) dateInput.value = today;
     },
 
+    // ----- LOAD STUDENTS FOR FILTER -----
+    loadStudents: function() {
+        var clubId = document.getElementById('reflectionClubSelect').value;
+        if (!clubId) return;
+        
+        var self = this;
+        var filterSelect = document.getElementById('studentFilterSelect');
+        
+        // Get students from reflections
+        var allReflections = JSON.parse(localStorage.getItem('studentReflections') || '[]');
+        var clubReflections = allReflections.filter(function(r) { return r.club === clubId; });
+        
+        var students = new Set();
+        clubReflections.forEach(function(r) {
+            if (r.student) students.add(r.student);
+        });
+        
+        var studentList = Array.from(students).sort();
+        
+        filterSelect.innerHTML = '<option value="all">All Students</option>';
+        for (var i = 0; i < studentList.length; i++) {
+            filterSelect.innerHTML += '<option value="' + studentList[i] + '">' + studentList[i] + '</option>';
+        }
+    },
+
     // ----- LOAD REFLECTIONS -----
     loadReflections: function() {
         var clubId = document.getElementById('reflectionClubSelect').value;
+        var studentFilter = document.getElementById('studentFilterSelect').value;
         if (!clubId) return;
         
         var self = this;
@@ -203,7 +274,14 @@ var ReflectionsPage = {
             return r.club === clubId;
         });
         
-        // Also get teacher reflections
+        // Filter by student if selected
+        if (studentFilter !== 'all') {
+            clubReflections = clubReflections.filter(function(r) {
+                return r.student === studentFilter;
+            });
+        }
+        
+        // Get teacher reflections
         var teacherReflections = JSON.parse(localStorage.getItem('teacherReflections') || '[]');
         var clubTeacherReflections = teacherReflections.filter(function(r) {
             return r.club === clubId;
@@ -216,6 +294,9 @@ var ReflectionsPage = {
             window.DB.getStudentReflections().then(function(reflections) {
                 if (reflections && reflections.length > 0) {
                     var filtered = reflections.filter(function(r) { return r.club === clubId; });
+                    if (studentFilter !== 'all') {
+                        filtered = filtered.filter(function(r) { return r.student === studentFilter; });
+                    }
                     self.renderReflections(filtered, clubTeacherReflections);
                 }
             }).catch(function(error) {
@@ -227,6 +308,7 @@ var ReflectionsPage = {
     // ----- RENDER REFLECTIONS (TILES) -----
     renderReflections: function(studentReflections, teacherReflections) {
         var container = document.getElementById('reflectionsGrid');
+        var studentFilter = document.getElementById('studentFilterSelect').value;
         
         // Calculate stats
         var totalStudents = new Set();
@@ -243,7 +325,6 @@ var ReflectionsPage = {
         });
         var avgRating = ratedCount > 0 ? (totalRating / ratedCount).toFixed(1) : 'N/A';
         
-        // This week
         var oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         var thisWeek = studentReflections.filter(function(r) {
@@ -255,6 +336,16 @@ var ReflectionsPage = {
         document.getElementById('totalReflections').textContent = totalReflections;
         document.getElementById('avgRating').textContent = avgRating;
         document.getElementById('thisWeek').textContent = thisWeek;
+        
+        // Show/hide selected student stat
+        var selectedStat = document.getElementById('selectedStudentStat');
+        if (studentFilter !== 'all') {
+            selectedStat.style.display = 'block';
+            document.getElementById('selectedStudentCount').textContent = totalReflections;
+            selectedStat.querySelector('.label').textContent = studentFilter + '\'s Reflections';
+        } else {
+            selectedStat.style.display = 'none';
+        }
         
         // If no reflections
         if (studentReflections.length === 0 && (!teacherReflections || teacherReflections.length === 0)) {
@@ -322,7 +413,6 @@ var ReflectionsPage = {
             grouped[student].push(r);
         });
         
-        // Sort students by latest reflection
         var studentNames = Object.keys(grouped);
         studentNames.sort(function(a, b) {
             var aLatest = grouped[a].reduce(function(latest, r) {
@@ -367,7 +457,7 @@ var ReflectionsPage = {
                 }
                 
                 html += `
-                    <div class="reflection-tile student-tile" style="background: rgba(108, 99, 255, 0.04); border-radius: var(--border-radius); padding: 20px; border: 1px solid rgba(108, 99, 255, 0.08); transition: var(--transition);">
+                    <div class="reflection-tile student-tile" style="background: rgba(108, 99, 255, 0.04); border-radius: var(--border-radius); padding: 20px; border: 1px solid rgba(108, 99, 255, 0.08); transition: var(--transition); cursor: pointer;" onclick="window.ReflectionsPage.viewStudentDetail('${student}')">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                 <i class="fas fa-user-graduate" style="color: var(--primary);"></i>
@@ -380,7 +470,7 @@ var ReflectionsPage = {
                         
                         <div style="margin-top: 8px;">
                             ${latest.work ? `<div style="font-size: 0.95rem;"><strong>📋 ${latest.work}</strong></div>` : ''}
-                            ${latest.text ? `<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">${latest.text}</div>` : ''}
+                            ${latest.text ? `<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">${latest.text.substring(0, 150)}${latest.text.length > 150 ? '...' : ''}</div>` : ''}
                         </div>
                         
                         ${sortedRefs.length > 1 ? `
@@ -389,7 +479,7 @@ var ReflectionsPage = {
                                     <i class="fas fa-history"></i> ${sortedRefs.length - 1} more reflection${sortedRefs.length - 1 > 1 ? 's' : ''}
                                 </span>
                                 <span style="font-size: 0.8rem; color: var(--gray); margin-left: 8px;">
-                                    <button onclick="window.ReflectionsPage.viewStudentHistory('${student}')" style="background: none; border: none; color: var(--primary); cursor: pointer; text-decoration: underline;">
+                                    <button onclick="event.stopPropagation(); window.ReflectionsPage.viewStudentDetail('${student}')" style="background: none; border: none; color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 0.8rem;">
                                         View all
                                     </button>
                                 </span>
@@ -403,8 +493,8 @@ var ReflectionsPage = {
         container.innerHTML = html;
     },
 
-    // ----- VIEW STUDENT HISTORY -----
-    viewStudentHistory: function(studentName) {
+    // ----- VIEW STUDENT DETAIL -----
+    viewStudentDetail: function(studentName) {
         var clubId = document.getElementById('reflectionClubSelect').value;
         var allReflections = JSON.parse(localStorage.getItem('studentReflections') || '[]');
         var studentRefs = allReflections.filter(function(r) {
@@ -415,20 +505,42 @@ var ReflectionsPage = {
             return new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date);
         });
         
-        var message = '📋 ' + studentName + '\'s Reflections\n' + '='.repeat(40) + '\n\n';
-        sorted.forEach(function(r, i) {
+        // Show modal
+        this.renderModals();
+        document.getElementById('detailStudentName').textContent = studentName + '\'s Reflections';
+        document.getElementById('detailStudentCount').textContent = '(' + sorted.length + ' entries)';
+        
+        var content = document.getElementById('studentDetailContent');
+        
+        if (sorted.length === 0) {
+            content.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--gray);">No reflections found for this student.</div>';
+            this.showModal('studentDetailModal');
+            return;
+        }
+        
+        var html = '';
+        for (var i = 0; i < sorted.length; i++) {
+            var r = sorted[i];
             var date = r.date || 'No date';
             var work = r.work || '';
             var text = r.text || '';
             var rating = r.rating || 0;
             var stars = '⭐ '.repeat(Math.min(rating, 5));
-            message += (i + 1) + '. ' + date + ' ' + stars + '\n';
-            if (work) message += '   📋 ' + work + '\n';
-            if (text) message += '   💭 ' + text + '\n';
-            message += '\n';
-        });
+            
+            html += `
+                <div style="background: rgba(108, 99, 255, 0.04); border-radius: var(--border-radius-sm); padding: 16px; margin-bottom: 12px; border-left: 3px solid var(--primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <div style="font-weight: 600; color: var(--dark);">${date}</div>
+                        <div style="font-size: 0.85rem; color: var(--gray);">${stars}</div>
+                    </div>
+                    ${work ? `<div style="margin-top: 4px; font-size: 0.95rem;"><strong>📋 ${work}</strong></div>` : ''}
+                    ${text ? `<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">${text}</div>` : ''}
+                </div>
+            `;
+        }
+        content.innerHTML = html;
         
-        alert(message);
+        this.showModal('studentDetailModal');
     },
 
     // ----- SHOW TEACHER REFLECTION MODAL -----
@@ -452,7 +564,7 @@ var ReflectionsPage = {
         var clubName = document.getElementById('reflectionClubSelect').options[document.getElementById('reflectionClubSelect').selectedIndex]?.text || '';
         document.getElementById('teacherRefClubName').textContent = ' - ' + clubName;
         
-        this.showModal();
+        this.showModal('teacherReflectionModal');
     },
 
     // ----- SAVE TEACHER REFLECTION -----
@@ -489,7 +601,6 @@ var ReflectionsPage = {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
         
-        // Save to localStorage
         var teacherReflections = JSON.parse(localStorage.getItem('teacherReflections') || '[]');
         teacherReflections.unshift(reflectionData);
         localStorage.setItem('teacherReflections', JSON.stringify(teacherReflections));
@@ -500,7 +611,7 @@ var ReflectionsPage = {
             saveBtn.disabled = false;
         }, 1500);
         
-        self.closeModal();
+        self.closeModal('teacherReflectionModal');
         self.loadReflections();
     },
 
@@ -509,7 +620,6 @@ var ReflectionsPage = {
         console.log("🔧 Setting up reflections events...");
         var self = this;
         
-        // Add teacher reflection button
         var addBtn = document.getElementById('addTeacherReflectionBtn');
         if (addBtn) {
             addBtn.addEventListener('click', function() {
@@ -517,7 +627,6 @@ var ReflectionsPage = {
             });
         }
         
-        // Save teacher reflection
         var saveBtn = document.getElementById('saveTeacherRefBtn');
         if (saveBtn) {
             saveBtn.addEventListener('click', function() {
@@ -525,7 +634,6 @@ var ReflectionsPage = {
             });
         }
         
-        // Refresh button
         var refreshBtn = document.getElementById('refreshBtn');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', function() {
@@ -533,7 +641,6 @@ var ReflectionsPage = {
             });
         }
         
-        // Render modals
         this.renderModals();
         this.loadData();
     }
