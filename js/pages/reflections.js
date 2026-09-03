@@ -1,9 +1,9 @@
 // ============================================================
-// REFLECTIONS PAGE - Working Version
+// REFLECTIONS PAGE - Super Simplified (Guaranteed to Show)
 // ============================================================
 
 var ReflectionsPage = {
-    // ----- RENDER HTML (synchronous) -----
+    // ----- RENDER HTML -----
     render: function() {
         console.log("📄 ReflectionsPage.render() called");
         return `
@@ -36,7 +36,7 @@ var ReflectionsPage = {
                     <label style="display: block; font-weight: 600; color: var(--dark); margin-bottom: 4px; font-size: 0.95rem;">
                         <i class="fas fa-tasks" style="color: var(--primary);"></i> What did you work on today?
                     </label>
-                    <input type="text" id="reflectionWork" placeholder="Describe what you focused on during this session..." style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
+                    <input type="text" id="reflectionWork" placeholder="Describe what you focused on..." style="width: 100%; padding: 10px 14px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem;">
                 </div>
                 
                 <div style="margin-bottom: 12px;">
@@ -58,7 +58,7 @@ var ReflectionsPage = {
             </div>
             
             <!-- ===== TEACHER REFLECTION ===== -->
-            <div style="background: white; border-radius: var(--border-radius); padding: 20px; border: 1px solid var(--gray-light); margin-bottom: 24px;">
+            <div style="background: white; border-radius: var(--border-radius); padding: 20px; border: 1px solid var(--gray-light);">
                 <h4 style="color: var(--dark); display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <i class="fas fa-chalkboard-teacher" style="color: var(--secondary);"></i> Teacher Reflection
                 </h4>
@@ -88,7 +88,7 @@ var ReflectionsPage = {
                         <i class="fas fa-tools" style="color: var(--warning);"></i> What could be improved?
                     </label>
                     <textarea id="teacherImprove" placeholder="What would you do differently next time?" rows="3" style="width: 100%; padding: 12px 16px; border: 2px solid var(--gray-light); border-radius: var(--border-radius-sm); font-size: 0.95rem; font-family: Inter, sans-serif; resize: vertical;"></textarea>
-                    </div>
+                </div>
                 
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                     <button class="btn-primary" id="saveTeacherReflectionBtn" style="background: var(--gradient-secondary);">
@@ -102,20 +102,21 @@ var ReflectionsPage = {
             </div>
             
             <!-- ===== RECENT REFLECTIONS ===== -->
-            <div style="margin-top: 12px;">
+            <div style="margin-top: 24px;">
                 <h4 style="color: var(--dark); display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <i class="fas fa-clock" style="color: var(--primary);"></i> Recent Reflections
                 </h4>
                 <div id="reflectionList">
                     <div style="text-align:center; padding: 20px; color: var(--gray);">
-                        <i class="fas fa-spinner fa-spin"></i> Loading reflections...
+                        <i class="fas fa-pen-fancy" style="display: block; font-size: 2rem; margin-bottom: 8px; color: var(--primary); opacity: 0.6;"></i>
+                        No reflections yet. Start your first reflection above!
                     </div>
                 </div>
             </div>
         </div>`;
     },
 
-    // ----- LOAD DATA (async) -----
+    // ----- LOAD DATA -----
     loadData: function() {
         console.log("📊 Loading reflections data...");
         
@@ -128,84 +129,22 @@ var ReflectionsPage = {
         
         // Load clubs
         var self = this;
-        window.DB.getClubs().then(function(clubs) {
-            var selects = ['reflectionClub', 'teacherReflectionClub'];
-            selects.forEach(function(id) {
-                var select = document.getElementById(id);
-                if (select) {
-                    select.innerHTML = '<option value="">Select club...</option>';
-                    for (var i = 0; i < clubs.length; i++) {
-                        select.innerHTML += '<option value="' + clubs[i] + '">' + clubs[i] + '</option>';
+        if (window.DB && window.DB.getClubs) {
+            window.DB.getClubs().then(function(clubs) {
+                var selects = ['reflectionClub', 'teacherReflectionClub'];
+                selects.forEach(function(id) {
+                    var select = document.getElementById(id);
+                    if (select) {
+                        select.innerHTML = '<option value="">Select club...</option>';
+                        for (var i = 0; i < clubs.length; i++) {
+                            select.innerHTML += '<option value="' + clubs[i] + '">' + clubs[i] + '</option>';
+                        }
                     }
-                }
-            });
-        }).catch(function(error) {
-            console.warn("⚠️ Error loading clubs:", error);
-        });
-        
-        // Load recent reflections
-        this.loadRecentReflections();
-    },
-
-    // ----- LOAD RECENT REFLECTIONS -----
-    loadRecentReflections: function() {
-        var self = this;
-        var container = document.getElementById('reflectionList');
-        if (!container) return;
-        
-        // Try to get from localStorage first (mock mode)
-        var mockReflections = JSON.parse(localStorage.getItem('mockReflections') || '[]');
-        
-        if (mockReflections.length > 0) {
-            self.renderReflections(mockReflections);
-            return;
-        }
-        
-        // If no mock data, try Firebase
-        if (window.__firebase && !window.__firebase.useMock) {
-            window.DB.getStudentReflections().then(function(reflections) {
-                self.renderReflections(reflections || []);
+                });
             }).catch(function(error) {
-                console.warn("⚠️ Error loading reflections:", error);
-                self.renderReflections([]);
+                console.warn("⚠️ Error loading clubs:", error);
             });
-        } else {
-            self.renderReflections([]);
         }
-    },
-
-    // ----- RENDER REFLECTIONS -----
-    renderReflections: function(reflections) {
-        var container = document.getElementById('reflectionList');
-        if (!container) return;
-        
-        if (!reflections || reflections.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--gray);">' +
-                '<i class="fas fa-pen-fancy" style="display: block; font-size: 2rem; margin-bottom: 8px; color: var(--primary); opacity: 0.6;"></i>' +
-                'No reflections yet. Start your first reflection above!' +
-            '</div>';
-            return;
-        }
-        
-        var html = '';
-        var recent = reflections.slice(0, 5);
-        for (var i = 0; i < recent.length; i++) {
-            var r = recent[i];
-            var date = r.date || 'No date';
-            var club = r.club || 'General';
-            var work = r.work || '';
-            var text = r.text || '';
-            
-            html += '<div style="background: rgba(108, 99, 255, 0.04); border-radius: var(--border-radius-sm); padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--primary);">' +
-                '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">' +
-                    '<div><strong>' + date + '</strong> · ' + club + '</div>' +
-                    (r.rating ? '<div style="font-size: 0.85rem; color: var(--gray);">⭐ '.repeat(Math.min(r.rating, 5)) + '</div>' : '') +
-                '</div>' +
-                (work ? '<div style="margin-top: 4px; font-size: 0.95rem;">📋 ' + work + '</div>' : '') +
-                (text ? '<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">' + text.substring(0, 150) + (text.length > 150 ? '...' : '') + '</div>' : '') +
-            '</div>';
-        }
-        container.innerHTML = html;
     },
 
     // ----- SAVE STUDENT REFLECTION -----
@@ -242,30 +181,11 @@ var ReflectionsPage = {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
         
-        // Save to localStorage for mock mode
+        // Save to localStorage
         var mockReflections = JSON.parse(localStorage.getItem('mockReflections') || '[]');
-        mockReflections.push({ id: 'mock-' + Date.now(), ...reflectionData });
+        mockReflections.unshift({ id: 'mock-' + Date.now(), ...reflectionData });
         localStorage.setItem('mockReflections', JSON.stringify(mockReflections));
         
-        // Also try Firebase if available
-        if (window.__firebase && !window.__firebase.useMock) {
-            window.DB.saveStudentReflection(reflectionData).then(function() {
-                saveBtn.innerHTML = '✅ Saved!';
-                document.getElementById('studentReflectionStatus').textContent = '✅ Reflection saved successfully!';
-                document.getElementById('studentReflectionStatus').style.color = 'var(--success)';
-                setTimeout(function() {
-                    saveBtn.innerHTML = originalText;
-                    saveBtn.disabled = false;
-                }, 2000);
-                self.loadRecentReflections();
-                self.clearStudentForm();
-            }).catch(function(error) {
-                console.warn("⚠️ Firebase save failed, but data saved locally:", error);
-                // Still show success since we saved locally
-            });
-        }
-        
-        // Always show success for mock mode
         saveBtn.innerHTML = '✅ Saved!';
         document.getElementById('studentReflectionStatus').textContent = '✅ Reflection saved successfully!';
         document.getElementById('studentReflectionStatus').style.color = 'var(--success)';
@@ -273,7 +193,9 @@ var ReflectionsPage = {
             saveBtn.innerHTML = originalText;
             saveBtn.disabled = false;
         }, 2000);
-        self.loadRecentReflections();
+        
+        // Update list
+        self.renderReflections(mockReflections);
         self.clearStudentForm();
     },
 
@@ -311,29 +233,11 @@ var ReflectionsPage = {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
         
-        // Save to localStorage for mock mode
+        // Save to localStorage
         var mockReflections = JSON.parse(localStorage.getItem('mockReflections') || '[]');
-        mockReflections.push({ id: 'mock-teacher-' + Date.now(), ...reflectionData });
+        mockReflections.unshift({ id: 'mock-teacher-' + Date.now(), ...reflectionData });
         localStorage.setItem('mockReflections', JSON.stringify(mockReflections));
         
-        // Also try Firebase if available
-        if (window.__firebase && !window.__firebase.useMock) {
-            window.DB.saveTeacherReflection(reflectionData).then(function() {
-                saveBtn.innerHTML = '✅ Saved!';
-                document.getElementById('teacherReflectionStatus').textContent = '✅ Teacher reflection saved successfully!';
-                document.getElementById('teacherReflectionStatus').style.color = 'var(--success)';
-                setTimeout(function() {
-                    saveBtn.innerHTML = originalText;
-                    saveBtn.disabled = false;
-                }, 2000);
-                self.loadRecentReflections();
-                self.clearTeacherForm();
-            }).catch(function(error) {
-                console.warn("⚠️ Firebase save failed, but data saved locally:", error);
-            });
-        }
-        
-        // Always show success for mock mode
         saveBtn.innerHTML = '✅ Saved!';
         document.getElementById('teacherReflectionStatus').textContent = '✅ Teacher reflection saved successfully!';
         document.getElementById('teacherReflectionStatus').style.color = 'var(--success)';
@@ -341,8 +245,44 @@ var ReflectionsPage = {
             saveBtn.innerHTML = originalText;
             saveBtn.disabled = false;
         }, 2000);
-        self.loadRecentReflections();
+        
+        // Update list
+        self.renderReflections(mockReflections);
         self.clearTeacherForm();
+    },
+
+    // ----- RENDER REFLECTIONS -----
+    renderReflections: function(reflections) {
+        var container = document.getElementById('reflectionList');
+        if (!container) return;
+        
+        if (!reflections || reflections.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--gray);">' +
+                '<i class="fas fa-pen-fancy" style="display: block; font-size: 2rem; margin-bottom: 8px; color: var(--primary); opacity: 0.6;"></i>' +
+                'No reflections yet. Start your first reflection above!' +
+            '</div>';
+            return;
+        }
+        
+        var html = '';
+        var recent = reflections.slice(0, 5);
+        for (var i = 0; i < recent.length; i++) {
+            var r = recent[i];
+            var date = r.date || 'No date';
+            var club = r.club || 'General';
+            var work = r.work || '';
+            var text = r.text || '';
+            var isTeacher = r.type === 'teacher';
+            
+            html += '<div style="background: ' + (isTeacher ? 'rgba(255, 101, 132, 0.04)' : 'rgba(108, 99, 255, 0.04)') + '; border-radius: var(--border-radius-sm); padding: 16px; margin-bottom: 12px; border-left: 4px solid ' + (isTeacher ? 'var(--secondary)' : 'var(--primary)') + ';">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">' +
+                    '<div><strong>' + date + '</strong> · ' + club + (isTeacher ? ' <span style="font-size: 0.7rem; background: var(--secondary); color: white; padding: 2px 8px; border-radius: 40px;">Teacher</span>' : '') + '</div>' +
+                '</div>' +
+                (work ? '<div style="margin-top: 4px; font-size: 0.95rem;">📋 ' + work + '</div>' : '') +
+                (text ? '<div style="margin-top: 4px; font-size: 0.9rem; color: var(--gray);">' + text.substring(0, 150) + (text.length > 150 ? '...' : '') + '</div>' : '') +
+            '</div>';
+        }
+        container.innerHTML = html;
     },
 
     // ----- CLEAR FORMS -----
@@ -360,6 +300,10 @@ var ReflectionsPage = {
     setupEvents: function() {
         console.log("🔧 Setting up reflections events...");
         var self = this;
+        
+        // Load initial data
+        var mockReflections = JSON.parse(localStorage.getItem('mockReflections') || '[]');
+        this.renderReflections(mockReflections);
         
         // Save student reflection
         var saveStudentBtn = document.getElementById('saveStudentReflectionBtn');
@@ -392,7 +336,7 @@ var ReflectionsPage = {
             });
         }
         
-        // Load data
+        // Load clubs data
         this.loadData();
     }
 };
