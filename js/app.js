@@ -7,12 +7,12 @@ console.log("🚀 Starting app...");
 // App object
 var App = {
     currentUser: null,
-    currentPage: 'attendance',
+    currentPage: 'landing',
     
     init: function() {
         console.log("📱 App initializing...");
         this.setupNavigation();
-        this.showLogin();
+        this.navigateTo('landing');  // Show landing page first
         this.setupAuthListener();
         console.log("✅ App initialized successfully");
     },
@@ -33,7 +33,7 @@ var App = {
         
         // Check for mock user
         if (window.__firebase && window.__firebase.useMock) {
-            var mockUser = sessionStorage.getItem('mockUser');
+            var mockUser = localStorage.getItem('mockUser') || sessionStorage.getItem('mockUser');
             if (mockUser) {
                 try {
                     var user = JSON.parse(mockUser);
@@ -70,7 +70,10 @@ var App = {
                 if (window.Auth && window.Auth.logout) {
                     window.Auth.logout().then(function() {
                         self.currentUser = null;
-                        self.showLogin();
+                        // Remove login overlay if present
+                        var overlay = document.getElementById('loginOverlay');
+                        if (overlay) overlay.remove();
+                        self.navigateTo('landing');
                     }).catch(function(error) {
                         console.error("❌ Logout error:", error);
                     });
@@ -81,8 +84,20 @@ var App = {
     
     showLogin: function() {
         console.log("📄 Showing login page...");
-        var container = document.getElementById('pageContainer');
         
+        // Check if login overlay already exists
+        var existingOverlay = document.getElementById('loginOverlay');
+        if (existingOverlay) {
+            existingOverlay.style.display = 'flex';
+            return;
+        }
+        
+        // Navigate to landing page if not already there
+        if (this.currentPage !== 'landing') {
+            this.navigateTo('landing');
+        }
+        
+        var container = document.getElementById('pageContainer');
         if (!container) {
             console.error("❌ pageContainer not found!");
             return;
@@ -90,49 +105,61 @@ var App = {
         
         if (!window.LoginPage) {
             console.error("❌ LoginPage not loaded!");
-            container.innerHTML = '<div style="padding:40px;text-align:center;color:red;"><h2>Error: LoginPage not loaded</h2><p>Check that login.js is loaded properly.</p></div>';
             return;
         }
         
-        try {
-            console.log("📄 Calling LoginPage.render()...");
-            var loginHTML = window.LoginPage.render();
-            console.log("📄 Login HTML length:", loginHTML.length);
-            container.innerHTML = loginHTML;
-            console.log("✅ Login page rendered");
-            
-            var navTabs = document.getElementById('navTabs');
-            var userBadge = document.getElementById('userBadge');
-            if (navTabs) navTabs.style.display = 'none';
-            if (userBadge) userBadge.style.display = 'none';
-            
-            var self = this;
-            setTimeout(function() {
-                console.log("🔧 Setting up login events...");
-                if (window.LoginPage && window.LoginPage.setupEvents) {
-                    window.LoginPage.setupEvents();
-                }
-            }, 100);
-            
-        } catch (error) {
-            console.error("❌ Error rendering login:", error);
-            container.innerHTML = '<div style="padding:40px;text-align:center;color:red;"><h2>Error: ' + error.message + '</h2></div>';
-        }
+        // Create login overlay
+        var loginOverlay = document.createElement('div');
+        loginOverlay.id = 'loginOverlay';
+        loginOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        `;
+        
+        var loginHTML = window.LoginPage.render();
+        loginOverlay.innerHTML = loginHTML;
+        document.body.appendChild(loginOverlay);
+        
+        // Setup login events
+        var self = this;
+        setTimeout(function() {
+            console.log("🔧 Setting up login events...");
+            if (window.LoginPage && window.LoginPage.setupEvents) {
+                window.LoginPage.setupEvents();
+            }
+        }, 100);
     },
     
     showMainApp: function(user) {
         console.log("📄 Showing main app...");
         
+        // Remove login overlay if present
+        var overlay = document.getElementById('loginOverlay');
+        if (overlay) overlay.remove();
+        
+        // Show navigation and user badge
         var navTabs = document.getElementById('navTabs');
         var userBadge = document.getElementById('userBadge');
         if (navTabs) navTabs.style.display = 'flex';
         if (userBadge) userBadge.style.display = 'flex';
         
+        // Update user email
         var userEmail = document.getElementById('userEmail');
         if (userEmail) {
             userEmail.textContent = user.displayName || user.email || 'Teacher';
         }
         
+        // Navigate to attendance page
         this.navigateTo('attendance');
     },
     
@@ -147,7 +174,21 @@ var App = {
             return;
         }
         
-        // Update nav tabs
+        // Update nav tabs - only if user is logged in or on landing
+        var navTabs = document.getElementById('navTabs');
+        var userBadge = document.getElementById('userBadge');
+        var isLoggedIn = this.currentUser !== null;
+        
+        // Handle nav visibility
+        if (pageId === 'landing') {
+            if (navTabs) navTabs.style.display = 'none';
+            if (userBadge) userBadge.style.display = 'none';
+        } else if (isLoggedIn) {
+            if (navTabs) navTabs.style.display = 'flex';
+            if (userBadge) userBadge.style.display = 'flex';
+        }
+        
+        // Update active tab
         var tabs = document.querySelectorAll('.nav-tab');
         for (var i = 0; i < tabs.length; i++) {
             if (tabs[i].dataset.page === pageId) {
@@ -161,8 +202,22 @@ var App = {
         var html = '';
         try {
             switch (pageId) {
+                case 'landing':
+                    if (window.LandingPage && typeof window.LandingPage.render === 'function') {
+                        html = window.LandingPage.render();
+                        console.log("✅ Landing HTML generated");
+                    } else {
+                        html = '<p>Landing page not loaded</p>';
+                        console.error("❌ LandingPage not available");
+                    }
+                    break;
                 case 'attendance':
-                    html = window.AttendancePage ? window.AttendancePage.render() : '<p>Attendance page not loaded</p>';
+                    if (window.AttendancePage && typeof window.AttendancePage.render === 'function') {
+                        html = window.AttendancePage.render();
+                        console.log("✅ Attendance HTML generated");
+                    } else {
+                        html = '<p>Attendance page not loaded</p>';
+                    }
                     break;
                 case 'tracker':
                     if (window.TrackerPage && typeof window.TrackerPage.render === 'function') {
@@ -174,7 +229,12 @@ var App = {
                     }
                     break;
                 case 'reflections':
-                    html = window.ReflectionsPage ? window.ReflectionsPage.render() : '<p>Reflections page not loaded</p>';
+                    if (window.ReflectionsPage && typeof window.ReflectionsPage.render === 'function') {
+                        html = window.ReflectionsPage.render();
+                        console.log("✅ Reflections HTML generated");
+                    } else {
+                        html = '<p>Reflections page not loaded</p>';
+                    }
                     break;
                 case 'student':
                     if (window.StudentPage && typeof window.StudentPage.render === 'function') {
@@ -186,7 +246,12 @@ var App = {
                     }
                     break;
                 case 'admin':
-                    html = window.AdminPage ? window.AdminPage.render() : '<p>Admin page not loaded</p>';
+                    if (window.AdminPage && typeof window.AdminPage.render === 'function') {
+                        html = window.AdminPage.render();
+                        console.log("✅ Admin HTML generated");
+                    } else {
+                        html = '<p>Admin page not loaded</p>';
+                    }
                     break;
                 default:
                     html = '<p>Page not found</p>';
@@ -199,9 +264,15 @@ var App = {
         container.innerHTML = html;
         console.log("✅ Page rendered: " + pageId);
         
+        // Setup page events
         setTimeout(function() {
             try {
                 switch (pageId) {
+                    case 'landing':
+                        if (window.LandingPage && typeof window.LandingPage.setupEvents === 'function') {
+                            window.LandingPage.setupEvents();
+                        }
+                        break;
                     case 'attendance':
                         if (window.AttendancePage && typeof window.AttendancePage.setupEvents === 'function') {
                             window.AttendancePage.setupEvents();
