@@ -464,7 +464,6 @@ var AdminPage = {
         }
         grid.innerHTML = html;
         
-        // Setup delete allocation handlers
         document.querySelectorAll('.delete-allocation').forEach(function(btn) {
             var newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
