@@ -180,6 +180,13 @@ var App = {
                     html = window.AdminPage ? window.AdminPage.render() : '<p>Admin page not loaded</p>';
                     break;
                 default:
+                case 'student':
+                    if (window.StudentPage && typeof window.StudentPage.render === 'function') {
+                        html = window.StudentPage.render();
+                    } else {
+                        html = '<p>Student page not loaded</p>';
+                    }
+                    break;
                     html = '<p>Page not found</p>';
             }
         } catch (error) {
