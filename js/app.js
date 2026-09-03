@@ -1,5 +1,5 @@
 // ============================================================
-// js/app.js - MAIN APP CONTROLLER (SIMPLIFIED WORKING)
+// js/app.js - MAIN APP CONTROLLER (WITH LANDING PAGE)
 // ============================================================
 
 console.log("🚀 Starting app...");
@@ -11,10 +11,89 @@ var App = {
     
     init: function() {
         console.log("📱 App initializing...");
+        
+        // ===== INITIALIZE DEFAULT ADMIN =====
+        this.initializeDefaultAdmin();
+        
         this.setupNavigation();
         this.showLogin();
         this.setupAuthListener();
         console.log("✅ App initialized successfully");
+    },
+    
+    // ----- INITIALIZE DEFAULT ADMIN -----
+    initializeDefaultAdmin: function() {
+        console.log("🔐 Checking for admin accounts...");
+        
+        try {
+            var admins = [];
+            var adminsData = localStorage.getItem('admins');
+            
+            if (adminsData) {
+                try {
+                    admins = JSON.parse(adminsData);
+                } catch (e) {
+                    console.warn("⚠️ Could not parse admins data, resetting");
+                    admins = [];
+                }
+            }
+            
+            console.log("📋 Current admins count:", admins.length);
+            
+            var adminExists = false;
+            for (var i = 0; i < admins.length; i++) {
+                if (admins[i].email === 'admin@csl.com') {
+                    adminExists = true;
+                    break;
+                }
+            }
+            
+            if (!adminExists) {
+                var defaultAdmin = {
+                    id: 'admin-1',
+                    email: 'admin@csl.com',
+                    name: 'Club Coordinator',
+                    password: 'admin123',
+                    isPrimary: true,
+                    created: Date.now()
+                };
+                
+                var cleanAdmins = admins.filter(function(a) {
+                    return a.email && a.password;
+                });
+                cleanAdmins.push(defaultAdmin);
+                
+                try {
+                    localStorage.setItem('admins', JSON.stringify(cleanAdmins));
+                    console.log("✅ Default admin created: admin@csl.com / admin123");
+                } catch (e) {
+                    console.warn("⚠️ Could not save admin to localStorage:", e);
+                    localStorage.removeItem('admins');
+                    localStorage.setItem('admins', JSON.stringify([defaultAdmin]));
+                    console.log("✅ Default admin re-created");
+                }
+            } else {
+                console.log("✅ Admin already exists");
+            }
+            
+        } catch (error) {
+            console.error("❌ Admin initialization error:", error);
+            try {
+                localStorage.removeItem('admins');
+                var defaultAdmin = {
+                    id: 'admin-1',
+                    email: 'admin@csl.com',
+                    name: 'Club Coordinator',
+                    password: 'admin123',
+                    isPrimary: true,
+                    created: Date.now()
+                };
+                localStorage.setItem('admins', JSON.stringify([defaultAdmin]));
+                console.log("✅ Admin re-created after error");
+            } catch (e) {
+                console.error("❌ Could not recover admin:", e);
+            }
+        }
     },
     
     setupAuthListener: function() {
@@ -156,10 +235,33 @@ var App = {
             }
         }
         
+        // Show/hide nav based on page
+        var navTabs = document.getElementById('navTabs');
+        var userBadge = document.getElementById('userBadge');
+        var isLoggedIn = this.currentUser !== null;
+        
+        // For landing page, hide nav and user badge
+        if (pageId === 'landing') {
+            if (navTabs) navTabs.style.display = 'none';
+            if (userBadge) userBadge.style.display = 'none';
+        } else if (isLoggedIn) {
+            if (navTabs) navTabs.style.display = 'flex';
+            if (userBadge) userBadge.style.display = 'flex';
+        }
+        
         // Render the page
         var html = '';
         try {
             switch (pageId) {
+                case 'landing':
+                    if (window.LandingPage && typeof window.LandingPage.render === 'function') {
+                        html = window.LandingPage.render();
+                        console.log("✅ Landing HTML generated");
+                    } else {
+                        html = '<p>Landing page not loaded</p>';
+                        console.error("❌ LandingPage not available");
+                    }
+                    break;
                 case 'attendance':
                     html = window.AttendancePage ? window.AttendancePage.render() : '<p>Attendance page not loaded</p>';
                     break;
@@ -204,6 +306,11 @@ var App = {
         setTimeout(function() {
             try {
                 switch (pageId) {
+                    case 'landing':
+                        if (window.LandingPage && typeof window.LandingPage.setupEvents === 'function') {
+                            window.LandingPage.setupEvents();
+                        }
+                        break;
                     case 'attendance':
                         if (window.AttendancePage && typeof window.AttendancePage.setupEvents === 'function') {
                             window.AttendancePage.setupEvents();
