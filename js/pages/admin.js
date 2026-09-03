@@ -1,5 +1,5 @@
 // ============================================================
-// ADMIN PAGE - Complete with Teacher Allocation & Email Upload
+// ADMIN PAGE - Complete with Add Student Modal
 // ============================================================
 
 var AdminPage = {
@@ -51,21 +51,17 @@ var AdminPage = {
                     <div id="addTeacherStatus" style="margin-top: 6px; font-size: 0.8rem; color: var(--gray-500);"></div>
                 </div>
                 
-                <!-- Bulk Email Upload -->
+                <!-- Add Student -->
                 <div style="background: white; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); padding: 16px;">
                     <h4 style="font-weight: 600; color: var(--primary); margin-bottom: 10px; font-size: 0.95rem;">
-                        <i class="fas fa-file-upload" style="color: var(--accent);"></i> Bulk Upload
+                        <i class="fas fa-user-graduate" style="color: var(--accent);"></i> Add Student
                     </h4>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <input type="file" id="bulkUploadInput" accept=".csv,.txt" style="display: none;">
-                        <button class="btn-primary" id="bulkUploadBtn" style="flex: 1; padding: 8px 16px; background: var(--accent); font-size: 0.85rem;">
-                            <i class="fas fa-upload"></i> Upload CSV
-                        </button>
-                        <button class="btn-outline" id="downloadTemplateBtn" style="padding: 8px 12px; font-size: 0.8rem;">
-                            <i class="fas fa-download"></i> Template
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-primary" id="openAddStudentModalBtn" style="flex: 1; padding: 8px 16px; background: var(--accent); font-size: 0.85rem;">
+                            <i class="fas fa-user-plus"></i> Add New Student
                         </button>
                     </div>
-                    <div id="bulkUploadStatus" style="margin-top: 6px; font-size: 0.8rem; color: var(--gray-500);"></div>
+                    <div id="addStudentStatus" style="margin-top: 6px; font-size: 0.8rem; color: var(--gray-500);"></div>
                 </div>
             </div>
             
@@ -86,6 +82,23 @@ var AdminPage = {
                     </button>
                 </div>
                 <div id="allocationStatus" style="margin-top: 6px; font-size: 0.8rem; color: var(--gray-500);"></div>
+            </div>
+            
+            <!-- ===== BULK UPLOAD ===== -->
+            <div style="background: white; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 24px;">
+                <h4 style="font-weight: 600; color: var(--primary); margin-bottom: 10px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-file-upload" style="color: var(--accent);"></i> Bulk Upload
+                </h4>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <input type="file" id="bulkUploadInput" accept=".csv,.txt" style="display: none;">
+                    <button class="btn-primary" id="bulkUploadBtn" style="padding: 8px 16px; background: var(--accent); font-size: 0.85rem;">
+                        <i class="fas fa-upload"></i> Upload CSV
+                    </button>
+                    <button class="btn-outline" id="downloadTemplateBtn" style="padding: 8px 16px; font-size: 0.8rem;">
+                        <i class="fas fa-download"></i> Download Template
+                    </button>
+                    <span id="bulkUploadStatus" style="font-size: 0.8rem; color: var(--gray-500);"></span>
+                </div>
             </div>
             
             <!-- ===== CLUBS ===== -->
@@ -221,6 +234,25 @@ var AdminPage = {
                     </button>
                 </div>
             </div>
+        </div>
+        
+        <!-- ===== STUDENT DETAIL MODAL ===== -->
+        <div id="studentDetailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+            <div style="background: white; border-radius: 24px; padding: 32px 36px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; margin: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #E8ECF1;">
+                    <h3 style="color: #1A1A2E; display: flex; align-items: center; gap: 10px; font-size: 1.2rem; margin: 0;">
+                        <i class="fas fa-user-graduate" style="color: var(--accent);"></i> Student Details
+                    </h3>
+                    <button onclick="window.AdminPage.closeModal('studentDetailModal')" style="background: none; border: none; font-size: 1.5rem; color: #6C7A89; cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="studentDetailContent">
+                    <div style="text-align:center; padding: 20px; color: var(--gray-500);">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
         </div>`;
     },
 
@@ -229,13 +261,21 @@ var AdminPage = {
     // ============================================================
     renderModals: function() {
         if (document.getElementById('adminModalContainer')) return;
-        var modalHTML = document.querySelector('#addStudentModal').outerHTML;
+        
+        var modals = document.querySelectorAll('#addStudentModal, #studentDetailModal');
+        var modalHTML = '';
+        modals.forEach(function(modal) {
+            modalHTML += modal.outerHTML;
+        });
+        
         var container = document.createElement('div');
         container.id = 'adminModalContainer';
         container.innerHTML = modalHTML;
         document.body.appendChild(container.firstElementChild);
-        var original = document.getElementById('addStudentModal');
-        if (original) original.style.display = 'none';
+        
+        modals.forEach(function(modal) {
+            modal.style.display = 'none';
+        });
     },
 
     // ----- SHOW MODAL -----
@@ -423,6 +463,21 @@ var AdminPage = {
             </div>`;
         }
         grid.innerHTML = html;
+        
+        // Setup delete allocation handlers
+        document.querySelectorAll('.delete-allocation').forEach(function(btn) {
+            var newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', function() {
+                var id = this.dataset.id;
+                if (confirm('Remove this allocation?')) {
+                    var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
+                    allocations = allocations.filter(function(a) { return a.id !== id; });
+                    localStorage.setItem('teacherAllocations', JSON.stringify(allocations));
+                    window.AdminPage.loadData();
+                }
+            });
+        });
     },
 
     // ============================================================
@@ -494,7 +549,6 @@ var AdminPage = {
             var lines = content.split('\n').filter(function(line) { return line.trim(); });
             var headers = lines[0].split(',').map(function(h) { return h.trim().toLowerCase(); });
             
-            // Expected: Name,Email,Role (teacher/student)
             var nameIndex = headers.indexOf('name');
             var emailIndex = headers.indexOf('email');
             var roleIndex = headers.indexOf('role');
@@ -525,13 +579,11 @@ var AdminPage = {
                 }
                 
                 if (role.toLowerCase() === 'teacher' || role === '') {
-                    // Add as teacher
                     if (!teachers.some(function(t) { return t.email === email; })) {
                         teachers.push({ id: 't-' + Date.now(), name: name, email: email });
                         added++;
                     }
                 } else if (role.toLowerCase() === 'student') {
-                    // Add as student
                     if (!students.some(function(s) { return s.name === name && s.email === email; })) {
                         students.push({ id: 's-' + Date.now(), name: name, email: email, form: '', yearGroup: '', medicalInfo: '', emergencyContact: '' });
                         added++;
@@ -570,6 +622,7 @@ var AdminPage = {
     // SHOW ADD STUDENT MODAL
     // ============================================================
     showAddStudentModal: function() {
+        var self = this;
         this.renderModals();
         
         document.getElementById('studentFullName').value = '';
@@ -830,6 +883,7 @@ var AdminPage = {
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 self.closeModal('addStudentModal');
+                self.closeModal('studentDetailModal');
             }
         });
     }
