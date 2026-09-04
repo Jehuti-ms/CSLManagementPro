@@ -9,6 +9,7 @@ var App = {
     currentUser: null,
     currentPage: 'landing',
     toastTimeout: null,
+    isMenuOpen: false,
     
     init: function() {
         console.log("📱 App initializing...");
@@ -160,35 +161,89 @@ var App = {
     },
     
     // ============================================================
-    // MOBILE NAVIGATION - FIX 1: Updated handler
+    // MOBILE NAVIGATION - FIX 1: Hamburger menu + Bottom nav
     // ============================================================
     setupMobileNavigation: function() {
         console.log("📱 Setting up mobile navigation...");
         var self = this;
         
-        // Mobile menu toggle (hamburger menu)
+        // FIX: Hamburger menu toggle
         var menuToggle = document.getElementById('mobileMenuToggle');
+        var navTabs = document.getElementById('navTabs');
+        var overlay = document.getElementById('mobileOverlay');
+        
+        console.log("📱 Menu toggle element:", menuToggle);
+        console.log("📱 Nav tabs element:", navTabs);
+        console.log("📱 Overlay element:", overlay);
+        
         if (menuToggle) {
-            menuToggle.addEventListener('click', function(e) {
+            // Remove any existing listeners
+            menuToggle.removeEventListener('click', menuToggle._toggleHandler);
+            
+            // Create toggle handler
+            var toggleHandler = function(e) {
+                e.preventDefault();
                 e.stopPropagation();
-                var navTabs = document.getElementById('navTabs');
+                
+                console.log("📱 Hamburger clicked - Current state:", self.isMenuOpen);
+                
+                // Toggle menu state
+                self.isMenuOpen = !self.isMenuOpen;
+                
                 if (navTabs) {
                     navTabs.classList.toggle('open');
-                    var icon = this.querySelector('i');
-                    if (icon) {
-                        icon.classList.toggle('fa-bars');
-                        icon.classList.toggle('fa-times');
-                    }
+                    console.log("📱 Nav tabs classList:", navTabs.className);
                 }
-            });
+                
+                if (overlay) {
+                    overlay.classList.toggle('active');
+                    console.log("📱 Overlay classList:", overlay.className);
+                }
+                
+                // Toggle icon
+                var icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-bars');
+                    icon.classList.toggle('fa-times');
+                    console.log("📱 Icon toggled:", icon.className);
+                }
+                
+                // Toggle body scroll
+                if (self.isMenuOpen) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            };
+            
+            // Store handler reference
+            menuToggle._toggleHandler = toggleHandler;
+            menuToggle.addEventListener('click', toggleHandler);
+            
+            console.log("✅ Hamburger menu toggle setup complete");
+        } else {
+            console.warn("⚠️ mobileMenuToggle not found!");
         }
         
-        // FIX 1: Mobile bottom navigation - Improved handler with better event handling
+        // Close menu when overlay is clicked
+        if (overlay) {
+            overlay.removeEventListener('click', overlay._closeHandler);
+            
+            var closeHandler = function(e) {
+                console.log("📱 Overlay clicked - Closing menu");
+                self.closeMobileMenu();
+            };
+            
+            overlay._closeHandler = closeHandler;
+            overlay.addEventListener('click', closeHandler);
+        }
+        
+        // FIX: Mobile bottom navigation
         var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
         console.log("📱 Found " + bottomNavItems.length + " bottom nav items");
         
         bottomNavItems.forEach(function(item) {
-            // Remove any existing listeners to prevent duplicates
+            // Remove any existing listeners
             item.removeEventListener('click', item._clickHandler);
             
             // Create new handler
@@ -200,16 +255,7 @@ var App = {
                 console.log("📱 Mobile bottom nav clicked:", page);
                 
                 // Close hamburger menu if open
-                var navTabs = document.getElementById('navTabs');
-                if (navTabs) {
-                    navTabs.classList.remove('open');
-                    var menuToggle = document.getElementById('mobileMenuToggle');
-                    var icon = menuToggle?.querySelector('i');
-                    if (icon) {
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
-                    }
-                }
+                self.closeMobileMenu();
                 
                 // Navigate to page
                 if (page) {
@@ -222,18 +268,13 @@ var App = {
             item.addEventListener('click', handler);
         });
         
-        // Close mobile menu on outside click
+        // Close menu on outside click (for desktop fallback)
         document.addEventListener('click', function(e) {
-            var menuToggle = document.getElementById('mobileMenuToggle');
-            var navTabs = document.getElementById('navTabs');
-            if (navTabs && navTabs.classList.contains('open')) {
-                if (!navTabs.contains(e.target) && !menuToggle?.contains(e.target)) {
-                    navTabs.classList.remove('open');
-                    var icon = menuToggle?.querySelector('i');
-                    if (icon) {
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
-                    }
+            if (self.isMenuOpen) {
+                var menuToggle = document.getElementById('mobileMenuToggle');
+                var navTabs = document.getElementById('navTabs');
+                if (navTabs && !navTabs.contains(e.target) && !menuToggle?.contains(e.target)) {
+                    self.closeMobileMenu();
                 }
             }
         });
@@ -245,6 +286,41 @@ var App = {
                 // Allow touch events to pass through
             }, { passive: true });
         }
+        
+        // Handle escape key to close menu
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && self.isMenuOpen) {
+                self.closeMobileMenu();
+            }
+        });
+    },
+    
+    // Helper to close mobile menu
+    closeMobileMenu: function() {
+        console.log("📱 Closing mobile menu...");
+        this.isMenuOpen = false;
+        
+        var navTabs = document.getElementById('navTabs');
+        var overlay = document.getElementById('mobileOverlay');
+        var menuToggle = document.getElementById('mobileMenuToggle');
+        
+        if (navTabs) {
+            navTabs.classList.remove('open');
+        }
+        
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+        
+        if (menuToggle) {
+            var icon = menuToggle.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+        
+        document.body.style.overflow = '';
     },
     
     // ----- SHOW TOAST MESSAGE (Mobile) -----
@@ -348,6 +424,9 @@ var App = {
             console.error("❌ pageContainer not found!");
             return;
         }
+        
+        // Close mobile menu if open
+        this.closeMobileMenu();
         
         // Update nav tabs (desktop)
         var tabs = document.querySelectorAll('.nav-tab');
