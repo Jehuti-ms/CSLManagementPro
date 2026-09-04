@@ -49,19 +49,21 @@
 <div class="app-container" id="app">
     
     <!-- ===== HEADER ===== -->
-    <div class="app-header">
-        <h1>
-            <i class="fas fa-hands-helping"></i> 
-            CSL Management Pro
-            <span class="premium-badge">Premium</span>
-        </h1>
+    <header class="app-header">
+        <div class="header-left">
+            <h1>
+                <i class="fas fa-hands-helping"></i> 
+                CSL Management Pro
+                <span class="premium-badge">Premium</span>
+            </h1>
+        </div>
         
-        <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div class="header-right">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            
             <!-- Desktop Navigation -->
             <div class="nav-tabs" id="navTabs" style="display: none;">
                 <button class="nav-tab" data-page="landing">
@@ -87,6 +89,7 @@
                 </button>
             </div>
             
+            <!-- User Badge -->
             <div class="user-badge" id="userBadge" style="display: none;">
                 <div class="avatar">T</div>
                 <span id="userEmail">teacher@demo.com</span>
@@ -95,10 +98,10 @@
                 </button>
             </div>
         </div>
-    </div>
+    </header>
 
     <!-- ===== NAV OVERLAY (for closing menu on click outside) ===== -->
-    <div id="navOverlay" class="nav-overlay"></div>
+    <div id="mobileOverlay" class="mobile-overlay"></div>
 
     <!-- ===== PAGE CONTAINER (ONLY ONE!) ===== -->
     <div id="pageContainer">
@@ -153,105 +156,102 @@
 <script src="js/pages/admin.js"></script>
 <script src="js/app.js"></script>
 
-<!-- ===== EMERGENCY MOBILE NAV FIX ===== -->
+<!-- ===== EMERGENCY MOBILE NAV FIX (UPDATED) ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu toggle
+    console.log("🔧 Emergency mobile nav loaded");
+    
+    // Get elements
     var menuToggle = document.getElementById('mobileMenuToggle');
     var navTabs = document.getElementById('navTabs');
-    var overlay = document.getElementById('navOverlay');
+    var overlay = document.getElementById('mobileOverlay'); // FIXED: Changed from navOverlay to mobileOverlay
     
-    console.log("🔧 Emergency mobile nav loaded");
     console.log("menuToggle:", menuToggle);
     console.log("navTabs:", navTabs);
     console.log("overlay:", overlay);
     
-    if (menuToggle && navTabs) {
-        menuToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            navTabs.classList.toggle('open');
-            
-            var icon = this.querySelector('i');
-            if (icon) {
-                icon.classList.toggle('fa-bars');
-                icon.classList.toggle('fa-times');
-            }
-            if (overlay) {
-                overlay.classList.toggle('active');
-            }
-            document.body.style.overflow = navTabs.classList.contains('open') ? 'hidden' : '';
-            
-            console.log("📋 Menu open:", navTabs.classList.contains('open'));
-        });
+    if (!menuToggle || !navTabs) {
+        console.warn("⚠️ Required elements not found for mobile nav");
+        return;
     }
     
-    // Close menu when clicking on a nav item
-    var navItems = document.querySelectorAll('.nav-tab');
-    navItems.forEach(function(item) {
-        item.addEventListener('click', function() {
-            if (navTabs) {
-                navTabs.classList.remove('open');
-                var icon = menuToggle?.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-                if (overlay) {
-                    overlay.classList.remove('active');
-                }
-                document.body.style.overflow = '';
-            }
-        });
+    // Function to close menu
+    function closeMobileMenu() {
+        navTabs.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
+        var icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+        document.body.style.overflow = '';
+        console.log("📋 Menu closed");
+    }
+    
+    // Function to open menu
+    function openMobileMenu() {
+        navTabs.classList.add('open');
+        if (overlay) overlay.classList.add('active');
+        var icon = menuToggle.querySelector('i');
+        if (icon) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        }
+        document.body.style.overflow = 'hidden';
+        console.log("📋 Menu opened");
+    }
+    
+    // Toggle menu on hamburger click
+    menuToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        if (navTabs.classList.contains('open')) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
     });
     
     // Close menu when clicking overlay
     if (overlay) {
         overlay.addEventListener('click', function() {
-            if (navTabs) {
-                navTabs.classList.remove('open');
-                var icon = menuToggle?.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-                this.classList.remove('active');
-                document.body.style.overflow = '';
+            if (navTabs.classList.contains('open')) {
+                closeMobileMenu();
             }
         });
     }
     
-    // Close menu when clicking outside
+    // Close menu when clicking a nav item
+    var navItems = document.querySelectorAll('.nav-tab');
+    navItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            if (navTabs.classList.contains('open')) {
+                closeMobileMenu();
+            }
+        });
+    });
+    
+    // Close menu when clicking outside (fallback)
     document.addEventListener('click', function(e) {
-        if (navTabs && navTabs.classList.contains('open')) {
+        if (navTabs.classList.contains('open')) {
             if (!navTabs.contains(e.target) && !menuToggle.contains(e.target)) {
-                navTabs.classList.remove('open');
-                var icon = menuToggle?.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-                if (overlay) {
-                    overlay.classList.remove('active');
-                }
-                document.body.style.overflow = '';
+                closeMobileMenu();
             }
         }
     });
     
     // Close menu on Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && navTabs && navTabs.classList.contains('open')) {
-            navTabs.classList.remove('open');
-            var icon = menuToggle?.querySelector('i');
-            if (icon) {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-            if (overlay) {
-                overlay.classList.remove('active');
-            }
-            document.body.style.overflow = '';
+        if (e.key === 'Escape' && navTabs.classList.contains('open')) {
+            closeMobileMenu();
+        }
+    });
+    
+    // Close menu on window resize (desktop)
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && navTabs.classList.contains('open')) {
+            closeMobileMenu();
         }
     });
     
@@ -262,40 +262,16 @@ document.addEventListener('DOMContentLoaded', function() {
             var page = this.dataset.page;
             console.log("📱 Bottom nav clicked:", page);
             
+            // Close mobile menu
+            if (navTabs.classList.contains('open')) {
+                closeMobileMenu();
+            }
+            
+            // Navigate using app
             if (window.app && window.app.navigateTo) {
                 window.app.navigateTo(page);
             }
-            
-            // Close mobile menu
-            if (navTabs) {
-                navTabs.classList.remove('open');
-                var icon = menuToggle?.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-                if (overlay) {
-                    overlay.classList.remove('active');
-                }
-                document.body.style.overflow = '';
-            }
         });
-    });
-    
-    // Close menu on window resize
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768 && navTabs && navTabs.classList.contains('open')) {
-            navTabs.classList.remove('open');
-            var icon = menuToggle?.querySelector('i');
-            if (icon) {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-            if (overlay) {
-                overlay.classList.remove('active');
-            }
-            document.body.style.overflow = '';
-        }
     });
     
     console.log("✅ Emergency mobile nav setup complete");
