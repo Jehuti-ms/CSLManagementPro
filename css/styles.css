@@ -1640,3 +1640,26 @@ tr:hover {
 .toast-mobile.info {
     border-left: 4px solid var(--accent);
 }
+
+/* ----- Mobile Login Overlay ----- */
+@media (max-width: 768px) {
+    #loginOverlay {
+        padding: 12px !important;
+        align-items: flex-start !important;
+        padding-top: 40px !important;
+    }
+    
+    #loginOverlay .login-card {
+        margin: 0 auto;
+        border-radius: var(--radius-lg);
+        padding: 28px 20px;
+    }
+    
+    #loginOverlay .login-card .logo {
+        font-size: 2.2rem;
+    }
+    
+    #loginOverlay .login-card h2 {
+        font-size: 1.4rem;
+    }
+}
