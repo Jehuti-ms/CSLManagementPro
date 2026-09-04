@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6C63FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C9A84C;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#grad)" />
+  
+  <!-- Hands/Helping icon -->
+  <g transform="translate(25, 20)">
+    <!-- Left hand -->
+    <path d="M20,45 L12,35 L8,38 L15,48 L20,45 Z" fill="white" opacity="0.9"/>
+    <path d="M18,42 L10,32 L6,35 L13,45 L18,42 Z" fill="white" opacity="0.7"/>
+    
+    <!-- Right hand -->
+    <path d="M30,45 L38,35 L42,38 L35,48 L30,45 Z" fill="white" opacity="0.9"/>
+    <path d="M32,42 L40,32 L44,35 L37,45 L32,42 Z" fill="white" opacity="0.7"/>
+    
+    <!-- Heart between hands -->
+    <path d="M25,30 C25,25 35,22 35,28 C35,22 45,25 45,30 C45,38 35,45 35,45 C35,45 25,38 25,30 Z" fill="white" opacity="0.8"/>
+    
+    <!-- CSL Text -->
+    <text x="50" y="75" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="2">CSL</text>
+  </g>
+</svg>
