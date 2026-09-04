@@ -2,21 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>CSL Management Pro</title>
 
-     <!-- ===== FAVICONS ===== -->
+    <!-- ===== FAVICONS ===== -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="site.webmanifest">
-
-    <!-- Apple Touch Icon (iOS/Android) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    
-    <!-- Android Chrome -->
     <link rel="manifest" href="site.webmanifest">
     
     <!-- Microsoft Tiles -->
@@ -25,13 +19,8 @@
     
     <!-- Theme Color -->
     <meta name="theme-color" content="#6C63FF">
-
-    <!-- SVG Favicon (modern browsers) -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    
-    <meta name="msapplication-TileColor" content="#1A1A2E">
-    <meta name="msapplication-TileImage" content="mstile-150x150.png">
-    <meta name="theme-color" content="#6C63FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <!-- ===== SEO / Social ===== -->
     <meta name="description" content="Service Club Management Platform - Track attendance, activities, and reflections.">
@@ -39,19 +28,19 @@
     <meta property="og:description" content="Service Club Management Platform">
     <meta property="og:type" content="website">
     
-    <!-- Firebase SDKs -->
+    <!-- ===== FIREBASE SDKs ===== -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     
-    <!-- Font Awesome -->
+    <!-- ===== FONT AWESOME ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <!-- Google Fonts -->
+    <!-- ===== GOOGLE FONTS ===== -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Custom CSS -->
+    <!-- ===== CUSTOM CSS ===== -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/tracker.css">
     <link rel="stylesheet" href="css/reflections.css">
@@ -60,44 +49,52 @@
 <div class="app-container" id="app">
     <!-- ===== HEADER ===== -->
     <div class="app-header">
-    <h1>
-        <i class="fas fa-hands-helping"></i> 
-        CSL Management Pro
-        <span class="premium-badge">Premium</span>
-    </h1>
-    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-        <div class="nav-tabs" id="navTabs" style="display: none;">
-            <button class="nav-tab" data-page="landing">
-                <i class="fas fa-home"></i> Home
-             </button>
-            <button class="nav-tab active" data-page="attendance">
-                <i class="fas fa-clipboard-list"></i> Attendance
-            </button>
-            <button class="nav-tab" data-page="tracker">
-                <i class="fas fa-chart-line"></i> Tracker
-            </button>
-            <button class="nav-tab" data-page="reflections">
-                <i class="fas fa-comment-dots"></i> Reflections
-            </button>
-            <button class="nav-tab" data-page="student">
-                <i class="fas fa-user-graduate"></i> Student
-            </button>
-            <button class="nav-tab" data-page="adminprofile">
-                <i class="fas fa-user-cog"></i> Profile
-            </button>
-            <button class="nav-tab" data-page="admin">
-                <i class="fas fa-users-cog"></i> Manage
-            </button>
-        </div>
-        <div class="user-badge" id="userBadge" style="display: none;">
-            <div class="avatar">T</div>
-            <span id="userEmail">teacher@demo.com</span>
-            <button class="btn-logout" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
+        <h1>
+            <i class="fas fa-hands-helping"></i> 
+            CSL Management Pro
+            <span class="premium-badge">Premium</span>
+        </h1>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <!-- Desktop Navigation -->
+            <div class="nav-tabs" id="navTabs" style="display: none;">
+                <button class="nav-tab" data-page="landing">
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <button class="nav-tab active" data-page="attendance">
+                    <i class="fas fa-clipboard-list"></i> Attendance
+                </button>
+                <button class="nav-tab" data-page="tracker">
+                    <i class="fas fa-chart-line"></i> Tracker
+                </button>
+                <button class="nav-tab" data-page="reflections">
+                    <i class="fas fa-comment-dots"></i> Reflections
+                </button>
+                <button class="nav-tab" data-page="student">
+                    <i class="fas fa-user-graduate"></i> Student
+                </button>
+                <button class="nav-tab" data-page="adminprofile">
+                    <i class="fas fa-user-cog"></i> Profile
+                </button>
+                <button class="nav-tab" data-page="admin">
+                    <i class="fas fa-users-cog"></i> Manage
+                </button>
+            </div>
+            
+            <div class="user-badge" id="userBadge" style="display: none;">
+                <div class="avatar">T</div>
+                <span id="userEmail">teacher@demo.com</span>
+                <button class="btn-logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
     <!-- ===== PAGE CONTAINER ===== -->
     <div id="pageContainer">
@@ -105,7 +102,39 @@
     </div>
 </div>
 
-<!-- JavaScript - Load in order -->
+<!-- ===== MOBILE BOTTOM NAVIGATION ===== -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav" style="display: none;">
+    <div class="nav-items">
+        <button class="nav-item" data-page="landing">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" data-page="attendance">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Attendance</span>
+        </button>
+        <button class="nav-item" data-page="tracker">
+            <i class="fas fa-chart-line"></i>
+            <span>Tracker</span>
+        </button>
+        <button class="nav-item" data-page="reflections">
+            <i class="fas fa-comment-dots"></i>
+            <span>Reflect</span>
+        </button>
+        <button class="nav-item" data-page="admin">
+            <i class="fas fa-cog"></i>
+            <span>Manage</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ===== MOBILE TOAST ===== -->
+<div id="mobileToast" class="toast-mobile">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Success!</span>
+</div>
+
+<!-- ===== JAVASCRIPT - Load in order ===== -->
 <script src="js/config/firebase-config.js"></script>
 <script src="js/services/database.js"></script>
 <script src="js/auth/auth.js"></script>
@@ -119,5 +148,61 @@
 <script src="js/pages/student.js"></script> 
 <script src="js/pages/admin.js"></script>
 <script src="js/app.js"></script>
+
+<!-- ===== EMERGENCY MOBILE NAV FIX ===== -->
+<script>
+// Ensure mobile navigation works even if app.js fails
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle
+    var menuToggle = document.getElementById('mobileMenuToggle');
+    var navTabs = document.getElementById('navTabs');
+    
+    if (menuToggle && navTabs) {
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            navTabs.classList.toggle('open');
+            var icon = this.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            }
+        });
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (navTabs && navTabs.classList.contains('open')) {
+            if (!navTabs.contains(e.target) && !menuToggle.contains(e.target)) {
+                navTabs.classList.remove('open');
+                var icon = menuToggle?.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        }
+    });
+    
+    // Mobile bottom nav - forward clicks to app
+    var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
+    bottomNavItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            var page = this.dataset.page;
+            if (window.app && window.app.navigateTo) {
+                window.app.navigateTo(page);
+            }
+            // Close mobile menu
+            if (navTabs) {
+                navTabs.classList.remove('open');
+                var icon = menuToggle?.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>
