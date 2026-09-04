@@ -161,13 +161,13 @@ var App = {
     },
     
     // ============================================================
-    // MOBILE NAVIGATION - FIX 1: Hamburger menu + Bottom nav
+    // MOBILE NAVIGATION - FIXED
     // ============================================================
     setupMobileNavigation: function() {
         console.log("📱 Setting up mobile navigation...");
         var self = this;
         
-        // FIX: Hamburger menu toggle
+        // Get elements
         var menuToggle = document.getElementById('mobileMenuToggle');
         var navTabs = document.getElementById('navTabs');
         var overlay = document.getElementById('mobileOverlay');
@@ -176,66 +176,66 @@ var App = {
         console.log("📱 Nav tabs element:", navTabs);
         console.log("📱 Overlay element:", overlay);
         
-        if (menuToggle) {
+        // FIX: Hamburger menu toggle with proper positioning
+        if (menuToggle && navTabs) {
             // Remove any existing listeners
-            menuToggle.removeEventListener('click', menuToggle._toggleHandler);
+            var newToggle = menuToggle.cloneNode(true);
+            menuToggle.parentNode.replaceChild(newToggle, menuToggle);
+            menuToggle = newToggle;
             
-            // Create toggle handler
-            var toggleHandler = function(e) {
+            // Toggle handler
+            menuToggle.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 console.log("📱 Hamburger clicked - Current state:", self.isMenuOpen);
                 
-                // Toggle menu state
                 self.isMenuOpen = !self.isMenuOpen;
                 
-                if (navTabs) {
-                    navTabs.classList.toggle('open');
-                    console.log("📱 Nav tabs classList:", navTabs.className);
-                }
-                
-                if (overlay) {
-                    overlay.classList.toggle('active');
-                    console.log("📱 Overlay classList:", overlay.className);
-                }
-                
-                // Toggle icon
-                var icon = menuToggle.querySelector('i');
-                if (icon) {
-                    icon.classList.toggle('fa-bars');
-                    icon.classList.toggle('fa-times');
-                    console.log("📱 Icon toggled:", icon.className);
-                }
-                
-                // Toggle body scroll
                 if (self.isMenuOpen) {
+                    // Open menu
+                    navTabs.classList.add('open');
+                    if (overlay) {
+                        overlay.classList.add('active');
+                        overlay.style.display = 'block';
+                    }
                     document.body.style.overflow = 'hidden';
+                    // Change icon
+                    var icon = this.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-times';
+                    }
+                    console.log("📱 Menu opened");
                 } else {
+                    // Close menu
+                    navTabs.classList.remove('open');
+                    if (overlay) {
+                        overlay.classList.remove('active');
+                        overlay.style.display = 'none';
+                    }
                     document.body.style.overflow = '';
+                    var icon = this.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-bars';
+                    }
+                    console.log("📱 Menu closed");
                 }
-            };
-            
-            // Store handler reference
-            menuToggle._toggleHandler = toggleHandler;
-            menuToggle.addEventListener('click', toggleHandler);
+                
+                console.log("📱 Nav tabs classList:", navTabs.className);
+                if (overlay) console.log("📱 Overlay classList:", overlay.className);
+            });
             
             console.log("✅ Hamburger menu toggle setup complete");
         } else {
-            console.warn("⚠️ mobileMenuToggle not found!");
+            console.warn("⚠️ mobileMenuToggle or navTabs not found!");
         }
         
-        // Close menu when overlay is clicked
+        // FIX: Close menu when overlay is clicked
         if (overlay) {
-            overlay.removeEventListener('click', overlay._closeHandler);
-            
-            var closeHandler = function(e) {
+            overlay.addEventListener('click', function(e) {
                 console.log("📱 Overlay clicked - Closing menu");
                 self.closeMobileMenu();
-            };
-            
-            overlay._closeHandler = closeHandler;
-            overlay.addEventListener('click', closeHandler);
+            });
         }
         
         // FIX: Mobile bottom navigation
@@ -243,53 +243,33 @@ var App = {
         console.log("📱 Found " + bottomNavItems.length + " bottom nav items");
         
         bottomNavItems.forEach(function(item) {
-            // Remove any existing listeners
-            item.removeEventListener('click', item._clickHandler);
-            
-            // Create new handler
-            var handler = function(e) {
+            item.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
                 var page = this.dataset.page;
                 console.log("📱 Mobile bottom nav clicked:", page);
                 
-                // Close hamburger menu if open
+                // Close hamburger menu
                 self.closeMobileMenu();
                 
                 // Navigate to page
                 if (page) {
                     self.navigateTo(page);
                 }
-            };
-            
-            // Store handler reference for cleanup
-            item._clickHandler = handler;
-            item.addEventListener('click', handler);
+            });
         });
         
-        // Close menu on outside click (for desktop fallback)
-        document.addEventListener('click', function(e) {
-            if (self.isMenuOpen) {
-                var menuToggle = document.getElementById('mobileMenuToggle');
-                var navTabs = document.getElementById('navTabs');
-                if (navTabs && !navTabs.contains(e.target) && !menuToggle?.contains(e.target)) {
-                    self.closeMobileMenu();
-                }
+        // Close menu on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && self.isMenuOpen) {
+                self.closeMobileMenu();
             }
         });
         
-        // Handle touch events for better mobile responsiveness
-        var bottomNav = document.getElementById('mobileBottomNav');
-        if (bottomNav) {
-            bottomNav.addEventListener('touchstart', function(e) {
-                // Allow touch events to pass through
-            }, { passive: true });
-        }
-        
-        // Handle escape key to close menu
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && self.isMenuOpen) {
+        // Close menu on window resize to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768 && self.isMenuOpen) {
                 self.closeMobileMenu();
             }
         });
@@ -310,13 +290,13 @@ var App = {
         
         if (overlay) {
             overlay.classList.remove('active');
+            overlay.style.display = 'none';
         }
         
         if (menuToggle) {
             var icon = menuToggle.querySelector('i');
             if (icon) {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+                icon.className = 'fas fa-bars';
             }
         }
         
@@ -412,7 +392,7 @@ var App = {
     },
     
     // ============================================================
-    // NAVIGATE TO - FIX 2: Updated bottom nav active state
+    // NAVIGATE TO
     // ============================================================
     navigateTo: function(pageId) {
         console.log("🧭 Navigating to: " + pageId);
@@ -425,7 +405,7 @@ var App = {
             return;
         }
         
-        // Close mobile menu if open
+        // Close mobile menu
         this.closeMobileMenu();
         
         // Update nav tabs (desktop)
@@ -452,31 +432,18 @@ var App = {
             if (userBadge) userBadge.style.display = 'flex';
         }
 
-        // FIX 2: Update mobile bottom nav active state - More robust implementation
+        // Update mobile bottom nav active state
         var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
         console.log("📱 Updating " + bottomNavItems.length + " bottom nav items for page:", pageId);
         
         bottomNavItems.forEach(function(item) {
             var itemPage = item.dataset.page;
-            // Remove all active states
             item.classList.remove('active');
-            
-            // Add active class if this item's page matches
             if (itemPage === pageId) {
                 item.classList.add('active');
                 console.log("📱 Active bottom nav:", itemPage);
             }
         });
-        
-        // Also update the icon within active nav item
-        var activeItem = document.querySelector('.mobile-bottom-nav .nav-item.active');
-        if (activeItem) {
-            var icon = activeItem.querySelector('i');
-            if (icon) {
-                // Icon styling can be handled via CSS
-                console.log("📱 Active icon found for:", activeItem.dataset.page);
-            }
-        }
         
         // Render the page
         var html = '';
