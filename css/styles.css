@@ -630,3 +630,46 @@ td {
     background: var(--gray-300);
     border-radius: 10px;
 }
+
+/* ============================================================
+   MOBILE FIX - CENTERED BUTTONS & PROMPTS 
+   (This overrides inline styles on Tracker page)
+   ============================================================ */
+@media (max-width: 768px) {
+    .toolbar {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .toolbar .btn-primary,
+    .toolbar .btn-outline,
+    .toolbar .btn-secondary {
+        width: 100% !important;
+        max-width: 300px !important;
+        justify-content: center !important;
+        margin: 0 auto !important;
+        padding: 12px !important;
+    }
+
+    /* Target the prompt text next to the buttons */
+    .toolbar span {
+        display: block !important;
+        font-size: 0.85rem !important;
+        text-align: center !important;
+        width: 100% !important;
+        margin-top: 0 !important;
+        color: var(--gray) !important;
+    }
+
+    #uploadStatus {
+        display: block !important;
+        text-align: center !important;
+        width: 100% !important;
+        margin-top: 0 !important;
+    }
+}
