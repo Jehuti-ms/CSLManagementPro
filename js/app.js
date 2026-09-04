@@ -1,5 +1,5 @@
 // ============================================================
-// js/app.js - MAIN APP CONTROLLER (WITH LANDING PAGE)
+// js/app.js - MAIN APP CONTROLLER (WITH LANDING PAGE & MOBILE)
 // ============================================================
 
 console.log("🚀 Starting app...");
@@ -8,6 +8,7 @@ console.log("🚀 Starting app...");
 var App = {
     currentUser: null,
     currentPage: 'landing',
+    toastTimeout: null,
     
     init: function() {
         console.log("📱 App initializing...");
@@ -16,6 +17,7 @@ var App = {
         this.initializeDefaultAdmin();
         
         this.setupNavigation();
+        this.setupMobileNavigation();
         this.showLogin();
         this.setupAuthListener();
         console.log("✅ App initialized successfully");
@@ -157,6 +159,79 @@ var App = {
         }
     },
     
+    // ============================================================
+    // MOBILE NAVIGATION
+    // ============================================================
+    setupMobileNavigation: function() {
+        console.log("📱 Setting up mobile navigation...");
+        var self = this;
+        
+        // Mobile menu toggle
+        var menuToggle = document.getElementById('mobileMenuToggle');
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                var navTabs = document.getElementById('navTabs');
+                if (navTabs) {
+                    navTabs.classList.toggle('open');
+                    var icon = this.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('fa-bars');
+                        icon.classList.toggle('fa-times');
+                    }
+                }
+            });
+        }
+        
+        // Mobile bottom navigation
+        var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
+        bottomNavItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                var page = this.dataset.page;
+                console.log("📱 Mobile nav clicked:", page);
+                var navTabs = document.getElementById('navTabs');
+                if (navTabs) {
+                    navTabs.classList.remove('open');
+                }
+                self.navigateTo(page);
+            });
+        });
+        
+        // Close mobile menu on outside click
+        document.addEventListener('click', function(e) {
+            var menuToggle = document.getElementById('mobileMenuToggle');
+            var navTabs = document.getElementById('navTabs');
+            if (navTabs && navTabs.classList.contains('open')) {
+                if (!navTabs.contains(e.target) && !menuToggle.contains(e.target)) {
+                    navTabs.classList.remove('open');
+                    var icon = menuToggle?.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            }
+        });
+    },
+    
+    // ----- SHOW TOAST MESSAGE (Mobile) -----
+    showToast: function(message, type) {
+        var toast = document.getElementById('mobileToast');
+        var toastMessage = document.getElementById('toastMessage');
+        if (!toast || !toastMessage) return;
+        
+        toast.className = 'toast-mobile';
+        if (type) {
+            toast.classList.add(type);
+        }
+        toastMessage.textContent = message;
+        toast.classList.add('show');
+        
+        clearTimeout(this.toastTimeout);
+        this.toastTimeout = setTimeout(function() {
+            toast.classList.remove('show');
+        }, 3000);
+    },
+    
     showLogin: function() {
         console.log("📄 Showing login page...");
         var container = document.getElementById('pageContainer');
@@ -207,7 +282,7 @@ var App = {
     showMainApp: function(user) {
         console.log("📄 Showing main app...");
 
-         // Show mobile bottom nav
+        // Show mobile bottom nav
         var bottomNav = document.getElementById('mobileBottomNav');
         if (bottomNav) {
             bottomNav.style.display = 'block';
@@ -285,7 +360,12 @@ var App = {
                     }
                     break;
                 case 'attendance':
-                    html = window.AttendancePage ? window.AttendancePage.render() : '<p>Attendance page not loaded</p>';
+                    if (window.AttendancePage && typeof window.AttendancePage.render === 'function') {
+                        html = window.AttendancePage.render();
+                        console.log("✅ Attendance HTML generated");
+                    } else {
+                        html = '<p>Attendance page not loaded</p>';
+                    }
                     break;
                 case 'tracker':
                     if (window.TrackerPage && typeof window.TrackerPage.render === 'function') {
@@ -297,7 +377,12 @@ var App = {
                     }
                     break;
                 case 'reflections':
-                    html = window.ReflectionsPage ? window.ReflectionsPage.render() : '<p>Reflections page not loaded</p>';
+                    if (window.ReflectionsPage && typeof window.ReflectionsPage.render === 'function') {
+                        html = window.ReflectionsPage.render();
+                        console.log("✅ Reflections HTML generated");
+                    } else {
+                        html = '<p>Reflections page not loaded</p>';
+                    }
                     break;
                 case 'student':
                     if (window.StudentPage && typeof window.StudentPage.render === 'function') {
@@ -309,10 +394,21 @@ var App = {
                     }
                     break;
                 case 'admin':
-                    html = window.AdminPage ? window.AdminPage.render() : '<p>Admin page not loaded</p>';
+                    if (window.AdminPage && typeof window.AdminPage.render === 'function') {
+                        html = window.AdminPage.render();
+                        console.log("✅ Admin HTML generated");
+                    } else {
+                        html = '<p>Admin page not loaded</p>';
+                    }
                     break;
                 case 'adminprofile':
-                    html = window.AdminProfilePage ? window.AdminProfilePage.render() : '<p>Admin Profile page not loaded</p>';
+                    if (window.AdminProfilePage && typeof window.AdminProfilePage.render === 'function') {
+                        html = window.AdminProfilePage.render();
+                        console.log("✅ Admin Profile HTML generated");
+                    } else {
+                        html = '<p>Admin Profile page not loaded</p>';
+                        console.error("❌ AdminProfilePage not available");
+                    }
                     break;
                 default:
                     html = '<p>Page not found</p>';
@@ -375,82 +471,6 @@ var App = {
         }, 200);
     }
 };
-
-// ============================================================
-// MOBILE NAVIGATION
-// ============================================================
-
-setupMobileNavigation: function() {
-    console.log("📱 Setting up mobile navigation...");
-    var self = this;
-    
-    // Mobile menu toggle
-    var menuToggle = document.getElementById('mobileMenuToggle');
-    if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
-            var navTabs = document.getElementById('navTabs');
-            if (navTabs) {
-                navTabs.classList.toggle('open');
-                // Toggle icon
-                var icon = this.querySelector('i');
-                if (icon) {
-                    icon.classList.toggle('fa-bars');
-                    icon.classList.toggle('fa-times');
-                }
-            }
-        });
-    }
-    
-    // Mobile bottom navigation
-    var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
-    bottomNavItems.forEach(function(item) {
-        item.addEventListener('click', function() {
-            var page = this.dataset.page;
-            console.log("📱 Mobile nav clicked:", page);
-            // Close mobile menu if open
-            var navTabs = document.getElementById('navTabs');
-            if (navTabs) {
-                navTabs.classList.remove('open');
-            }
-            self.navigateTo(page);
-        });
-    });
-    
-    // Close mobile menu on outside click
-    document.addEventListener('click', function(e) {
-        var menuToggle = document.getElementById('mobileMenuToggle');
-        var navTabs = document.getElementById('navTabs');
-        if (navTabs && navTabs.classList.contains('open')) {
-            if (!navTabs.contains(e.target) && !menuToggle.contains(e.target)) {
-                navTabs.classList.remove('open');
-                var icon = menuToggle?.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            }
-        }
-    });
-},
-
-// ----- SHOW TOAST MESSAGE (Mobile) -----
-showToast: function(message, type) {
-    var toast = document.getElementById('mobileToast');
-    var toastMessage = document.getElementById('toastMessage');
-    if (!toast || !toastMessage) return;
-    
-    toast.className = 'toast-mobile';
-    if (type) {
-        toast.classList.add(type);
-    }
-    toastMessage.textContent = message;
-    toast.classList.add('show');
-    
-    clearTimeout(this.toastTimeout);
-    this.toastTimeout = setTimeout(function() {
-        toast.classList.remove('show');
-    }, 3000);
-},
 
 // Start the app
 window.app = App;
