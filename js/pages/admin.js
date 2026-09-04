@@ -1,5 +1,5 @@
 // ============================================================
-// ADMIN PAGE - Complete with Add Student Modal
+// ADMIN PAGE - Complete with Student Management & Allocation
 // ============================================================
 
 var AdminPage = {
@@ -101,6 +101,26 @@ var AdminPage = {
                 </div>
             </div>
             
+            <!-- ===== STUDENT MANAGEMENT ===== -->
+            <div style="background: white; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 24px;">
+                <h4 style="font-weight: 600; color: var(--primary); margin-bottom: 10px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-user-graduate" style="color: var(--accent);"></i> Student Management
+                    <span style="font-size: 0.8rem; font-weight: 400; color: var(--gray-500);">allocate existing students to clubs</span>
+                </h4>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <select id="studentSelect" style="flex: 1; min-width: 150px; padding: 8px 12px; border: 2px solid var(--gray-100); border-radius: var(--radius-md); font-size: 0.9rem;">
+                        <option value="">Select student...</option>
+                    </select>
+                    <select id="studentAllocationClubSelect" style="flex: 1; min-width: 150px; padding: 8px 12px; border: 2px solid var(--gray-100); border-radius: var(--radius-md); font-size: 0.9rem;">
+                        <option value="">Select club...</option>
+                    </select>
+                    <button class="btn-primary" id="allocateStudentBtn" style="padding: 8px 16px; background: var(--accent); font-size: 0.85rem;">
+                        <i class="fas fa-user-plus"></i> Allocate Student
+                    </button>
+                </div>
+                <div id="studentAllocationStatus" style="margin-top: 6px; font-size: 0.8rem; color: var(--gray-500);"></div>
+            </div>
+            
             <!-- ===== CLUBS ===== -->
             <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-users" style="color: var(--secondary);"></i> Clubs
@@ -134,7 +154,7 @@ var AdminPage = {
                 </div>
             </div>
             
-            <!-- ===== STUDENTS ===== -->
+            <!-- ===== STUDENTS LIST ===== -->
             <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-user-graduate" style="color: var(--accent);"></i> Students
                 <span style="font-size: 0.8rem; font-weight: 400; color: var(--gray-500);" id="studentCountBadge">(0)</span>
@@ -142,6 +162,17 @@ var AdminPage = {
             <div id="studentGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 24px;">
                 <div style="grid-column: 1 / -1; text-align:center; padding: 20px; color: var(--gray-500);">
                     <i class="fas fa-spinner fa-spin"></i> Loading students...
+                </div>
+            </div>
+            
+            <!-- ===== STUDENT ALLOCATIONS LIST ===== -->
+            <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-users" style="color: var(--accent);"></i> Student Allocations
+                <span style="font-size: 0.8rem; font-weight: 400; color: var(--gray-500);">students assigned to clubs</span>
+            </h3>
+            <div id="studentAllocationGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-bottom: 24px;">
+                <div style="grid-column: 1 / -1; text-align:center; padding: 20px; color: var(--gray-500);">
+                    <i class="fas fa-spinner fa-spin"></i> Loading student allocations...
                 </div>
             </div>
             
@@ -307,7 +338,8 @@ var AdminPage = {
         window.DB.getClubs().then(function(clubs) {
             window.DB.getStudents().then(function(students) {
                 var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
-                var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
+                var teacherAllocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
+                var studentAllocations = JSON.parse(localStorage.getItem('studentAllocations') || '[]');
                 
                 document.getElementById('adminTotalClubs').textContent = clubs.length || 0;
                 document.getElementById('adminTotalTeachers').textContent = teachers.length || 0;
@@ -321,8 +353,10 @@ var AdminPage = {
                 self.renderClubs(clubs);
                 self.renderTeachers(teachers);
                 self.renderStudents(students);
-                self.renderAllocations(allocations);
+                self.renderTeacherAllocations(teacherAllocations);
+                self.renderStudentAllocations(studentAllocations);
                 self.populateAllocationDropdowns(teachers, clubs);
+                self.populateStudentDropdowns(students, clubs);
                 self.setupDeleteHandlers();
                 
                 console.log("✅ Admin data loaded successfully");
@@ -335,7 +369,7 @@ var AdminPage = {
     },
 
     // ============================================================
-    // POPULATE ALLOCATION DROPDOWNS
+    // POPULATE DROPDOWNS
     // ============================================================
     populateAllocationDropdowns: function(teachers, clubs) {
         var teacherSelect = document.getElementById('allocateTeacherSelect');
@@ -345,6 +379,25 @@ var AdminPage = {
             teacherSelect.innerHTML = '<option value="">Select teacher...</option>';
             for (var i = 0; i < teachers.length; i++) {
                 teacherSelect.innerHTML += '<option value="' + teachers[i].email + '">' + teachers[i].name + ' (' + teachers[i].email + ')</option>';
+            }
+        }
+        
+        if (clubSelect) {
+            clubSelect.innerHTML = '<option value="">Select club...</option>';
+            for (var i = 0; i < clubs.length; i++) {
+                clubSelect.innerHTML += '<option value="' + clubs[i] + '">' + clubs[i] + '</option>';
+            }
+        }
+    },
+
+    populateStudentDropdowns: function(students, clubs) {
+        var studentSelect = document.getElementById('studentSelect');
+        var clubSelect = document.getElementById('studentAllocationClubSelect');
+        
+        if (studentSelect) {
+            studentSelect.innerHTML = '<option value="">Select student...</option>';
+            for (var i = 0; i < students.length; i++) {
+                studentSelect.innerHTML += '<option value="' + students[i] + '">' + students[i] + '</option>';
             }
         }
         
@@ -440,13 +493,13 @@ var AdminPage = {
         grid.innerHTML = html;
     },
 
-    renderAllocations: function(allocations) {
+    renderTeacherAllocations: function(allocations) {
         var grid = document.getElementById('teacherAllocationGrid');
         if (!grid) return;
         if (!allocations || allocations.length === 0) {
             grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--gray-500);">
                 <i class="fas fa-user-tie" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
-                No allocations yet
+                No teacher allocations yet
             </div>`;
             return;
         }
@@ -463,24 +516,35 @@ var AdminPage = {
             </div>`;
         }
         grid.innerHTML = html;
-        
-        document.querySelectorAll('.delete-allocation').forEach(function(btn) {
-            var newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.addEventListener('click', function() {
-                var id = this.dataset.id;
-                if (confirm('Remove this allocation?')) {
-                    var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
-                    allocations = allocations.filter(function(a) { return a.id !== id; });
-                    localStorage.setItem('teacherAllocations', JSON.stringify(allocations));
-                    window.AdminPage.loadData();
-                }
-            });
-        });
+    },
+
+    renderStudentAllocations: function(allocations) {
+        var grid = document.getElementById('studentAllocationGrid');
+        if (!grid) return;
+        if (!allocations || allocations.length === 0) {
+            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--gray-500);">
+                <i class="fas fa-user-graduate" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
+                No student allocations yet
+            </div>`;
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < allocations.length; i++) {
+            var a = allocations[i];
+            html += `<div style="background:white;border:1px solid var(--gray-100);border-radius:var(--radius-lg);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div>
+                    <div style="font-weight:600;font-size:0.9rem;">${a.studentName}</div>
+                    <div style="font-size:0.7rem;color:var(--accent);"><i class="fas fa-users"></i> ${a.club}</div>
+                    ${a.form ? `<div style="font-size:0.65rem;color:var(--gray-500);">Form: ${a.form}</div>` : ''}
+                </div>
+                <button class="delete-student-allocation" data-id="${a.id}" style="background:none;border:none;color:var(--gray-300);cursor:pointer;padding:4px 6px;font-size:0.85rem;"><i class="fas fa-trash"></i></button>
+            </div>`;
+        }
+        grid.innerHTML = html;
     },
 
     // ============================================================
-    // ALLOCATE TEACHER TO CLUB
+    // ALLOCATE FUNCTIONS
     // ============================================================
     allocateTeacher: function() {
         var teacherEmail = document.getElementById('allocateTeacherSelect').value;
@@ -529,6 +593,49 @@ var AdminPage = {
         setTimeout(function() { statusEl.textContent = ''; }, 3000);
     },
 
+    allocateStudent: function() {
+        var studentName = document.getElementById('studentSelect').value;
+        var club = document.getElementById('studentAllocationClubSelect').value;
+        var statusEl = document.getElementById('studentAllocationStatus');
+        
+        if (!studentName) {
+            statusEl.textContent = '⚠️ Please select a student';
+            statusEl.style.color = 'var(--danger)';
+            return;
+        }
+        if (!club) {
+            statusEl.textContent = '⚠️ Please select a club';
+            statusEl.style.color = 'var(--danger)';
+            return;
+        }
+        
+        // Get student details
+        var studentDetails = JSON.parse(localStorage.getItem('studentDetails') || '[]');
+        var student = studentDetails.find(function(s) { return s.name === studentName; });
+        
+        var allocations = JSON.parse(localStorage.getItem('studentAllocations') || '[]');
+        var exists = allocations.some(function(a) { return a.studentName === studentName && a.club === club; });
+        if (exists) {
+            statusEl.textContent = '⚠️ This student is already allocated to this club';
+            statusEl.style.color = 'var(--warning)';
+            return;
+        }
+        
+        allocations.push({
+            id: 'salloc-' + Date.now(),
+            studentName: studentName,
+            form: student ? student.form : '',
+            club: club,
+            created: new Date().toISOString()
+        });
+        
+        localStorage.setItem('studentAllocations', JSON.stringify(allocations));
+        statusEl.textContent = '✅ Student "' + studentName + '" allocated to "' + club + '" successfully!';
+        statusEl.style.color = 'var(--success)';
+        this.loadData();
+        setTimeout(function() { statusEl.textContent = ''; }, 3000);
+    },
+
     // ============================================================
     // BULK EMAIL UPLOAD
     // ============================================================
@@ -551,6 +658,8 @@ var AdminPage = {
             var nameIndex = headers.indexOf('name');
             var emailIndex = headers.indexOf('email');
             var roleIndex = headers.indexOf('role');
+            var formIndex = headers.indexOf('form');
+            var yearIndex = headers.indexOf('year');
             
             if (nameIndex === -1 || emailIndex === -1) {
                 statusEl.textContent = '⚠️ CSV must have "Name" and "Email" columns';
@@ -559,7 +668,7 @@ var AdminPage = {
             }
             
             var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
-            var students = JSON.parse(localStorage.getItem('studentDetails') || '[]');
+            var studentDetails = JSON.parse(localStorage.getItem('studentDetails') || '[]');
             var added = 0;
             var errors = 0;
             
@@ -568,6 +677,8 @@ var AdminPage = {
                 var name = cols[nameIndex] || '';
                 var email = cols[emailIndex] || '';
                 var role = roleIndex !== -1 ? cols[roleIndex] : '';
+                var form = formIndex !== -1 ? cols[formIndex] : '';
+                var year = yearIndex !== -1 ? cols[yearIndex] : '';
                 
                 if (!name || !email) continue;
                 
@@ -583,15 +694,23 @@ var AdminPage = {
                         added++;
                     }
                 } else if (role.toLowerCase() === 'student') {
-                    if (!students.some(function(s) { return s.name === name && s.email === email; })) {
-                        students.push({ id: 's-' + Date.now(), name: name, email: email, form: '', yearGroup: '', medicalInfo: '', emergencyContact: '' });
+                    if (!studentDetails.some(function(s) { return s.name === name && s.email === email; })) {
+                        studentDetails.push({ 
+                            id: 's-' + Date.now(), 
+                            name: name, 
+                            email: email, 
+                            form: form || '',
+                            yearGroup: year || '',
+                            medicalInfo: '',
+                            emergencyContact: ''
+                        });
                         added++;
                     }
                 }
             }
             
             localStorage.setItem('teachers', JSON.stringify(teachers));
-            localStorage.setItem('studentDetails', JSON.stringify(students));
+            localStorage.setItem('studentDetails', JSON.stringify(studentDetails));
             
             statusEl.textContent = '✅ Uploaded ' + added + ' users (' + errors + ' errors)';
             statusEl.style.color = 'var(--success)';
@@ -605,7 +724,7 @@ var AdminPage = {
     // DOWNLOAD TEMPLATE
     // ============================================================
     downloadTemplate: function() {
-        var csvContent = 'Name,Email,Role\nJohn Doe,john@school.com,teacher\nJane Smith,jane@school.com,student\nEmma Wilson,emma@school.com,student\n';
+        var csvContent = 'Name,Email,Role,Form,Year\nJohn Doe,john@school.com,teacher,,\nJane Smith,jane@school.com,student,10A,10\nEmma Wilson,emma@school.com,student,11B,11\n';
         var blob = new Blob([csvContent], { type: 'text/csv' });
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
@@ -684,8 +803,19 @@ var AdminPage = {
             students.push({ id: 's-' + Date.now(), ...studentData });
             localStorage.setItem('studentDetails', JSON.stringify(students));
             
+            // Also add to student allocations
+            var allocations = JSON.parse(localStorage.getItem('studentAllocations') || '[]');
+            allocations.push({
+                id: 'salloc-' + Date.now(),
+                studentName: name,
+                form: form,
+                club: club,
+                created: new Date().toISOString()
+            });
+            localStorage.setItem('studentAllocations', JSON.stringify(allocations));
+            
             saveBtn.innerHTML = '✅ Saved!';
-            document.getElementById('addStudentStatus').textContent = '✅ Student added successfully!';
+            document.getElementById('addStudentStatus').textContent = '✅ Student added and allocated successfully!';
             document.getElementById('addStudentStatus').style.color = 'var(--success)';
             
             setTimeout(function() {
@@ -756,10 +886,24 @@ var AdminPage = {
             btn.parentNode.replaceChild(newBtn, btn);
             newBtn.addEventListener('click', function() {
                 var id = this.dataset.id;
-                if (confirm('Remove this allocation?')) {
+                if (confirm('Remove this teacher allocation?')) {
                     var allocations = JSON.parse(localStorage.getItem('teacherAllocations') || '[]');
                     allocations = allocations.filter(function(a) { return a.id !== id; });
                     localStorage.setItem('teacherAllocations', JSON.stringify(allocations));
+                    self.loadData();
+                }
+            });
+        });
+        
+        document.querySelectorAll('.delete-student-allocation').forEach(function(btn) {
+            var newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', function() {
+                var id = this.dataset.id;
+                if (confirm('Remove this student allocation?')) {
+                    var allocations = JSON.parse(localStorage.getItem('studentAllocations') || '[]');
+                    allocations = allocations.filter(function(a) { return a.id !== id; });
+                    localStorage.setItem('studentAllocations', JSON.stringify(allocations));
                     self.loadData();
                 }
             });
@@ -821,6 +965,11 @@ var AdminPage = {
         // Allocate Teacher
         document.getElementById('allocateTeacherBtn').addEventListener('click', function() {
             self.allocateTeacher();
+        });
+        
+        // Allocate Student
+        document.getElementById('allocateStudentBtn').addEventListener('click', function() {
+            self.allocateStudent();
         });
         
         // Bulk Upload
