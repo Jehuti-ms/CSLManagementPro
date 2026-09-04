@@ -1379,7 +1379,7 @@ var TrackerPage = {
     },
 
     // ============================================================
-    // SETUP EVENTS
+    // SETUP EVENTS (SAFETY CHECKS ADDED)
     // ============================================================
     setupEvents: function() {
         console.log("🔧 Setting up tracker events...");
@@ -1410,47 +1410,41 @@ var TrackerPage = {
             })(periodTabs[i]);
         }
         
-        document.getElementById('addActivityBtn').addEventListener('click', function() {
-            self.showAddActivityModal();
-        });
-        document.getElementById('saveActivityBtn').addEventListener('click', function() {
-            self.saveActivityFromModal();
-        });
+        var addActivityBtn = document.getElementById('addActivityBtn');
+        if (addActivityBtn) addActivityBtn.addEventListener('click', function() { self.showAddActivityModal(); });
         
-        document.getElementById('addTaskBtn').addEventListener('click', function() {
-            self.showAddTaskModal();
-        });
-        document.getElementById('saveTaskBtn').addEventListener('click', function() {
-            self.saveTaskFromModal();
-        });
+        var saveActivityBtn = document.getElementById('saveActivityBtn');
+        if (saveActivityBtn) saveActivityBtn.addEventListener('click', function() { self.saveActivityFromModal(); });
         
-        document.getElementById('updateActivityBtn').addEventListener('click', function() {
-            self.updateActivityFromModal();
-        });
+        var addTaskBtn = document.getElementById('addTaskBtn');
+        if (addTaskBtn) addTaskBtn.addEventListener('click', function() { self.showAddTaskModal(); });
         
-        document.getElementById('templateBtn').addEventListener('click', function() {
-            self.showModal('templatesModal');
-            self.loadTemplates();
-        });
-        document.getElementById('saveTemplateBtn').addEventListener('click', function() {
-            self.saveCurrentAsTemplate();
-        });
+        var saveTaskBtn = document.getElementById('saveTaskBtn');
+        if (saveTaskBtn) saveTaskBtn.addEventListener('click', function() { self.saveTaskFromModal(); });
         
-        document.getElementById('saveCheckInBtn').addEventListener('click', function() {
-            self.saveCheckIns();
-        });
+        var updateActivityBtn = document.getElementById('updateActivityBtn');
+        if (updateActivityBtn) updateActivityBtn.addEventListener('click', function() { self.updateActivityFromModal(); });
         
-        document.getElementById('exportDataBtn').addEventListener('click', function() {
-            self.showModal('exportModal');
-        });
-        document.getElementById('exportCSVBtn').addEventListener('click', function() {
-            self.exportCSV();
-        });
-        document.getElementById('exportJSONBtn').addEventListener('click', function() {
-            self.exportJSON();
-        });
+        var templateBtn = document.getElementById('templateBtn');
+        if (templateBtn) templateBtn.addEventListener('click', function() { self.showModal('templatesModal'); self.loadTemplates(); });
         
-        document.getElementById('toggleViewBtn').addEventListener('click', function() {
+        var saveTemplateBtn = document.getElementById('saveTemplateBtn');
+        if (saveTemplateBtn) saveTemplateBtn.addEventListener('click', function() { self.saveCurrentAsTemplate(); });
+        
+        var saveCheckInBtn = document.getElementById('saveCheckInBtn');
+        if (saveCheckInBtn) saveCheckInBtn.addEventListener('click', function() { self.saveCheckIns(); });
+        
+        var exportDataBtn = document.getElementById('exportDataBtn');
+        if (exportDataBtn) exportDataBtn.addEventListener('click', function() { self.showModal('exportModal'); });
+        
+        var exportCSVBtn = document.getElementById('exportCSVBtn');
+        if (exportCSVBtn) exportCSVBtn.addEventListener('click', function() { self.exportCSV(); });
+        
+        var exportJSONBtn = document.getElementById('exportJSONBtn');
+        if (exportJSONBtn) exportJSONBtn.addEventListener('click', function() { self.exportJSON(); });
+        
+        var toggleViewBtn = document.getElementById('toggleViewBtn');
+        if (toggleViewBtn) toggleViewBtn.addEventListener('click', function() {
             var tableView = document.getElementById('tableView');
             var calendarView = document.getElementById('calendarView');
             
@@ -1471,7 +1465,8 @@ var TrackerPage = {
             }
         });
         
-        document.getElementById('prevMonthBtn').addEventListener('click', function() {
+        var prevMonthBtn = document.getElementById('prevMonthBtn');
+        if (prevMonthBtn) prevMonthBtn.addEventListener('click', function() {
             self.calendarMonth--;
             if (self.calendarMonth < 0) {
                 self.calendarMonth = 11;
@@ -1480,7 +1475,8 @@ var TrackerPage = {
             self.renderCalendar();
         });
         
-        document.getElementById('nextMonthBtn').addEventListener('click', function() {
+        var nextMonthBtn = document.getElementById('nextMonthBtn');
+        if (nextMonthBtn) nextMonthBtn.addEventListener('click', function() {
             self.calendarMonth++;
             if (self.calendarMonth > 11) {
                 self.calendarMonth = 0;
@@ -1489,18 +1485,21 @@ var TrackerPage = {
             self.renderCalendar();
         });
         
-        document.getElementById('todayBtn').addEventListener('click', function() {
+        var todayBtn = document.getElementById('todayBtn');
+        if (todayBtn) todayBtn.addEventListener('click', function() {
             var now = new Date();
             self.calendarMonth = now.getMonth();
             self.calendarYear = now.getFullYear();
             self.renderCalendar();
         });
         
-        document.getElementById('mediaUploadBtn').addEventListener('click', function() {
+        var mediaUploadBtn = document.getElementById('mediaUploadBtn');
+        if (mediaUploadBtn) mediaUploadBtn.addEventListener('click', function() {
             document.getElementById('mediaUploadInput').click();
         });
         
-        document.getElementById('mediaUploadInput').addEventListener('change', function() {
+        var mediaUploadInput = document.getElementById('mediaUploadInput');
+        if (mediaUploadInput) mediaUploadInput.addEventListener('change', function() {
             var files = this.files;
             if (!files || files.length === 0) return;
             
