@@ -160,6 +160,12 @@ var App = {
     showLogin: function() {
         console.log("📄 Showing login page...");
         var container = document.getElementById('pageContainer');
+
+        // Hide mobile bottom nav
+        var bottomNav = document.getElementById('mobileBottomNav');
+        if (bottomNav) {
+            bottomNav.style.display = 'none';
+        }
         
         if (!container) {
             console.error("❌ pageContainer not found!");
@@ -200,6 +206,12 @@ var App = {
     
     showMainApp: function(user) {
         console.log("📄 Showing main app...");
+
+         // Show mobile bottom nav
+        var bottomNav = document.getElementById('mobileBottomNav');
+        if (bottomNav) {
+            bottomNav.style.display = 'block';
+        }
         
         var navTabs = document.getElementById('navTabs');
         var userBadge = document.getElementById('userBadge');
@@ -248,6 +260,16 @@ var App = {
             if (navTabs) navTabs.style.display = 'flex';
             if (userBadge) userBadge.style.display = 'flex';
         }
+
+        // Update mobile bottom nav active state
+        var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
+        bottomNavItems.forEach(function(item) {
+            if (item.dataset.page === pageId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
         
         // Render the page
         var html = '';
@@ -353,6 +375,82 @@ var App = {
         }, 200);
     }
 };
+
+// ============================================================
+// MOBILE NAVIGATION
+// ============================================================
+
+setupMobileNavigation: function() {
+    console.log("📱 Setting up mobile navigation...");
+    var self = this;
+    
+    // Mobile menu toggle
+    var menuToggle = document.getElementById('mobileMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            var navTabs = document.getElementById('navTabs');
+            if (navTabs) {
+                navTabs.classList.toggle('open');
+                // Toggle icon
+                var icon = this.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-bars');
+                    icon.classList.toggle('fa-times');
+                }
+            }
+        });
+    }
+    
+    // Mobile bottom navigation
+    var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
+    bottomNavItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            var page = this.dataset.page;
+            console.log("📱 Mobile nav clicked:", page);
+            // Close mobile menu if open
+            var navTabs = document.getElementById('navTabs');
+            if (navTabs) {
+                navTabs.classList.remove('open');
+            }
+            self.navigateTo(page);
+        });
+    });
+    
+    // Close mobile menu on outside click
+    document.addEventListener('click', function(e) {
+        var menuToggle = document.getElementById('mobileMenuToggle');
+        var navTabs = document.getElementById('navTabs');
+        if (navTabs && navTabs.classList.contains('open')) {
+            if (!navTabs.contains(e.target) && !menuToggle.contains(e.target)) {
+                navTabs.classList.remove('open');
+                var icon = menuToggle?.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        }
+    });
+},
+
+// ----- SHOW TOAST MESSAGE (Mobile) -----
+showToast: function(message, type) {
+    var toast = document.getElementById('mobileToast');
+    var toastMessage = document.getElementById('toastMessage');
+    if (!toast || !toastMessage) return;
+    
+    toast.className = 'toast-mobile';
+    if (type) {
+        toast.classList.add(type);
+    }
+    toastMessage.textContent = message;
+    toast.classList.add('show');
+    
+    clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(function() {
+        toast.classList.remove('show');
+    }, 3000);
+},
 
 // Start the app
 window.app = App;
