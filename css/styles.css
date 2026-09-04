@@ -1665,7 +1665,7 @@ tr:hover {
 }
 
 /* ============================================================
-   MOBILE MENU - HAMBURGER STYLES
+   MOBILE MENU - HAMBURGER STYLES (COMPLETE FIX)
    ============================================================ */
 
 /* ----- Mobile Menu Toggle Button ----- */
@@ -1691,6 +1691,30 @@ tr:hover {
     box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
 }
 
+/* ----- Nav Overlay (ALWAYS defined, not just in mobile) ----- */
+.nav-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 998;
+    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+.nav-overlay.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 /* ----- Desktop Navigation ----- */
 .nav-tabs {
     display: flex;
@@ -1707,97 +1731,93 @@ tr:hover {
 @media (max-width: 768px) {
     /* Show hamburger on mobile */
     .mobile-menu-toggle {
-        display: block;
+        display: block !important;
+        margin-left: auto;
+        padding: 6px 10px;
+        font-size: 1.3rem;
     }
     
     /* Hide desktop nav by default on mobile */
     .nav-tabs {
         display: none !important;
-        position: absolute;
-        top: 68px;
-        right: 16px;
-        left: 16px;
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-heavy);
-        padding: 12px;
-        flex-direction: column;
-        gap: 4px;
-        z-index: 999;
-        border: 1px solid var(--gray-100);
-        max-height: 70vh;
-        overflow-y: auto;
+        position: absolute !important;
+        top: 58px !important;
+        right: 12px !important;
+        left: 12px !important;
+        background: white !important;
+        border-radius: 16px !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+        padding: 12px !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        z-index: 999 !important;
+        border: 1px solid var(--gray-100) !important;
+        max-height: 70vh !important;
+        overflow-y: auto !important;
+        animation: slideDown 0.3s ease !important;
     }
     
     /* Show when open class is added */
     .nav-tabs.open {
         display: flex !important;
-        animation: slideDown 0.3s ease;
     }
     
     @keyframes slideDown {
         from {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(-10px) scale(0.98);
         }
         to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
     }
     
     /* Mobile nav tab styles */
     .nav-tab {
-        padding: 12px 16px;
-        border-radius: var(--radius-md);
-        width: 100%;
-        justify-content: flex-start;
-        font-size: 0.9rem;
-        border: none;
-        background: transparent;
-        color: var(--gray-500);
-        cursor: pointer;
-        transition: var(--transition);
-        font-family: var(--font-sans);
-        font-weight: 500;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+        width: 100% !important;
+        justify-content: flex-start !important;
+        font-size: 0.9rem !important;
+        border: none !important;
+        background: transparent !important;
+        color: var(--gray-700) !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        font-family: var(--font-sans) !important;
+        font-weight: 500 !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+    }
+    
+    .nav-tab:last-child {
+        border-bottom: none !important;
     }
     
     .nav-tab:hover {
-        background: rgba(108, 99, 255, 0.04);
-        color: var(--primary);
+        background: rgba(108, 99, 255, 0.04) !important;
+        color: var(--primary) !important;
     }
     
     .nav-tab.active {
-        background: var(--gradient-primary);
-        color: white;
-        box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+        background: var(--gradient-primary) !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3) !important;
     }
     
     .nav-tab i {
-        width: 24px;
-        text-align: center;
+        width: 24px !important;
+        text-align: center !important;
+        margin-right: 8px !important;
     }
     
-    /* Close menu when clicking outside - overlay */
+    /* Overlay is ALWAYS defined above, so we just ensure it works on mobile */
     .nav-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
-        z-index: 998;
-        animation: fadeIn 0.3s ease;
+        z-index: 998 !important;
     }
     
     .nav-overlay.active {
-        display: block;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        display: block !important;
     }
 }
 
@@ -1814,9 +1834,13 @@ tr:hover {
         background: rgba(108, 99, 255, 0.06) !important;
         padding: 6px !important;
         border: 1px solid rgba(108, 99, 255, 0.08) !important;
+        border-radius: 60px !important;
     }
     .nav-tabs.open {
         display: flex !important;
+    }
+    .nav-overlay {
+        display: none !important;
     }
 }
 
@@ -1833,6 +1857,10 @@ tr:hover {
         background: rgba(108, 99, 255, 0.06) !important;
         padding: 6px !important;
         border: 1px solid rgba(108, 99, 255, 0.08) !important;
+        border-radius: 60px !important;
+    }
+    .nav-overlay {
+        display: none !important;
     }
 }
 
@@ -1840,6 +1868,9 @@ tr:hover {
 @supports (-webkit-touch-callout: none) {
     .nav-tabs {
         -webkit-backdrop-filter: blur(10px);
+    }
+    .nav-overlay {
+        -webkit-backdrop-filter: blur(2px);
     }
 }
 
