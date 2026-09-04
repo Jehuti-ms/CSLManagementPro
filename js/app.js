@@ -161,115 +161,73 @@ var App = {
     },
     
     // ============================================================
-    // MOBILE NAVIGATION - FIXED
+    // MOBILE NAVIGATION - HAMBURGER MENU
     // ============================================================
     setupMobileNavigation: function() {
         console.log("📱 Setting up mobile navigation...");
         var self = this;
         
-        // Get elements
         var menuToggle = document.getElementById('mobileMenuToggle');
         var navTabs = document.getElementById('navTabs');
         var overlay = document.getElementById('mobileOverlay');
         
-        console.log("📱 Menu toggle element:", menuToggle);
-        console.log("📱 Nav tabs element:", navTabs);
-        console.log("📱 Overlay element:", overlay);
-        
-        // FIX: Hamburger menu toggle with proper positioning
-        if (menuToggle && navTabs) {
-            // Remove any existing listeners
-            var newToggle = menuToggle.cloneNode(true);
-            menuToggle.parentNode.replaceChild(newToggle, menuToggle);
-            menuToggle = newToggle;
+        if (menuToggle) {
+            menuToggle.removeEventListener('click', menuToggle._toggleHandler);
             
-            // Toggle handler
-            menuToggle.addEventListener('click', function(e) {
+            var toggleHandler = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                console.log("📱 Hamburger clicked - Current state:", self.isMenuOpen);
                 
                 self.isMenuOpen = !self.isMenuOpen;
                 
+                if (navTabs) {
+                    navTabs.classList.toggle('open');
+                }
+                
+                if (overlay) {
+                    overlay.classList.toggle('active');
+                }
+                
+                var icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-bars');
+                    icon.classList.toggle('fa-times');
+                }
+                
                 if (self.isMenuOpen) {
-                    // Open menu
-                    navTabs.classList.add('open');
-                    if (overlay) {
-                        overlay.classList.add('active');
-                        overlay.style.display = 'block';
-                    }
                     document.body.style.overflow = 'hidden';
-                    // Change icon
-                    var icon = this.querySelector('i');
-                    if (icon) {
-                        icon.className = 'fas fa-times';
-                    }
-                    console.log("📱 Menu opened");
                 } else {
-                    // Close menu
-                    navTabs.classList.remove('open');
-                    if (overlay) {
-                        overlay.classList.remove('active');
-                        overlay.style.display = 'none';
-                    }
                     document.body.style.overflow = '';
-                    var icon = this.querySelector('i');
-                    if (icon) {
-                        icon.className = 'fas fa-bars';
-                    }
-                    console.log("📱 Menu closed");
                 }
-                
-                console.log("📱 Nav tabs classList:", navTabs.className);
-                if (overlay) console.log("📱 Overlay classList:", overlay.className);
-            });
+            };
             
-            console.log("✅ Hamburger menu toggle setup complete");
-        } else {
-            console.warn("⚠️ mobileMenuToggle or navTabs not found!");
+            menuToggle._toggleHandler = toggleHandler;
+            menuToggle.addEventListener('click', toggleHandler);
         }
         
-        // FIX: Close menu when overlay is clicked
         if (overlay) {
-            overlay.addEventListener('click', function(e) {
-                console.log("📱 Overlay clicked - Closing menu");
+            overlay.removeEventListener('click', overlay._closeHandler);
+            
+            var closeHandler = function(e) {
                 self.closeMobileMenu();
-            });
+            };
+            
+            overlay._closeHandler = closeHandler;
+            overlay.addEventListener('click', closeHandler);
         }
         
-        // FIX: Mobile bottom navigation
-        var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
-        console.log("📱 Found " + bottomNavItems.length + " bottom nav items");
-        
-        bottomNavItems.forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                var page = this.dataset.page;
-                console.log("📱 Mobile bottom nav clicked:", page);
-                
-                // Close hamburger menu
-                self.closeMobileMenu();
-                
-                // Navigate to page
-                if (page) {
-                    self.navigateTo(page);
+        document.addEventListener('click', function(e) {
+            if (self.isMenuOpen) {
+                var menuToggle = document.getElementById('mobileMenuToggle');
+                var navTabs = document.getElementById('navTabs');
+                if (navTabs && !navTabs.contains(e.target) && !menuToggle?.contains(e.target)) {
+                    self.closeMobileMenu();
                 }
-            });
-        });
-        
-        // Close menu on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && self.isMenuOpen) {
-                self.closeMobileMenu();
             }
         });
         
-        // Close menu on window resize to desktop
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768 && self.isMenuOpen) {
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && self.isMenuOpen) {
                 self.closeMobileMenu();
             }
         });
@@ -277,26 +235,20 @@ var App = {
     
     // Helper to close mobile menu
     closeMobileMenu: function() {
-        console.log("📱 Closing mobile menu...");
         this.isMenuOpen = false;
         
         var navTabs = document.getElementById('navTabs');
         var overlay = document.getElementById('mobileOverlay');
         var menuToggle = document.getElementById('mobileMenuToggle');
         
-        if (navTabs) {
-            navTabs.classList.remove('open');
-        }
-        
-        if (overlay) {
-            overlay.classList.remove('active');
-            overlay.style.display = 'none';
-        }
+        if (navTabs) navTabs.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
         
         if (menuToggle) {
             var icon = menuToggle.querySelector('i');
             if (icon) {
-                icon.className = 'fas fa-bars';
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
             }
         }
         
@@ -310,9 +262,7 @@ var App = {
         if (!toast || !toastMessage) return;
         
         toast.className = 'toast-mobile';
-        if (type) {
-            toast.classList.add(type);
-        }
+        if (type) toast.classList.add(type);
         toastMessage.textContent = message;
         toast.classList.add('show');
         
@@ -325,12 +275,10 @@ var App = {
     showLogin: function() {
         console.log("📄 Showing login page...");
         var container = document.getElementById('pageContainer');
-
+        
         // Hide mobile bottom nav
         var bottomNav = document.getElementById('mobileBottomNav');
-        if (bottomNav) {
-            bottomNav.style.display = 'none';
-        }
+        if (bottomNav) bottomNav.style.display = 'none';
         
         if (!container) {
             console.error("❌ pageContainer not found!");
@@ -369,14 +317,107 @@ var App = {
         }
     },
     
+    // ============================================================
+    // DYNAMIC BOTTOM NAVIGATION (Updated: Coordinator sees all)
+    // ============================================================
+    setupMobileBottomNav: function(user) {
+        console.log("📱 Setting up dynamic mobile bottom nav...");
+        var container = document.getElementById('mobileNavItems');
+        if (!container) return;
+        
+        // Determine role
+        var isCoordinator = user.email === 'admin@csl.com' || user.role === 'coordinator' || user.role === 'admin';
+        var isStudent = user.role === 'student' || user.email === 'student@csl.com'; 
+
+        var navHTML = '';
+
+        // 1. STUDENT ROLE: Only sees Student page
+        if (isStudent) {
+            navHTML = `
+                <button class="nav-item" data-page="student">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Student</span>
+                </button>
+            `;
+        } 
+        // 2. TEACHER ROLE: Sees all pages EXCEPT Admin
+        else if (!isCoordinator) {
+            navHTML = `
+                <button class="nav-item" data-page="student">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Student</span>
+                </button>
+                <button class="nav-item" data-page="attendance">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Attendance</span>
+                </button>
+                <button class="nav-item" data-page="tracker">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Tracker</span>
+                </button>
+                <button class="nav-item" data-page="reflections">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Reflect</span>
+                </button>
+            `;
+        } 
+        // 3. COORDINATOR ROLE: Sees EVERYTHING (Student, Attendance, Tracker, Reflect, Admin)
+        else {
+            navHTML = `
+                <button class="nav-item" data-page="student">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Student</span>
+                </button>
+                <button class="nav-item" data-page="attendance">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Attendance</span>
+                </button>
+                <button class="nav-item" data-page="tracker">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Tracker</span>
+                </button>
+                <button class="nav-item" data-page="reflections">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Reflect</span>
+                </button>
+                <button class="nav-item" data-page="admin">
+                    <i class="fas fa-cog"></i>
+                    <span>Manage</span>
+                </button>
+            `;
+        }
+        
+        // Inject HTML
+        container.innerHTML = navHTML;
+        
+        // Attach click events to the new buttons
+        var self = this;
+        var bottomNavItems = container.querySelectorAll('.nav-item');
+        bottomNavItems.forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var page = this.dataset.page;
+                self.closeMobileMenu();
+                if (page) {
+                    self.navigateTo(page);
+                }
+            });
+        });
+        
+        // Show the bottom nav
+        document.getElementById('mobileBottomNav').style.display = 'block';
+    },
+    
     showMainApp: function(user) {
         console.log("📄 Showing main app...");
-
+        
         // Show mobile bottom nav
         var bottomNav = document.getElementById('mobileBottomNav');
-        if (bottomNav) {
-            bottomNav.style.display = 'block';
-        }
+        if (bottomNav) bottomNav.style.display = 'block';
+        
+        // Setup the dynamic bottom nav based on the user's role
+        this.setupMobileBottomNav(user);
         
         var navTabs = document.getElementById('navTabs');
         var userBadge = document.getElementById('userBadge');
@@ -400,12 +441,9 @@ var App = {
         var self = this;
         
         var container = document.getElementById('pageContainer');
-        if (!container) {
-            console.error("❌ pageContainer not found!");
-            return;
-        }
+        if (!container) return;
         
-        // Close mobile menu
+        // Close mobile menu if open
         this.closeMobileMenu();
         
         // Update nav tabs (desktop)
@@ -434,14 +472,11 @@ var App = {
 
         // Update mobile bottom nav active state
         var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
-        console.log("📱 Updating " + bottomNavItems.length + " bottom nav items for page:", pageId);
-        
         bottomNavItems.forEach(function(item) {
             var itemPage = item.dataset.page;
             item.classList.remove('active');
             if (itemPage === pageId) {
                 item.classList.add('active');
-                console.log("📱 Active bottom nav:", itemPage);
             }
         });
         
@@ -450,64 +485,25 @@ var App = {
         try {
             switch (pageId) {
                 case 'landing':
-                    if (window.LandingPage && typeof window.LandingPage.render === 'function') {
-                        html = window.LandingPage.render();
-                        console.log("✅ Landing HTML generated");
-                    } else {
-                        html = '<p>Landing page not loaded</p>';
-                        console.error("❌ LandingPage not available");
-                    }
+                    html = window.LandingPage ? window.LandingPage.render() : '<p>Landing page not loaded</p>';
                     break;
                 case 'attendance':
-                    if (window.AttendancePage && typeof window.AttendancePage.render === 'function') {
-                        html = window.AttendancePage.render();
-                        console.log("✅ Attendance HTML generated");
-                    } else {
-                        html = '<p>Attendance page not loaded</p>';
-                    }
+                    html = window.AttendancePage ? window.AttendancePage.render() : '<p>Attendance page not loaded</p>';
                     break;
                 case 'tracker':
-                    if (window.TrackerPage && typeof window.TrackerPage.render === 'function') {
-                        html = window.TrackerPage.render();
-                        console.log("✅ Tracker HTML generated");
-                    } else {
-                        html = '<p>Tracker page not loaded</p>';
-                        console.error("❌ TrackerPage not available");
-                    }
+                    html = window.TrackerPage ? window.TrackerPage.render() : '<p>Tracker page not loaded</p>';
                     break;
                 case 'reflections':
-                    if (window.ReflectionsPage && typeof window.ReflectionsPage.render === 'function') {
-                        html = window.ReflectionsPage.render();
-                        console.log("✅ Reflections HTML generated");
-                    } else {
-                        html = '<p>Reflections page not loaded</p>';
-                    }
+                    html = window.ReflectionsPage ? window.ReflectionsPage.render() : '<p>Reflections page not loaded</p>';
                     break;
                 case 'student':
-                    if (window.StudentPage && typeof window.StudentPage.render === 'function') {
-                        html = window.StudentPage.render();
-                        console.log("✅ Student HTML generated");
-                    } else {
-                        html = '<p>Student page not loaded</p>';
-                        console.error("❌ StudentPage not available");
-                    }
+                    html = window.StudentPage ? window.StudentPage.render() : '<p>Student page not loaded</p>';
                     break;
                 case 'admin':
-                    if (window.AdminPage && typeof window.AdminPage.render === 'function') {
-                        html = window.AdminPage.render();
-                        console.log("✅ Admin HTML generated");
-                    } else {
-                        html = '<p>Admin page not loaded</p>';
-                    }
+                    html = window.AdminPage ? window.AdminPage.render() : '<p>Admin page not loaded</p>';
                     break;
                 case 'adminprofile':
-                    if (window.AdminProfilePage && typeof window.AdminProfilePage.render === 'function') {
-                        html = window.AdminProfilePage.render();
-                        console.log("✅ Admin Profile HTML generated");
-                    } else {
-                        html = '<p>Admin Profile page not loaded</p>';
-                        console.error("❌ AdminProfilePage not available");
-                    }
+                    html = window.AdminProfilePage ? window.AdminProfilePage.render() : '<p>Admin Profile page not loaded</p>';
                     break;
                 default:
                     html = '<p>Page not found</p>';
@@ -523,46 +519,14 @@ var App = {
         setTimeout(function() {
             try {
                 switch (pageId) {
-                    case 'landing':
-                        if (window.LandingPage && typeof window.LandingPage.setupEvents === 'function') {
-                            window.LandingPage.setupEvents();
-                        }
-                        break;
-                    case 'attendance':
-                        if (window.AttendancePage && typeof window.AttendancePage.setupEvents === 'function') {
-                            window.AttendancePage.setupEvents();
-                        }
-                        break;
-                    case 'tracker':
-                        if (window.TrackerPage && typeof window.TrackerPage.setupEvents === 'function') {
-                            console.log("🔧 Setting up tracker events...");
-                            window.TrackerPage.setupEvents();
-                        }
-                        break;
-                    case 'reflections':
-                        if (window.ReflectionsPage && typeof window.ReflectionsPage.setupEvents === 'function') {
-                            window.ReflectionsPage.setupEvents();
-                        }
-                        break;
-                    case 'student':
-                        if (window.StudentPage && typeof window.StudentPage.setupEvents === 'function') {
-                            console.log("🔧 Setting up student events...");
-                            window.StudentPage.setupEvents();
-                        }
-                        break;
-                    case 'admin':
-                        if (window.AdminPage && typeof window.AdminPage.setupEvents === 'function') {
-                            window.AdminPage.setupEvents();
-                        }
-                        break;
-                    case 'adminprofile':
-                        if (window.AdminProfilePage && typeof window.AdminProfilePage.setupEvents === 'function') {
-                            console.log("🔧 Setting up admin profile events...");
-                            window.AdminProfilePage.setupEvents();
-                        }
-                        break;
-                    default:
-                        console.warn("⚠️ Unknown page: " + pageId);
+                    case 'landing': if (window.LandingPage && window.LandingPage.setupEvents) window.LandingPage.setupEvents(); break;
+                    case 'attendance': if (window.AttendancePage && window.AttendancePage.setupEvents) window.AttendancePage.setupEvents(); break;
+                    case 'tracker': if (window.TrackerPage && window.TrackerPage.setupEvents) window.TrackerPage.setupEvents(); break;
+                    case 'reflections': if (window.ReflectionsPage && window.ReflectionsPage.setupEvents) window.ReflectionsPage.setupEvents(); break;
+                    case 'student': if (window.StudentPage && window.StudentPage.setupEvents) window.StudentPage.setupEvents(); break;
+                    case 'admin': if (window.AdminPage && window.AdminPage.setupEvents) window.AdminPage.setupEvents(); break;
+                    case 'adminprofile': if (window.AdminProfilePage && window.AdminProfilePage.setupEvents) window.AdminProfilePage.setupEvents(); break;
+                    default: console.warn("⚠️ Unknown page: " + pageId);
                 }
             } catch (error) {
                 console.error("❌ Error setting up events for " + pageId + ":", error);
