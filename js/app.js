@@ -160,128 +160,91 @@ var App = {
     },
     
     // ============================================================
-    // MOBILE NAVIGATION - COMPLETE FIX
+    // MOBILE NAVIGATION - FIX 1: Updated handler
     // ============================================================
     setupMobileNavigation: function() {
         console.log("📱 Setting up mobile navigation...");
         var self = this;
         
-        // Get elements
+        // Mobile menu toggle (hamburger menu)
         var menuToggle = document.getElementById('mobileMenuToggle');
-        var navTabs = document.getElementById('navTabs');
-        var overlay = document.getElementById('navOverlay');
-        
-        console.log("🔍 Elements found:");
-        console.log("  menuToggle:", menuToggle);
-        console.log("  navTabs:", navTabs);
-        console.log("  overlay:", overlay);
-        
-        if (!menuToggle) {
-            console.warn("⚠️ mobileMenuToggle not found!");
-            return;
-        }
-        
-        if (!navTabs) {
-            console.warn("⚠️ navTabs not found!");
-            return;
-        }
-        
-        // Toggle menu on hamburger click
-        menuToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log("🔘 Menu toggle clicked");
-            
-            // Toggle the 'open' class on navTabs
-            navTabs.classList.toggle('open');
-            
-            // Toggle icon
-            var icon = this.querySelector('i');
-            if (icon) {
-                icon.classList.toggle('fa-bars');
-                icon.classList.toggle('fa-times');
-            }
-            
-            // Toggle overlay
-            if (overlay) {
-                overlay.classList.toggle('active');
-            }
-            
-            // Prevent body scroll when menu is open
-            document.body.style.overflow = navTabs.classList.contains('open') ? 'hidden' : '';
-            
-            console.log("📋 Menu open state:", navTabs.classList.contains('open'));
-        });
-        
-        // Close menu when clicking on a nav item
-        var navItems = document.querySelectorAll('.nav-tab');
-        navItems.forEach(function(item) {
-            item.addEventListener('click', function() {
-                closeMenu();
-            });
-        });
-        
-        // Close menu when clicking overlay
-        if (overlay) {
-            overlay.addEventListener('click', function() {
-                closeMenu();
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var navTabs = document.getElementById('navTabs');
+                if (navTabs) {
+                    navTabs.classList.toggle('open');
+                    var icon = this.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('fa-bars');
+                        icon.classList.toggle('fa-times');
+                    }
+                }
             });
         }
         
-        // Close menu on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeMenu();
-            }
-        });
-        
-        // Close menu function
-        function closeMenu() {
-            if (navTabs && navTabs.classList.contains('open')) {
-                navTabs.classList.remove('open');
-                var icon = menuToggle?.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-                if (overlay) {
-                    overlay.classList.remove('active');
-                }
-                document.body.style.overflow = '';
-                console.log("📋 Menu closed");
-            }
-        }
-        
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (navTabs && navTabs.classList.contains('open')) {
-                if (!navTabs.contains(e.target) && !menuToggle.contains(e.target)) {
-                    closeMenu();
-                }
-            }
-        });
-        
-        // Mobile bottom navigation
+        // FIX 1: Mobile bottom navigation - Improved handler with better event handling
         var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
+        console.log("📱 Found " + bottomNavItems.length + " bottom nav items");
+        
         bottomNavItems.forEach(function(item) {
-            item.addEventListener('click', function() {
+            // Remove any existing listeners to prevent duplicates
+            item.removeEventListener('click', item._clickHandler);
+            
+            // Create new handler
+            var handler = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 var page = this.dataset.page;
-                console.log("📱 Bottom nav clicked:", page);
-                closeMenu();
-                if (window.app && window.app.navigateTo) {
-                    window.app.navigateTo(page);
+                console.log("📱 Mobile bottom nav clicked:", page);
+                
+                // Close hamburger menu if open
+                var navTabs = document.getElementById('navTabs');
+                if (navTabs) {
+                    navTabs.classList.remove('open');
+                    var menuToggle = document.getElementById('mobileMenuToggle');
+                    var icon = menuToggle?.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
                 }
-            });
+                
+                // Navigate to page
+                if (page) {
+                    self.navigateTo(page);
+                }
+            };
+            
+            // Store handler reference for cleanup
+            item._clickHandler = handler;
+            item.addEventListener('click', handler);
         });
         
-        // Close menu on window resize (if going back to desktop)
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                closeMenu();
+        // Close mobile menu on outside click
+        document.addEventListener('click', function(e) {
+            var menuToggle = document.getElementById('mobileMenuToggle');
+            var navTabs = document.getElementById('navTabs');
+            if (navTabs && navTabs.classList.contains('open')) {
+                if (!navTabs.contains(e.target) && !menuToggle?.contains(e.target)) {
+                    navTabs.classList.remove('open');
+                    var icon = menuToggle?.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
             }
         });
         
-        console.log("✅ Mobile navigation setup complete");
+        // Handle touch events for better mobile responsiveness
+        var bottomNav = document.getElementById('mobileBottomNav');
+        if (bottomNav) {
+            bottomNav.addEventListener('touchstart', function(e) {
+                // Allow touch events to pass through
+            }, { passive: true });
+        }
     },
     
     // ----- SHOW TOAST MESSAGE (Mobile) -----
@@ -372,6 +335,9 @@ var App = {
         this.navigateTo('attendance');
     },
     
+    // ============================================================
+    // NAVIGATE TO - FIX 2: Updated bottom nav active state
+    // ============================================================
     navigateTo: function(pageId) {
         console.log("🧭 Navigating to: " + pageId);
         this.currentPage = pageId;
@@ -383,7 +349,7 @@ var App = {
             return;
         }
         
-        // Update nav tabs
+        // Update nav tabs (desktop)
         var tabs = document.querySelectorAll('.nav-tab');
         for (var i = 0; i < tabs.length; i++) {
             if (tabs[i].dataset.page === pageId) {
@@ -407,15 +373,31 @@ var App = {
             if (userBadge) userBadge.style.display = 'flex';
         }
 
-        // Update mobile bottom nav active state
+        // FIX 2: Update mobile bottom nav active state - More robust implementation
         var bottomNavItems = document.querySelectorAll('.mobile-bottom-nav .nav-item');
+        console.log("📱 Updating " + bottomNavItems.length + " bottom nav items for page:", pageId);
+        
         bottomNavItems.forEach(function(item) {
-            if (item.dataset.page === pageId) {
+            var itemPage = item.dataset.page;
+            // Remove all active states
+            item.classList.remove('active');
+            
+            // Add active class if this item's page matches
+            if (itemPage === pageId) {
                 item.classList.add('active');
-            } else {
-                item.classList.remove('active');
+                console.log("📱 Active bottom nav:", itemPage);
             }
         });
+        
+        // Also update the icon within active nav item
+        var activeItem = document.querySelector('.mobile-bottom-nav .nav-item.active');
+        if (activeItem) {
+            var icon = activeItem.querySelector('i');
+            if (icon) {
+                // Icon styling can be handled via CSS
+                console.log("📱 Active icon found for:", activeItem.dataset.page);
+            }
+        }
         
         // Render the page
         var html = '';
