@@ -101,7 +101,7 @@
     </header>
 
     <!-- ===== NAV OVERLAY (for closing menu on click outside) ===== -->
-    <div id="mobileOverlay" class="mobile-overlay"></div>
+    <div id="mobileOverlay" class="mobile-overlay" style="display: none;"></div>
 
     <!-- ===== PAGE CONTAINER (ONLY ONE!) ===== -->
     <div id="pageContainer">
@@ -156,7 +156,7 @@
 <script src="js/pages/admin.js"></script>
 <script src="js/app.js"></script>
 
-<!-- ===== EMERGENCY MOBILE NAV FIX (UPDATED) ===== -->
+<!-- ===== EMERGENCY MOBILE NAV FIX ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log("🔧 Emergency mobile nav loaded");
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get elements
     var menuToggle = document.getElementById('mobileMenuToggle');
     var navTabs = document.getElementById('navTabs');
-    var overlay = document.getElementById('mobileOverlay'); // FIXED: Changed from navOverlay to mobileOverlay
+    var overlay = document.getElementById('mobileOverlay');
     
     console.log("menuToggle:", menuToggle);
     console.log("navTabs:", navTabs);
@@ -178,33 +178,39 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to close menu
     function closeMobileMenu() {
         navTabs.classList.remove('open');
-        if (overlay) overlay.classList.remove('active');
+        if (overlay) {
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
+        }
         var icon = menuToggle.querySelector('i');
         if (icon) {
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
+            icon.className = 'fas fa-bars';
         }
         document.body.style.overflow = '';
-        console.log("📋 Menu closed");
+        console.log("📋 Emergency: Menu closed");
     }
     
     // Function to open menu
     function openMobileMenu() {
         navTabs.classList.add('open');
-        if (overlay) overlay.classList.add('active');
+        if (overlay) {
+            overlay.classList.add('active');
+            overlay.style.display = 'block';
+        }
         var icon = menuToggle.querySelector('i');
         if (icon) {
-            icon.classList.remove('fa-bars');
-            icon.classList.add('fa-times');
+            icon.className = 'fas fa-times';
         }
         document.body.style.overflow = 'hidden';
-        console.log("📋 Menu opened");
+        console.log("📋 Emergency: Menu opened");
     }
     
     // Toggle menu on hamburger click
     menuToggle.addEventListener('click', function(e) {
         e.stopPropagation();
         e.preventDefault();
+        
+        console.log("📱 Emergency: Hamburger clicked");
         
         if (navTabs.classList.contains('open')) {
             closeMobileMenu();
@@ -232,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Close menu when clicking outside (fallback)
+    // Close menu when clicking outside
     document.addEventListener('click', function(e) {
         if (navTabs.classList.contains('open')) {
             if (!navTabs.contains(e.target) && !menuToggle.contains(e.target)) {
@@ -260,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
     bottomNavItems.forEach(function(item) {
         item.addEventListener('click', function() {
             var page = this.dataset.page;
-            console.log("📱 Bottom nav clicked:", page);
+            console.log("📱 Emergency: Bottom nav clicked:", page);
             
             // Close mobile menu
             if (navTabs.classList.contains('open')) {
