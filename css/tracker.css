@@ -1,6 +1,16 @@
 /* ============================================================
-   TRACKER PAGE SPECIFIC STYLES
+   TRACKER PAGE SPECIFIC STYLES (CLEANED)
    ============================================================ */
+
+/* ----- Variables (Needed for tracker specific styles) ----- */
+:root {
+    --border-radius-sm: 8px;
+    --border-radius-lg: 16px;
+    --gray: #6C7A89;
+    --gray-light: #E8ECF1;
+    --dark: #1A1A2E;
+    --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-light));
+}
 
 /* ----- Period Tabs ----- */
 .period-tab {
@@ -137,61 +147,21 @@
 }
 
 /* ----- Activity Type Badges ----- */
-.badge-type-training {
-    background: #6C63FF;
-    color: white;
-}
-
-.badge-type-meeting {
-    background: #FF6584;
-    color: white;
-}
-
-.badge-type-event {
-    background: #00D2A0;
-    color: white;
-}
-
-.badge-type-planning {
-    background: #FFB84D;
-    color: white;
-}
-
-.badge-type-volunteer {
-    background: #4ECDC4;
-    color: white;
-}
+.badge-type-training { background: #6C63FF; color: white; }
+.badge-type-meeting { background: #FF6584; color: white; }
+.badge-type-event { background: #00D2A0; color: white; }
+.badge-type-planning { background: #FFB84D; color: white; }
+.badge-type-volunteer { background: #4ECDC4; color: white; }
 
 /* ----- Priority Badges ----- */
-.badge-priority-high {
-    background: #FF6B6B;
-    color: white;
-}
-
-.badge-priority-medium {
-    background: #FFB84D;
-    color: white;
-}
-
-.badge-priority-low {
-    background: #00D2A0;
-    color: white;
-}
+.badge-priority-high { background: #FF6B6B; color: white; }
+.badge-priority-medium { background: #FFB84D; color: white; }
+.badge-priority-low { background: #00D2A0; color: white; }
 
 /* ----- Upload Status ----- */
-#uploadStatus {
-    color: var(--gray);
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-#uploadStatus.success {
-    color: var(--success);
-}
-
-#uploadStatus.error {
-    color: var(--danger);
-}
+#uploadStatus { color: var(--gray); font-size: 0.9rem; font-weight: 500; }
+#uploadStatus.success { color: var(--success); }
+#uploadStatus.error { color: var(--danger); }
 
 /* ----- Club Selector Toolbar ----- */
 #clubSelectorToolbar label {
@@ -253,7 +223,6 @@
    MODAL STYLES - For Tracker Page
    ============================================================ */
 
-/* ----- Modal Overlay ----- */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -274,7 +243,6 @@
     display: flex;
 }
 
-/* ----- Modal Content ----- */
 .modal-content {
     background: white;
     border-radius: var(--border-radius-lg);
@@ -293,14 +261,13 @@
     max-width: 500px;
 }
 
-/* ----- Modal Header ----- */
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
     position: sticky;
-    top: -40px;
+    top: 0; /* FIXED: Was -40px, causing it to disappear */
     background: white;
     padding: 10px 0;
     z-index: 10;
@@ -335,18 +302,16 @@
     transform: rotate(90deg);
 }
 
-/* ----- Modal Body ----- */
 .modal-body {
     padding: 4px 0;
 }
 
-/* ----- Modal Footer ----- */
 .modal-footer {
     display: flex;
     gap: 12px;
     margin-top: 20px;
     position: sticky;
-    bottom: -40px;
+    bottom: 0; /* FIXED: Was -40px, causing it to disappear */
     background: white;
     padding: 15px 0;
     border-top: 2px solid var(--gray-light);
@@ -387,7 +352,6 @@
     background: rgba(255, 107, 107, 0.04);
 }
 
-/* ----- Form Groups in Modal ----- */
 .modal-body .form-group {
     margin-bottom: 16px;
 }
@@ -440,14 +404,12 @@
     font-size: 0.85rem;
 }
 
-/* ----- Grid in Modal ----- */
 .modal-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
 
-/* ----- Animations ----- */
 @keyframes modalSlideIn {
     from {
         opacity: 0;
@@ -468,7 +430,6 @@
     }
 }
 
-/* ----- Responsive Modal ----- */
 @media (max-width: 600px) {
     .modal-content {
         padding: 24px 20px;
@@ -492,4 +453,3 @@
         flex: 1;
     }
 }
-
