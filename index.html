@@ -47,6 +47,7 @@
 </head>
 <body>
 <div class="app-container" id="app">
+    
     <!-- ===== HEADER ===== -->
     <div class="app-header">
         <h1>
@@ -99,42 +100,42 @@
     <!-- ===== NAV OVERLAY (for closing menu on click outside) ===== -->
     <div id="navOverlay" class="nav-overlay"></div>
 
-    <!-- ===== PAGE CONTAINER ===== -->
+    <!-- ===== PAGE CONTAINER (ONLY ONE!) ===== -->
     <div id="pageContainer">
         <!-- Pages will be loaded dynamically -->
     </div>
-</div>
 
-<!-- ===== MOBILE BOTTOM NAVIGATION ===== -->
-<nav class="mobile-bottom-nav" id="mobileBottomNav" style="display: none;">
-    <div class="nav-items">
-        <button class="nav-item" data-page="landing">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </button>
-        <button class="nav-item" data-page="attendance">
-            <i class="fas fa-clipboard-list"></i>
-            <span>Attendance</span>
-        </button>
-        <button class="nav-item" data-page="tracker">
-            <i class="fas fa-chart-line"></i>
-            <span>Tracker</span>
-        </button>
-        <button class="nav-item" data-page="reflections">
-            <i class="fas fa-comment-dots"></i>
-            <span>Reflect</span>
-        </button>
-        <button class="nav-item" data-page="admin">
-            <i class="fas fa-cog"></i>
-            <span>Manage</span>
-        </button>
+    <!-- ===== MOBILE BOTTOM NAVIGATION ===== -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" style="display: none;">
+        <div class="nav-items">
+            <button class="nav-item" data-page="landing">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-page="attendance">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Attendance</span>
+            </button>
+            <button class="nav-item" data-page="tracker">
+                <i class="fas fa-chart-line"></i>
+                <span>Tracker</span>
+            </button>
+            <button class="nav-item" data-page="reflections">
+                <i class="fas fa-comment-dots"></i>
+                <span>Reflect</span>
+            </button>
+            <button class="nav-item" data-page="admin">
+                <i class="fas fa-cog"></i>
+                <span>Manage</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== MOBILE TOAST ===== -->
+    <div id="mobileToast" class="toast-mobile">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
     </div>
-</nav>
-
-<!-- ===== MOBILE TOAST ===== -->
-<div id="mobileToast" class="toast-mobile">
-    <i class="fas fa-check-circle"></i>
-    <span id="toastMessage">Success!</span>
 </div>
 
 <!-- ===== JAVASCRIPT - Load in order ===== -->
@@ -154,17 +155,23 @@
 
 <!-- ===== EMERGENCY MOBILE NAV FIX ===== -->
 <script>
-// Ensure mobile navigation works even if app.js fails
 document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle
     var menuToggle = document.getElementById('mobileMenuToggle');
     var navTabs = document.getElementById('navTabs');
     var overlay = document.getElementById('navOverlay');
     
+    console.log("🔧 Emergency mobile nav loaded");
+    console.log("menuToggle:", menuToggle);
+    console.log("navTabs:", navTabs);
+    console.log("overlay:", overlay);
+    
     if (menuToggle && navTabs) {
         menuToggle.addEventListener('click', function(e) {
             e.stopPropagation();
+            e.preventDefault();
             navTabs.classList.toggle('open');
+            
             var icon = this.querySelector('i');
             if (icon) {
                 icon.classList.toggle('fa-bars');
@@ -174,6 +181,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 overlay.classList.toggle('active');
             }
             document.body.style.overflow = navTabs.classList.contains('open') ? 'hidden' : '';
+            
+            console.log("📋 Menu open:", navTabs.classList.contains('open'));
         });
     }
     
@@ -251,9 +260,12 @@ document.addEventListener('DOMContentLoaded', function() {
     bottomNavItems.forEach(function(item) {
         item.addEventListener('click', function() {
             var page = this.dataset.page;
+            console.log("📱 Bottom nav clicked:", page);
+            
             if (window.app && window.app.navigateTo) {
                 window.app.navigateTo(page);
             }
+            
             // Close mobile menu
             if (navTabs) {
                 navTabs.classList.remove('open');
@@ -285,6 +297,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = '';
         }
     });
+    
+    console.log("✅ Emergency mobile nav setup complete");
 });
 </script>
 </body>
