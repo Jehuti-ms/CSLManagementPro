@@ -96,6 +96,9 @@
         </div>
     </div>
 
+    <!-- ===== NAV OVERLAY (for closing menu on click outside) ===== -->
+    <div id="navOverlay" class="nav-overlay"></div>
+
     <!-- ===== PAGE CONTAINER ===== -->
     <div id="pageContainer">
         <!-- Pages will be loaded dynamically -->
@@ -156,6 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle
     var menuToggle = document.getElementById('mobileMenuToggle');
     var navTabs = document.getElementById('navTabs');
+    var overlay = document.getElementById('navOverlay');
     
     if (menuToggle && navTabs) {
         menuToggle.addEventListener('click', function(e) {
@@ -165,6 +169,45 @@ document.addEventListener('DOMContentLoaded', function() {
             if (icon) {
                 icon.classList.toggle('fa-bars');
                 icon.classList.toggle('fa-times');
+            }
+            if (overlay) {
+                overlay.classList.toggle('active');
+            }
+            document.body.style.overflow = navTabs.classList.contains('open') ? 'hidden' : '';
+        });
+    }
+    
+    // Close menu when clicking on a nav item
+    var navItems = document.querySelectorAll('.nav-tab');
+    navItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            if (navTabs) {
+                navTabs.classList.remove('open');
+                var icon = menuToggle?.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
+                document.body.style.overflow = '';
+            }
+        });
+    });
+    
+    // Close menu when clicking overlay
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            if (navTabs) {
+                navTabs.classList.remove('open');
+                var icon = menuToggle?.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+                this.classList.remove('active');
+                document.body.style.overflow = '';
             }
         });
     }
@@ -179,7 +222,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon.classList.remove('fa-times');
                     icon.classList.add('fa-bars');
                 }
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
+                document.body.style.overflow = '';
             }
+        }
+    });
+    
+    // Close menu on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && navTabs && navTabs.classList.contains('open')) {
+            navTabs.classList.remove('open');
+            var icon = menuToggle?.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            document.body.style.overflow = '';
         }
     });
     
@@ -199,8 +262,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon.classList.remove('fa-times');
                     icon.classList.add('fa-bars');
                 }
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
+                document.body.style.overflow = '';
             }
         });
+    });
+    
+    // Close menu on window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && navTabs && navTabs.classList.contains('open')) {
+            navTabs.classList.remove('open');
+            var icon = menuToggle?.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            document.body.style.overflow = '';
+        }
     });
 });
 </script>
