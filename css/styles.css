@@ -633,7 +633,6 @@ td {
 
 /* ============================================================
    MOBILE FIX - CENTERED BUTTONS & PROMPTS 
-   (This overrides inline styles on Tracker page)
    ============================================================ */
 @media (max-width: 768px) {
     .toolbar {
@@ -656,7 +655,6 @@ td {
         padding: 12px !important;
     }
 
-    /* Target the prompt text next to the buttons */
     .toolbar span {
         display: block !important;
         font-size: 0.85rem !important;
@@ -675,95 +673,86 @@ td {
 }
 
 /* ============================================================
-   PROFILE BUTTON IN TOP BAR
+   ADMIN PAGE RESPONSIVE OVERRIDES (Fixes buttons off-screen)
    ============================================================ */
-#profileBtn {
-    margin-right: 4px;
-}
 
-/* On mobile, hide the text but keep the icon */
-@media (max-width: 768px) {
-    #profileBtn {
-        padding: 4px 6px !important;
-    }
-}
-
-/* ============================================================
-   ADMIN PAGE FIXES (Mobile / Small Screens)
-   ============================================================ */
+/* Starts at tablet width */
 @media (max-width: 1024px) {
-    /* Force the top section title to wrap */
-    .section-title {
-        flex-wrap: wrap;
-    }
-
-    /* Force all flex containers inside the admin page to wrap */
-    #adminPage > div,
-    #adminPage .admin-card,
-    #adminPage [class*="grid"],
-    #adminPage [style*="flex"] {
+    /* Force ALL flex containers in admin to wrap */
+    #adminPage div {
         flex-wrap: wrap !important;
+        min-width: 0 !important;
     }
 
-    /* Force text to wrap instead of overflowing */
+    /* Force text to wrap properly */
     #adminPage h1, #adminPage h2, #adminPage h3, 
     #adminPage .section-title,
     #adminPage [style*="white-space: nowrap"] {
         white-space: normal !important;
     }
 
-    /* Prevent buttons from shrinking */
-    #adminPage button {
-        white-space: nowrap !important;
-        flex-shrink: 0;
+    /* Grid containment for forms */
+    #adminPage [style*="grid-template-columns"] {
+        grid-template-columns: 1fr 1fr !important;
     }
 }
 
+/* Mobile size (phone) */
 @media (max-width: 768px) {
-    /* Admin Header area */
+    #adminPage {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Force the main title to wrap */
     #adminPage .section-title {
-        font-size: 1.2rem;
-        line-height: 1.4;
-        gap: 8px;
+        font-size: 1.2rem !important;
+        line-height: 1.4 !important;
+        gap: 8px !important;
     }
 
-    /* Admin "Cards" (Add Club, Add Teacher, etc.) */
+    /* Stack all Grids to a single column */
+    #adminPage [style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Force ALL cards to stack vertically */
+    #adminPage > div,
     #adminPage .admin-card,
-    #adminPage .quick-add-grid,
-    #adminPage .allocation-grid {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
+    #adminPage [style*="background: white"],
+    #adminPage [style*="background:white"] {
         width: 100% !important;
-        padding: 16px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 12px !important;
+        box-sizing: border-box !important;
     }
 
-    /* Admin Inputs - Full width on mobile */
+    /* Inputs and Selects go full width */
     #adminPage input,
     #adminPage select {
         width: 100% !important;
         max-width: 100% !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 10px !important;
+        margin-right: 0 !important;
         box-sizing: border-box;
     }
 
-    /* Admin Buttons - Full width on mobile */
-    #adminPage .btn-primary, 
-    #adminPage .btn-outline,
-    #adminPage .btn-secondary {
+    /* Buttons take up proper width and align */
+    #adminPage button {
         width: 100% !important;
         max-width: 100% !important;
         justify-content: center !important;
         margin-top: 8px !important;
-        padding: 12px !important;
+        box-sizing: border-box;
     }
 
-    /* Bulk Upload Section */
-    #adminPage [style*="Bulk"],
-    #adminPage [id*="Bulk"],
-    #adminPage [id*="bulk"] {
+    /* Force button groups to a column */
+    #adminPage [style*="display: flex"],
+    #adminPage [style*="display:flex"] {
+        display: flex !important;
         flex-direction: column !important;
         align-items: stretch !important;
+        gap: 10px !important;
     }
 }
-
