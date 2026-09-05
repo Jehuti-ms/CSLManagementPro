@@ -218,7 +218,7 @@ var LoginPage = {
                 this.style.boxShadow = 'var(--shadow-soft)';
                 
                 loginBtn.innerHTML = '<i class="fas fa-chalkboard-teacher"></i> Sign in as Teacher';
-                if (googleBtn) googleBtn.style.display = 'flex';
+                if (googleBtn) googleBtn.style.display = 'flex'; // SHOW GOOGLE BUTTON
                 
                 document.getElementById('loginEmail').placeholder = 'Teacher school email';
                 document.getElementById('loginEmail').value = 'teacher@demo.com';
@@ -235,7 +235,7 @@ var LoginPage = {
                 
                 coordinatorHint.style.display = 'block';
                 loginBtn.innerHTML = '<i class="fas fa-crown"></i> Sign in as Coordinator';
-                if (googleBtn) googleBtn.style.display = 'none';
+                if (googleBtn) googleBtn.style.display = 'flex'; // SHOW GOOGLE BUTTON (Coordinator is a teacher)
                 
                 document.getElementById('loginEmail').placeholder = 'Coordinator email';
                 document.getElementById('loginEmail').value = 'admin@csl.com';
@@ -252,7 +252,7 @@ var LoginPage = {
                 
                 studentHint.style.display = 'block';
                 loginBtn.innerHTML = '<i class="fas fa-user-graduate"></i> Sign in as Student';
-                if (googleBtn) googleBtn.style.display = 'none';
+                if (googleBtn) googleBtn.style.display = 'none'; // HIDE GOOGLE BUTTON
                 
                 document.getElementById('loginEmail').placeholder = 'Student school email';
                 document.getElementById('loginEmail').value = 'student@demo.com';
@@ -386,7 +386,7 @@ var LoginPage = {
             });
         }
         
-        // ===== GOOGLE SIGN-IN =====
+        // ===== GOOGLE SIGN-IN (Restored) =====
         if (googleBtn) {
             googleBtn.addEventListener('click', async function() {
                 var errorEl = document.getElementById('loginError');
