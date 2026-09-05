@@ -112,19 +112,7 @@ var App = {
                 }
             });
         }
-        
-        if (window.__firebase && window.__firebase.useMock) {
-            var mockUser = localStorage.getItem('mockUser') || sessionStorage.getItem('mockUser');
-            if (mockUser) {
-                try {
-                    var user = JSON.parse(mockUser);
-                    self.currentUser = user;
-                    self.showMainApp(user);
-                } catch (e) {
-                    console.warn("⚠️ Could not parse mock user:", e);
-                }
-            }
-        }
+         
     },
     
        setupNavigation: function() {
