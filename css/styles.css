@@ -687,3 +687,83 @@ td {
         padding: 4px 6px !important;
     }
 }
+
+/* ============================================================
+   ADMIN PAGE FIXES (Mobile / Small Screens)
+   ============================================================ */
+@media (max-width: 1024px) {
+    /* Force the top section title to wrap */
+    .section-title {
+        flex-wrap: wrap;
+    }
+
+    /* Force all flex containers inside the admin page to wrap */
+    #adminPage > div,
+    #adminPage .admin-card,
+    #adminPage [class*="grid"],
+    #adminPage [style*="flex"] {
+        flex-wrap: wrap !important;
+    }
+
+    /* Force text to wrap instead of overflowing */
+    #adminPage h1, #adminPage h2, #adminPage h3, 
+    #adminPage .section-title,
+    #adminPage [style*="white-space: nowrap"] {
+        white-space: normal !important;
+    }
+
+    /* Prevent buttons from shrinking */
+    #adminPage button {
+        white-space: nowrap !important;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Admin Header area */
+    #adminPage .section-title {
+        font-size: 1.2rem;
+        line-height: 1.4;
+        gap: 8px;
+    }
+
+    /* Admin "Cards" (Add Club, Add Teacher, etc.) */
+    #adminPage .admin-card,
+    #adminPage .quick-add-grid,
+    #adminPage .allocation-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        padding: 16px !important;
+    }
+
+    /* Admin Inputs - Full width on mobile */
+    #adminPage input,
+    #adminPage select {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 8px !important;
+        box-sizing: border-box;
+    }
+
+    /* Admin Buttons - Full width on mobile */
+    #adminPage .btn-primary, 
+    #adminPage .btn-outline,
+    #adminPage .btn-secondary {
+        width: 100% !important;
+        max-width: 100% !important;
+        justify-content: center !important;
+        margin-top: 8px !important;
+        padding: 12px !important;
+    }
+
+    /* Bulk Upload Section */
+    #adminPage [style*="Bulk"],
+    #adminPage [id*="Bulk"],
+    #adminPage [id*="bulk"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+}
+
