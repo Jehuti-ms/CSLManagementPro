@@ -1,10 +1,14 @@
 // ============================================================
-// PROFILE PAGE - Generic Profile for All Users
+// PROFILE PAGE - Generic with Role-Based Coordinator Management
 // ============================================================
 
 var AdminProfilePage = {
     // ----- RENDER HTML -----
     render: function() {
+        // Check if the user is a Coordinator first so we can conditionally render the management section
+        var currentUser = (window.Auth && window.Auth.getCurrentUser) ? window.Auth.getCurrentUser() : null;
+        var isCoordinator = currentUser && (currentUser.email === 'admin@csl.com' || currentUser.role === 'coordinator' || currentUser.role === 'admin');
+
         return `
         <div id="adminProfilePage" class="page active-page">
             <div class="section-title">
@@ -200,6 +204,87 @@ var AdminProfilePage = {
                     <div id="passwordStatus" style="font-size: 0.9rem; color: var(--gray-500);"></div>
                 </div>
             </div>
+            
+            <!-- ===== COORDINATOR MANAGEMENT (ONLY FOR COORDINATORS) ===== -->
+            ${isCoordinator ? `
+            <div style="
+                background: var(--bg-primary);
+                border: 1px solid var(--gray-100);
+                border-radius: var(--radius-xl);
+                padding: 32px;
+                margin-bottom: 24px;
+                box-shadow: var(--shadow-soft);
+            ">
+                <h4 style="
+                    font-weight: 600;
+                    color: var(--primary);
+                    margin-bottom: 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    border-bottom: 1px solid var(--gray-100);
+                    padding-bottom: 12px;
+                ">
+                    <i class="fas fa-users-cog" style="color: var(--secondary);"></i>
+                    Coordinator Management
+                    <span style="font-size: 0.8rem; font-weight: 400; color: var(--gray-500);">add or remove coordinators</span>
+                </h4>
+                
+                <!-- Add Coordinator -->
+                <div style="
+                    background: var(--bg-secondary);
+                    border-radius: var(--radius-lg);
+                    padding: 16px 20px;
+                    margin-bottom: 16px;
+                ">
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                        <input type="email" id="newAdminEmail" placeholder="New coordinator email..." style="
+                            flex: 1;
+                            min-width: 200px;
+                            padding: 10px 16px;
+                            border: 2px solid var(--gray-100);
+                            border-radius: var(--radius-md);
+                            font-size: 0.95rem;
+                            transition: all 0.2s ease;
+                            font-family: var(--font-sans);
+                        ">
+                        <input type="text" id="newAdminName" placeholder="Full name..." style="
+                            flex: 1;
+                            min-width: 150px;
+                            padding: 10px 16px;
+                            border: 2px solid var(--gray-100);
+                            border-radius: var(--radius-md);
+                            font-size: 0.95rem;
+                            transition: all 0.2s ease;
+                            font-family: var(--font-sans);
+                        ">
+                        <button class="btn-primary" id="addAdminBtn" style="
+                            padding: 10px 24px;
+                            background: var(--secondary);
+                            white-space: nowrap;
+                        ">
+                            <i class="fas fa-user-plus"></i> Add Coordinator
+                        </button>
+                    </div>
+                    <div id="addAdminStatus" style="margin-top: 8px; font-size: 0.85rem; color: var(--gray-500);"></div>
+                </div>
+                
+                <!-- Coordinator List -->
+                <h5 style="
+                    font-weight: 600;
+                    color: var(--gray-700);
+                    margin-bottom: 12px;
+                    font-size: 0.9rem;
+                ">
+                    Current Coordinators
+                </h5>
+                <div id="adminList">
+                    <div style="text-align:center; padding: 20px; color: var(--gray-500);">
+                        <i class="fas fa-spinner fa-spin"></i> Loading coordinators...
+                    </div>
+                </div>
+            </div>
+            ` : ''}
         </div>`;
     },
 
@@ -219,6 +304,11 @@ var AdminProfilePage = {
             
             // Update Role Badge dynamically
             this.updateRoleBadge(currentUser);
+            
+            // Only load admins if the coordinator section exists
+            if (document.getElementById('adminList')) {
+                this.loadAdmins();
+            }
         }
     },
 
@@ -231,7 +321,6 @@ var AdminProfilePage = {
         var role = 'User';
         var icon = 'fas fa-user';
 
-        // Determine role based on email/role
         if (user.email === 'admin@csl.com' || user.role === 'coordinator' || user.role === 'admin') {
             role = 'Coordinator';
             icon = 'fas fa-crown';
@@ -245,7 +334,6 @@ var AdminProfilePage = {
             badgeContainer.style.borderColor = 'rgba(0, 210, 160, 0.15)';
             badgeContainer.style.background = 'linear-gradient(135deg, rgba(0, 210, 160, 0.08), rgba(0, 210, 160, 0.02))';
         } else {
-            // Default to Teacher
             role = 'Teacher';
             icon = 'fas fa-chalkboard-teacher';
             badge.style.background = 'var(--accent)';
@@ -254,6 +342,122 @@ var AdminProfilePage = {
         }
 
         badge.innerHTML = `<i class="${icon}"></i> ${role}`;
+    },
+
+    // ----- LOAD ADMINS (Coordinator Only) -----
+    loadAdmins: function() {
+        var container = document.getElementById('adminList');
+        if (!container) return; // If teacher/student, don't load
+        
+        var admins = JSON.parse(localStorage.getItem('admins') || '[]');
+        
+        if (admins.length === 0) {
+            admins = [
+                {
+                    id: 'admin-1',
+                    email: 'admin@csl.com',
+                    name: 'Club Coordinator',
+                    password: 'admin123',
+                    isPrimary: true
+                }
+            ];
+            localStorage.setItem('admins', JSON.stringify(admins));
+        }
+        
+        this.renderAdmins(admins);
+    },
+
+    // ----- RENDER ADMINS (Coordinator Only) -----
+    renderAdmins: function(admins) {
+        var container = document.getElementById('adminList');
+        if (!container) return;
+        
+        if (!admins || admins.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding: 20px; color: var(--gray-500);">
+                    <i class="fas fa-users" style="font-size: 2rem; display: block; margin-bottom: 8px; color: var(--secondary); opacity: 0.4;"></i>
+                    No coordinators found.
+                </div>
+            `;
+            return;
+        }
+        
+        var currentUser = window.Auth.getCurrentUser();
+        var currentEmail = currentUser ? currentUser.email : '';
+        
+        var html = '';
+        for (var i = 0; i < admins.length; i++) {
+            var admin = admins[i];
+            var isCurrentUser = admin.email === currentEmail;
+            
+            html += `
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid var(--gray-100);
+                    ${isCurrentUser ? 'background: rgba(201,168,76,0.04); border-radius: var(--radius-md);' : ''}
+                ">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            background: ${isCurrentUser ? 'var(--secondary)' : 'var(--accent)'};
+                            color: white;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: 700;
+                            font-size: 0.8rem;
+                            flex-shrink: 0;
+                        ">
+                            ${admin.name ? admin.name.charAt(0).toUpperCase() : 'A'}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--gray-900); font-size: 0.9rem;">
+                                ${admin.name || 'Coordinator'}
+                                ${admin.isPrimary ? '<span style="background: var(--secondary); color: white; padding: 1px 10px; border-radius: var(--radius-full); font-size: 0.6rem; font-weight: 700; margin-left: 8px;">PRIMARY</span>' : ''}
+                                ${isCurrentUser ? '<span style="background: var(--accent); color: white; padding: 1px 10px; border-radius: var(--radius-full); font-size: 0.6rem; font-weight: 700; margin-left: 8px;">YOU</span>' : ''}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--gray-500);">${admin.email}</div>
+                        </div>
+                    </div>
+                    ${!admin.isPrimary && !isCurrentUser ? `
+                        <button class="delete-btn remove-admin" data-id="${admin.id}" style="
+                            background: none;
+                            border: none;
+                            color: var(--gray-300);
+                            cursor: pointer;
+                            padding: 4px 8px;
+                            border-radius: var(--radius-sm);
+                            transition: all 0.2s ease;
+                            font-size: 0.9rem;
+                        ">
+                            <i class="fas fa-user-minus"></i>
+                        </button>
+                    ` : ''}
+                    ${isCurrentUser ? `
+                        <span style="font-size: 0.7rem; color: var(--gray-500);">
+                            <i class="fas fa-check-circle" style="color: var(--success);"></i> Active Session
+                        </span>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+        
+        // Remove admin handlers
+        document.querySelectorAll('.remove-admin').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var id = this.dataset.id;
+                if (confirm('Remove this coordinator?')) {
+                    self.removeAdmin(id);
+                }
+            });
+        });
     },
 
     // ----- UPDATE PROFILE NAME -----
@@ -270,7 +474,7 @@ var AdminProfilePage = {
         var currentUser = window.Auth.getCurrentUser();
         var currentEmail = currentUser ? currentUser.email : '';
         
-        // Update the mock/localStorage user (assuming you use a mock)
+        // Update the mock/localStorage user
         if (window.__firebase && window.__firebase.useMock) {
             var mockUser = JSON.parse(localStorage.getItem('mockUser') || '{}');
             mockUser.displayName = newName;
@@ -329,13 +533,12 @@ var AdminProfilePage = {
         var currentUser = window.Auth.getCurrentUser();
         var currentEmail = currentUser ? currentUser.email : '';
         
-        // Update password in stored admins/teachers/students (depending on your DB)
+        // Update password in stored admins
         var admins = JSON.parse(localStorage.getItem('admins') || '[]');
         var found = false;
         
         for (var i = 0; i < admins.length; i++) {
             if (admins[i].email === currentEmail) {
-                // Verify current password
                 if (admins[i].password !== currentPassword) {
                     statusEl.textContent = '❌ Current password is incorrect';
                     statusEl.style.color = 'var(--danger)';
@@ -398,6 +601,70 @@ var AdminProfilePage = {
         }, 3000);
     },
 
+    // ----- ADD ADMIN (Coordinator Only) -----
+    addAdmin: function() {
+        var email = document.getElementById('newAdminEmail').value.trim();
+        var name = document.getElementById('newAdminName').value.trim();
+        var statusEl = document.getElementById('addAdminStatus');
+        
+        if (!email) {
+            statusEl.textContent = '⚠️ Please enter an email address';
+            statusEl.style.color = 'var(--danger)';
+            return;
+        }
+        
+        if (!name) {
+            statusEl.textContent = '⚠️ Please enter a full name';
+            statusEl.style.color = 'var(--danger)';
+            return;
+        }
+        
+        // Check if admin already exists
+        var admins = JSON.parse(localStorage.getItem('admins') || '[]');
+        var exists = admins.some(function(a) { return a.email === email; });
+        
+        if (exists) {
+            statusEl.textContent = '⚠️ This coordinator already exists';
+            statusEl.style.color = 'var(--danger)';
+            return;
+        }
+        
+        // Add new admin with default password
+        var newAdmin = {
+            id: 'admin-' + Date.now(),
+            email: email,
+            name: name,
+            password: 'admin123',
+            isPrimary: false,
+            created: new Date().toISOString()
+        };
+        
+        admins.push(newAdmin);
+        localStorage.setItem('admins', JSON.stringify(admins));
+        
+        statusEl.textContent = '✅ Coordinator added successfully!';
+        statusEl.style.color = 'var(--success)';
+        
+        // Clear fields
+        document.getElementById('newAdminEmail').value = '';
+        document.getElementById('newAdminName').value = '';
+        
+        // Reload admin list
+        this.loadAdmins();
+        
+        setTimeout(function() {
+            statusEl.textContent = '';
+        }, 3000);
+    },
+
+    // ----- REMOVE ADMIN (Coordinator Only) -----
+    removeAdmin: function(adminId) {
+        var admins = JSON.parse(localStorage.getItem('admins') || '[]');
+        admins = admins.filter(function(a) { return a.id !== adminId; });
+        localStorage.setItem('admins', JSON.stringify(admins));
+        this.loadAdmins();
+    },
+
     // ----- SETUP EVENTS -----
     setupEvents: function() {
         console.log("🔧 Setting up profile events...");
@@ -419,6 +686,14 @@ var AdminProfilePage = {
             });
         }
         
+        // Add Admin (Coordinator Only)
+        var addBtn = document.getElementById('addAdminBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                self.addAdmin();
+            });
+        }
+        
         // Enter key support for password fields
         var fields = ['currentPassword', 'newPassword', 'confirmPassword'];
         fields.forEach(function(id) {
@@ -432,6 +707,28 @@ var AdminProfilePage = {
                 });
             }
         });
+        
+        // Enter key support for add admin
+        var emailInput = document.getElementById('newAdminEmail');
+        var nameInput = document.getElementById('newAdminName');
+        
+        if (emailInput) {
+            emailInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    var btn = document.getElementById('addAdminBtn');
+                    if (btn) btn.click();
+                }
+            });
+        }
+        
+        if (nameInput) {
+            nameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    var btn = document.getElementById('addAdminBtn');
+                    if (btn) btn.click();
+                }
+            });
+        }
         
         // Load data
         this.loadData();
