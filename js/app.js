@@ -127,7 +127,7 @@ var App = {
         }
     },
     
-    setupNavigation: function() {
+       setupNavigation: function() {
         console.log("🔧 Setting up navigation...");
         var self = this;
         
@@ -144,6 +144,15 @@ var App = {
             })(tabs[i]);
         }
         
+        // === ADDED: Profile button (Works for Teachers and Coordinators) ===
+        var profileBtn = document.getElementById('profileBtn');
+        if (profileBtn) {
+            profileBtn.addEventListener('click', function() {
+                console.log("👤 Navigating to profile...");
+                self.navigateTo('adminprofile');
+            });
+        }
+
         var logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', function() {
