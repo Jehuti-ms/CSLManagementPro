@@ -1,5 +1,5 @@
 // ============================================================
-// LOGIN PAGE - Unified Login (Teacher & Coordinator)
+// LOGIN PAGE - Unified Login (Teacher, Coordinator, & Student)
 // ============================================================
 
 var LoginPage = {
@@ -32,11 +32,11 @@ var LoginPage = {
                 <h2>Welcome Back</h2>
                 <p class="subtitle">Sign in to manage your service clubs</p>
                 
-                <!-- ===== ROLE SELECTOR ===== -->
+                <!-- ===== ROLE SELECTOR (3 Tabs) ===== -->
                 <div style="
                     display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 8px;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 4px;
                     background: var(--bg-secondary);
                     border-radius: var(--radius-md);
                     padding: 4px;
@@ -52,10 +52,10 @@ var LoginPage = {
                         cursor: pointer;
                         transition: all 0.2s ease;
                         font-family: var(--font-sans);
-                        font-size: 0.85rem;
+                        font-size: 0.8rem;
                         box-shadow: var(--shadow-soft);
                     ">
-                        <i class="fas fa-user"></i> Teacher
+                        <i class="fas fa-chalkboard-teacher"></i> Teacher
                     </button>
                     <button id="loginRoleCoordinator" class="role-selector" style="
                         padding: 10px;
@@ -67,9 +67,23 @@ var LoginPage = {
                         cursor: pointer;
                         transition: all 0.2s ease;
                         font-family: var(--font-sans);
-                        font-size: 0.85rem;
+                        font-size: 0.8rem;
                     ">
-                        <i class="fas fa-crown"></i> Coordinator
+                        <i class="fas fa-crown"></i> Coord
+                    </button>
+                    <button id="loginRoleStudent" class="role-selector" style="
+                        padding: 10px;
+                        border: none;
+                        border-radius: var(--radius-sm);
+                        background: transparent;
+                        color: var(--gray-500);
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        font-family: var(--font-sans);
+                        font-size: 0.8rem;
+                    ">
+                        <i class="fas fa-user-graduate"></i> Student
                     </button>
                 </div>
                 
@@ -77,7 +91,7 @@ var LoginPage = {
                 <div id="loginForm">
                     <div class="input-group">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" id="loginEmail" placeholder="Email address" value="dmoseley@gams.edu.bb">
+                        <input type="email" id="loginEmail" placeholder="School email address" value="teacher@demo.com">
                     </div>
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
@@ -98,6 +112,22 @@ var LoginPage = {
                     ">
                         <i class="fas fa-info-circle" style="color: var(--secondary);"></i>
                         Coordinator login: admin@csl.com / admin123
+                    </div>
+
+                    <!-- Student Hint -->
+                    <div id="studentHint" style="
+                        display: none;
+                        padding: 8px 12px;
+                        background: rgba(0, 210, 160, 0.08);
+                        border: 1px solid rgba(0, 210, 160, 0.15);
+                        border-radius: var(--radius-sm);
+                        margin-bottom: 16px;
+                        font-size: 0.8rem;
+                        color: var(--gray-600);
+                        text-align: center;
+                    ">
+                        <i class="fas fa-info-circle" style="color: var(--success);"></i>
+                        Students: Use your school email. Password: welcome123
                     </div>
                     
                     <button id="loginBtn" class="btn-primary">
@@ -141,13 +171,12 @@ var LoginPage = {
                     Sign in with Google
                 </button>
                 
-                <div class="login-footer">
-                    Don't have an account? 
-                    <a id="showRegisterBtn">Create one</a>
+                <div class="login-footer" style="margin-top: 16px; font-size: 0.85rem; color: var(--gray-500); text-align: center;">
+                    Accounts are created by your Club Coordinator.
                 </div>
                 
-                <div class="demo-info">
-                    <i class="fas fa-info-circle"></i> Demo: teacher@demo.com / 123456
+                <div class="demo-info" style="margin-top: 8px;">
+                    <i class="fas fa-info-circle"></i> Demo Teachers: teacher@demo.com / 123456
                 </div>
             </div>
         </div>`;
@@ -160,41 +189,46 @@ var LoginPage = {
         
         var teacherBtn = document.getElementById('loginRoleTeacher');
         var coordinatorBtn = document.getElementById('loginRoleCoordinator');
+        var studentBtn = document.getElementById('loginRoleStudent');
         var coordinatorHint = document.getElementById('coordinatorHint');
+        var studentHint = document.getElementById('studentHint');
         var loginBtn = document.getElementById('loginBtn');
         var googleBtn = document.getElementById('googleLoginBtn');
         var loginError = document.getElementById('loginError');
         
+        // Helper to reset buttons
+        var resetButtons = function() {
+            var buttons = document.querySelectorAll('.role-selector');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].style.background = 'transparent';
+                buttons[i].style.color = 'var(--gray-500)';
+                buttons[i].style.boxShadow = 'none';
+            }
+            coordinatorHint.style.display = 'none';
+            studentHint.style.display = 'none';
+        };
+        
         // ===== ROLE SELECTOR =====
-        if (teacherBtn && coordinatorBtn) {
+        if (teacherBtn && coordinatorBtn && studentBtn) {
             teacherBtn.addEventListener('click', function() {
                 console.log("🔄 Switching to Teacher role");
-                document.querySelectorAll('.role-selector').forEach(function(b) {
-                    b.style.background = 'transparent';
-                    b.style.color = 'var(--gray-500)';
-                    b.style.boxShadow = 'none';
-                });
+                resetButtons();
                 this.style.background = 'var(--bg-primary)';
                 this.style.color = 'var(--primary)';
                 this.style.boxShadow = 'var(--shadow-soft)';
                 
-                coordinatorHint.style.display = 'none';
-                loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Sign in as Teacher';
+                loginBtn.innerHTML = '<i class="fas fa-chalkboard-teacher"></i> Sign in as Teacher';
                 if (googleBtn) googleBtn.style.display = 'flex';
                 
-                document.getElementById('loginEmail').placeholder = 'Teacher email address';
-                document.getElementById('loginEmail').value = 'dmoseley@gams.edu.bb';
+                document.getElementById('loginEmail').placeholder = 'Teacher school email';
+                document.getElementById('loginEmail').value = 'teacher@demo.com';
                 document.getElementById('loginPassword').value = '';
                 if (loginError) loginError.textContent = '';
             });
             
             coordinatorBtn.addEventListener('click', function() {
                 console.log("🔄 Switching to Coordinator role");
-                document.querySelectorAll('.role-selector').forEach(function(b) {
-                    b.style.background = 'transparent';
-                    b.style.color = 'var(--gray-500)';
-                    b.style.boxShadow = 'none';
-                });
+                resetButtons();
                 this.style.background = 'var(--bg-primary)';
                 this.style.color = 'var(--secondary)';
                 this.style.boxShadow = 'var(--shadow-soft)';
@@ -203,8 +237,25 @@ var LoginPage = {
                 loginBtn.innerHTML = '<i class="fas fa-crown"></i> Sign in as Coordinator';
                 if (googleBtn) googleBtn.style.display = 'none';
                 
-                document.getElementById('loginEmail').placeholder = 'Coordinator email address';
+                document.getElementById('loginEmail').placeholder = 'Coordinator email';
                 document.getElementById('loginEmail').value = 'admin@csl.com';
+                document.getElementById('loginPassword').value = '';
+                if (loginError) loginError.textContent = '';
+            });
+            
+            studentBtn.addEventListener('click', function() {
+                console.log("🔄 Switching to Student role");
+                resetButtons();
+                this.style.background = 'var(--bg-primary)';
+                this.style.color = 'var(--success)';
+                this.style.boxShadow = 'var(--shadow-soft)';
+                
+                studentHint.style.display = 'block';
+                loginBtn.innerHTML = '<i class="fas fa-user-graduate"></i> Sign in as Student';
+                if (googleBtn) googleBtn.style.display = 'none';
+                
+                document.getElementById('loginEmail').placeholder = 'Student school email';
+                document.getElementById('loginEmail').value = 'student@demo.com';
                 document.getElementById('loginPassword').value = '';
                 if (loginError) loginError.textContent = '';
             });
@@ -220,10 +271,10 @@ var LoginPage = {
                 console.log("🔐 Login attempt with email:", email);
                 
                 // Check which role is selected
-                var isCoordinator = coordinatorBtn && coordinatorBtn.style.background !== 'transparent' && 
-                                   coordinatorBtn.style.color === 'var(--secondary)';
+                var isCoordinator = coordinatorBtn && coordinatorBtn.style.color === 'var(--secondary)';
+                var isStudent = studentBtn && studentBtn.style.color === 'var(--success)';
                 
-                console.log("📌 Role selected:", isCoordinator ? 'Coordinator' : 'Teacher');
+                console.log("📌 Role selected:", isCoordinator ? 'Coordinator' : (isStudent ? 'Student' : 'Teacher'));
                 
                 if (!email || !password) {
                     errorEl.textContent = '⚠️ Please enter both email and password';
@@ -233,14 +284,12 @@ var LoginPage = {
                 try {
                     errorEl.textContent = '⏳ Logging in...';
                     
+                    // ================= COORDINATOR LOGIN =================
                     if (isCoordinator) {
-                        // Coordinator login
                         console.log("🔑 Attempting Coordinator login...");
                         var admins = JSON.parse(localStorage.getItem('admins') || '[]');
-                        console.log("📋 Admins found:", admins.length);
                         
                         var admin = admins.find(function(a) { return a.email === email; });
-                        console.log("👤 Admin found:", admin ? admin.email : 'No admin found');
                         
                         if (admin && admin.password === password) {
                             console.log("✅ Coordinator login successful!");
@@ -262,13 +311,73 @@ var LoginPage = {
                             errorEl.textContent = '❌ Invalid coordinator credentials. Please try again.';
                             return;
                         }
-                    } else {
-                        // Teacher login
+                    }
+                    
+                    // ================= STUDENT LOGIN =================
+                    else if (isStudent) {
+                        console.log("🔑 Attempting Student login...");
+                        var students = JSON.parse(localStorage.getItem('students') || '[]');
+                        
+                        var student = students.find(function(s) { return s.email === email; });
+                        
+                        if (student && student.password === password) {
+                            console.log("✅ Student login successful!");
+                            var user = {
+                                email: email,
+                                uid: 'student-' + Date.now(),
+                                displayName: student.name || 'Student',
+                                userType: 'student',
+                                isAdmin: false
+                            };
+                            sessionStorage.setItem('mockUser', JSON.stringify(user));
+                            localStorage.setItem('mockUser', JSON.stringify(user));
+                            errorEl.textContent = '';
+                            window.app.currentUser = user;
+                            window.app.showMainApp(user); 
+                            return;
+                        } else {
+                            console.log("❌ Student login failed - invalid credentials");
+                            errorEl.textContent = '❌ Invalid student credentials. Ask your coordinator for your account.';
+                            return;
+                        }
+                    }
+                    
+                    // ================= TEACHER LOGIN =================
+                    else {
                         console.log("🔑 Attempting Teacher login...");
-                        var user = await window.Auth.login(email, password);
-                        console.log("✅ Teacher login successful!");
-                        errorEl.textContent = '';
-                        window.app.showMainApp(user);
+                        // Try Firebase first
+                        try {
+                            var user = await window.Auth.login(email, password);
+                            console.log("✅ Teacher login successful!");
+                            errorEl.textContent = '';
+                            window.app.showMainApp(user);
+                            return;
+                        } catch (firebaseError) {
+                            // Fall back to localStorage 'teachers' list
+                            var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+                            var teacher = teachers.find(function(t) { return t.email === email && t.password === password; });
+                            
+                            if (teacher) {
+                                console.log("✅ Local Teacher login successful!");
+                                var localUser = {
+                                    email: email,
+                                    uid: 'teacher-' + Date.now(),
+                                    displayName: teacher.name || 'Teacher',
+                                    userType: 'teacher',
+                                    isAdmin: false
+                                };
+                                sessionStorage.setItem('mockUser', JSON.stringify(localUser));
+                                localStorage.setItem('mockUser', JSON.stringify(localUser));
+                                errorEl.textContent = '';
+                                window.app.currentUser = localUser;
+                                window.app.showMainApp(localUser);
+                                return;
+                            }
+                            
+                            // If no teacher found locally
+                            console.log("❌ Teacher login failed");
+                            errorEl.textContent = '❌ Invalid teacher credentials. Ask your coordinator for your account.';
+                        }
                     }
                 } catch (error) {
                     console.error("❌ Login error:", error);
@@ -290,15 +399,6 @@ var LoginPage = {
                     console.error("❌ Google login error:", error);
                     errorEl.textContent = '❌ ' + error.message;
                 }
-            });
-        }
-        
-        // ===== REGISTER LINK =====
-        var registerBtn = document.getElementById('showRegisterBtn');
-        if (registerBtn) {
-            registerBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                alert('Registration is currently by invitation only. Please contact your club coordinator.');
             });
         }
         
