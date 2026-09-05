@@ -1,14 +1,12 @@
 // ============================================================
-// LOGIN PAGE - Unified Login (Teacher, Coordinator, & Student)
+// LOGIN PAGE - PRODUCTION VERSION (Uses REAL Firebase Auth ONLY)
 // ============================================================
 
 var LoginPage = {
-    // ----- RENDER HTML -----
     render: function() {
         return `
         <div id="loginPage" class="page active-page">
             <div class="login-card" style="position: relative;">
-                <!-- Close Button -->
                 <button onclick="window.app.closeLogin()" style="
                     position: absolute;
                     top: 16px;
@@ -91,43 +89,11 @@ var LoginPage = {
                 <div id="loginForm">
                     <div class="input-group">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" id="loginEmail" placeholder="School email address" value="teacher@demo.com">
+                        <input type="email" id="loginEmail" placeholder="School email address">
                     </div>
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="Password" value="">
-                    </div>
-                    
-                    <!-- Coordinator Hint -->
-                    <div id="coordinatorHint" style="
-                        display: none;
-                        padding: 8px 12px;
-                        background: rgba(201,168,76,0.08);
-                        border: 1px solid rgba(201,168,76,0.15);
-                        border-radius: var(--radius-sm);
-                        margin-bottom: 16px;
-                        font-size: 0.8rem;
-                        color: var(--gray-600);
-                        text-align: center;
-                    ">
-                        <i class="fas fa-info-circle" style="color: var(--secondary);"></i>
-                        Coordinator login: admin@csl.com / admin123
-                    </div>
-
-                    <!-- Student Hint -->
-                    <div id="studentHint" style="
-                        display: none;
-                        padding: 8px 12px;
-                        background: rgba(0, 210, 160, 0.08);
-                        border: 1px solid rgba(0, 210, 160, 0.15);
-                        border-radius: var(--radius-sm);
-                        margin-bottom: 16px;
-                        font-size: 0.8rem;
-                        color: var(--gray-600);
-                        text-align: center;
-                    ">
-                        <i class="fas fa-info-circle" style="color: var(--success);"></i>
-                        Students: Use your school email. Password: welcome123
+                        <input type="password" id="loginPassword" placeholder="Password">
                     </div>
                     
                     <button id="loginBtn" class="btn-primary">
@@ -137,7 +103,6 @@ var LoginPage = {
                 
                 <div id="loginError" class="login-error"></div>
                 
-                <!-- ===== DIVIDER ===== -->
                 <div class="divider">
                     <hr>
                     <span>OR</span>
@@ -172,17 +137,12 @@ var LoginPage = {
                 </button>
                 
                 <div class="login-footer" style="margin-top: 16px; font-size: 0.85rem; color: var(--gray-500); text-align: center;">
-                    Accounts are created by your Club Coordinator.
-                </div>
-                
-                <div class="demo-info" style="margin-top: 8px;">
-                    <i class="fas fa-info-circle"></i> Demo Teachers: teacher@demo.com / 123456
+                    Accounts are managed by your administrator.
                 </div>
             </div>
         </div>`;
     },
     
-    // ----- SETUP EVENTS -----
     setupEvents: function() {
         console.log("🔧 Setting up login events...");
         var self = this;
@@ -190,91 +150,61 @@ var LoginPage = {
         var teacherBtn = document.getElementById('loginRoleTeacher');
         var coordinatorBtn = document.getElementById('loginRoleCoordinator');
         var studentBtn = document.getElementById('loginRoleStudent');
-        var coordinatorHint = document.getElementById('coordinatorHint');
-        var studentHint = document.getElementById('studentHint');
         var loginBtn = document.getElementById('loginBtn');
         var googleBtn = document.getElementById('googleLoginBtn');
         var loginError = document.getElementById('loginError');
         
-        // Helper to reset buttons
-        var resetButtons = function() {
-            var buttons = document.querySelectorAll('.role-selector');
-            for (var i = 0; i < buttons.length; i++) {
-                buttons[i].style.background = 'transparent';
-                buttons[i].style.color = 'var(--gray-500)';
-                buttons[i].style.boxShadow = 'none';
-            }
-            coordinatorHint.style.display = 'none';
-            studentHint.style.display = 'none';
-        };
-        
         // ===== ROLE SELECTOR =====
         if (teacherBtn && coordinatorBtn && studentBtn) {
             teacherBtn.addEventListener('click', function() {
-                console.log("🔄 Switching to Teacher role");
-                resetButtons();
+                document.querySelectorAll('.role-selector').forEach(function(b) {
+                    b.style.background = 'transparent';
+                    b.style.color = 'var(--gray-500)';
+                    b.style.boxShadow = 'none';
+                });
                 this.style.background = 'var(--bg-primary)';
                 this.style.color = 'var(--primary)';
                 this.style.boxShadow = 'var(--shadow-soft)';
-                
                 loginBtn.innerHTML = '<i class="fas fa-chalkboard-teacher"></i> Sign in as Teacher';
-                if (googleBtn) googleBtn.style.display = 'flex'; // SHOW GOOGLE BUTTON
-                
-                document.getElementById('loginEmail').placeholder = 'Teacher school email';
-                document.getElementById('loginEmail').value = 'teacher@demo.com';
-                document.getElementById('loginPassword').value = '';
+                if (googleBtn) googleBtn.style.display = 'flex';
                 if (loginError) loginError.textContent = '';
             });
             
             coordinatorBtn.addEventListener('click', function() {
-                console.log("🔄 Switching to Coordinator role");
-                resetButtons();
+                document.querySelectorAll('.role-selector').forEach(function(b) {
+                    b.style.background = 'transparent';
+                    b.style.color = 'var(--gray-500)';
+                    b.style.boxShadow = 'none';
+                });
                 this.style.background = 'var(--bg-primary)';
                 this.style.color = 'var(--secondary)';
                 this.style.boxShadow = 'var(--shadow-soft)';
-                
-                coordinatorHint.style.display = 'block';
                 loginBtn.innerHTML = '<i class="fas fa-crown"></i> Sign in as Coordinator';
-                if (googleBtn) googleBtn.style.display = 'flex'; // SHOW GOOGLE BUTTON (Coordinator is a teacher)
-                
-                document.getElementById('loginEmail').placeholder = 'Coordinator email';
-                document.getElementById('loginEmail').value = 'admin@csl.com';
-                document.getElementById('loginPassword').value = '';
+                if (googleBtn) googleBtn.style.display = 'flex';
                 if (loginError) loginError.textContent = '';
             });
             
             studentBtn.addEventListener('click', function() {
-                console.log("🔄 Switching to Student role");
-                resetButtons();
+                document.querySelectorAll('.role-selector').forEach(function(b) {
+                    b.style.background = 'transparent';
+                    b.style.color = 'var(--gray-500)';
+                    b.style.boxShadow = 'none';
+                });
                 this.style.background = 'var(--bg-primary)';
                 this.style.color = 'var(--success)';
                 this.style.boxShadow = 'var(--shadow-soft)';
-                
-                studentHint.style.display = 'block';
                 loginBtn.innerHTML = '<i class="fas fa-user-graduate"></i> Sign in as Student';
-                if (googleBtn) googleBtn.style.display = 'none'; // HIDE GOOGLE BUTTON
-                
-                document.getElementById('loginEmail').placeholder = 'Student school email';
-                document.getElementById('loginEmail').value = 'student@demo.com';
-                document.getElementById('loginPassword').value = '';
+                if (googleBtn) googleBtn.style.display = 'none';
                 if (loginError) loginError.textContent = '';
             });
         }
         
-        // ===== LOGIN BUTTON =====
+        // ===== REAL FIREBASE LOGIN BUTTON =====
         if (loginBtn) {
             loginBtn.addEventListener('click', async function() {
                 var email = document.getElementById('loginEmail').value.trim();
                 var password = document.getElementById('loginPassword').value;
                 var errorEl = document.getElementById('loginError');
-                
-                console.log("🔐 Login attempt with email:", email);
-                
-                // Check which role is selected
-                var isCoordinator = coordinatorBtn && coordinatorBtn.style.color === 'var(--secondary)';
-                var isStudent = studentBtn && studentBtn.style.color === 'var(--success)';
-                
-                console.log("📌 Role selected:", isCoordinator ? 'Coordinator' : (isStudent ? 'Student' : 'Teacher'));
                 
                 if (!email || !password) {
                     errorEl.textContent = '⚠️ Please enter both email and password';
@@ -284,117 +214,44 @@ var LoginPage = {
                 try {
                     errorEl.textContent = '⏳ Logging in...';
                     
-                    // ================= COORDINATOR LOGIN =================
-                    if (isCoordinator) {
-                        console.log("🔑 Attempting Coordinator login...");
-                        var admins = JSON.parse(localStorage.getItem('admins') || '[]');
-                        
-                        var admin = admins.find(function(a) { return a.email === email; });
-                        
-                        if (admin && admin.password === password) {
-                            console.log("✅ Coordinator login successful!");
-                            var user = {
-                                email: email,
-                                uid: 'admin-' + Date.now(),
-                                displayName: admin.name || 'Club Coordinator',
-                                userType: 'coordinator',
-                                isAdmin: true
-                            };
-                            sessionStorage.setItem('mockUser', JSON.stringify(user));
-                            localStorage.setItem('mockUser', JSON.stringify(user));
-                            errorEl.textContent = '';
-                            window.app.currentUser = user;
-                            window.app.showMainApp(user);
-                            return;
-                        } else {
-                            console.log("❌ Coordinator login failed - invalid credentials");
-                            errorEl.textContent = '❌ Invalid coordinator credentials. Please try again.';
-                            return;
-                        }
+                    // USE REAL FIREBASE AUTH HERE
+                    var user = await window.Auth.login(email, password);
+                    
+                    // Determine role based on the email
+                    var userRole = 'teacher';
+                    if (email === 'admin@csl.com' || user.role === 'coordinator' || user.role === 'admin') {
+                        userRole = 'coordinator';
+                    } else if (user.role === 'student') {
+                        userRole = 'student';
                     }
                     
-                    // ================= STUDENT LOGIN =================
-                    else if (isStudent) {
-                        console.log("🔑 Attempting Student login...");
-                        var students = JSON.parse(localStorage.getItem('students') || '[]');
-                        
-                        var student = students.find(function(s) { return s.email === email; });
-                        
-                        if (student && student.password === password) {
-                            console.log("✅ Student login successful!");
-                            var user = {
-                                email: email,
-                                uid: 'student-' + Date.now(),
-                                displayName: student.name || 'Student',
-                                userType: 'student',
-                                isAdmin: false
-                            };
-                            sessionStorage.setItem('mockUser', JSON.stringify(user));
-                            localStorage.setItem('mockUser', JSON.stringify(user));
-                            errorEl.textContent = '';
-                            window.app.currentUser = user;
-                            window.app.showMainApp(user); 
-                            return;
-                        } else {
-                            console.log("❌ Student login failed - invalid credentials");
-                            errorEl.textContent = '❌ Invalid student credentials. Ask your coordinator for your account.';
-                            return;
-                        }
-                    }
+                    // Update user object with role
+                    user.userType = userRole;
+                    user.isAdmin = (userRole === 'coordinator');
+
+                    // Actually update currentUser in app.js
+                    window.app.currentUser = user;
+                    window.app.showMainApp(user);
                     
-                    // ================= TEACHER LOGIN =================
-                    else {
-                        console.log("🔑 Attempting Teacher login...");
-                        // Try Firebase first
-                        try {
-                            var user = await window.Auth.login(email, password);
-                            console.log("✅ Teacher login successful!");
-                            errorEl.textContent = '';
-                            window.app.showMainApp(user);
-                            return;
-                        } catch (firebaseError) {
-                            // Fall back to localStorage 'teachers' list
-                            var teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
-                            var teacher = teachers.find(function(t) { return t.email === email && t.password === password; });
-                            
-                            if (teacher) {
-                                console.log("✅ Local Teacher login successful!");
-                                var localUser = {
-                                    email: email,
-                                    uid: 'teacher-' + Date.now(),
-                                    displayName: teacher.name || 'Teacher',
-                                    userType: 'teacher',
-                                    isAdmin: false
-                                };
-                                sessionStorage.setItem('mockUser', JSON.stringify(localUser));
-                                localStorage.setItem('mockUser', JSON.stringify(localUser));
-                                errorEl.textContent = '';
-                                window.app.currentUser = localUser;
-                                window.app.showMainApp(localUser);
-                                return;
-                            }
-                            
-                            // If no teacher found locally
-                            console.log("❌ Teacher login failed");
-                            errorEl.textContent = '❌ Invalid teacher credentials. Ask your coordinator for your account.';
-                        }
-                    }
+                    errorEl.textContent = '';
+                    
                 } catch (error) {
                     console.error("❌ Login error:", error);
-                    errorEl.textContent = '❌ ' + error.message;
+                    errorEl.textContent = '❌ Invalid credentials or user not found. Please ask your coordinator.';
                 }
             });
         }
         
-        // ===== GOOGLE SIGN-IN (Restored) =====
+        // ===== REAL FIREBASE GOOGLE LOGIN =====
         if (googleBtn) {
             googleBtn.addEventListener('click', async function() {
                 var errorEl = document.getElementById('loginError');
                 try {
                     errorEl.textContent = '⏳ Signing in with Google...';
                     var user = await window.Auth.loginWithGoogle();
-                    errorEl.textContent = '';
+                    window.app.currentUser = user;
                     window.app.showMainApp(user);
+                    errorEl.textContent = '';
                 } catch (error) {
                     console.error("❌ Google login error:", error);
                     errorEl.textContent = '❌ ' + error.message;
@@ -406,25 +263,13 @@ var LoginPage = {
         var emailInput = document.getElementById('loginEmail');
         var passwordInput = document.getElementById('loginPassword');
         
-        if (emailInput) {
-            emailInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    var btn = document.getElementById('loginBtn');
-                    if (btn) btn.click();
-                }
-            });
-        }
+        if (emailInput) emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
         
-        if (passwordInput) {
-            passwordInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    var btn = document.getElementById('loginBtn');
-                    if (btn) btn.click();
-                }
-            });
-        }
-        
-        console.log("✅ Login events ready");
+        if (passwordInput) passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
     }
 };
 
